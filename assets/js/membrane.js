@@ -38,9 +38,57 @@
     els.forEach(function (el) { io.observe(el); });
   }
 
+  // ---- Lightbox: click any screenshot to view it full-size -----------------
+  function initLightbox() {
+    var lb = document.getElementById("lightbox");
+    if (!lb) return;
+    var lbImg = lb.querySelector("img");
+    var lastFocus = null;
+
+    function visibleImg(frame) {
+      var imgs = frame.querySelectorAll("img");
+      for (var i = 0; i < imgs.length; i++) {
+        if (imgs[i].offsetParent !== null) return imgs[i]; // the variant actually displayed
+      }
+      return imgs[0] || null;
+    }
+    function open(img) {
+      lbImg.src = img.currentSrc || img.src;
+      lbImg.alt = img.alt || "";
+      lb.classList.add("is-open");
+      lb.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+      lastFocus = document.activeElement;
+      var btn = lb.querySelector(".lightbox__close");
+      if (btn) btn.focus();
+    }
+    function close() {
+      lb.classList.remove("is-open");
+      lb.setAttribute("aria-hidden", "true");
+      document.body.style.overflow = "";
+      lbImg.removeAttribute("src");
+      if (lastFocus && lastFocus.focus) lastFocus.focus();
+    }
+
+    document.addEventListener("click", function (e) {
+      if (!e.target || !e.target.closest) return;
+      var frame = e.target.closest(".device__frame");
+      if (frame && !lb.contains(frame)) {
+        var img = visibleImg(frame);
+        if (img) { e.preventDefault(); open(img); }
+        return;
+      }
+      if (e.target.closest(".lightbox")) close(); // background, image, or × button
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && lb.classList.contains("is-open")) close();
+    });
+  }
+
   // ---- Wire up -------------------------------------------------------------
   document.addEventListener("DOMContentLoaded", function () {
     initReveal();
+    initLightbox();
     var t = document.querySelector("[data-theme-toggle]");
     if (t) t.addEventListener("click", toggleTheme);
   });
