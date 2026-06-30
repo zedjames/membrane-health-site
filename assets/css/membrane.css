@@ -636,6 +636,12 @@ img { max-width: 100%; display: block; }
   display: block; margin-top: 9px; font-size: 0.78rem; letter-spacing: 0.04em;
   color: var(--parchment-dim);
 }
+.sci-footnote {
+  max-width: 66ch; margin: 30px auto 0; text-align: center;
+  font-size: 0.78rem; line-height: 1.6; color: var(--muted);
+}
+.sci-footnote em { font-style: italic; color: var(--parchment-dim); }
+.fn { color: var(--glow); font-weight: 600; }
 
 /* ---- Footer -------------------------------------------------------------- */
 .footer { border-top: 1px solid var(--line); padding-block: 46px; }
