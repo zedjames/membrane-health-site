@@ -1,0 +1,5 @@
+# Preview — discourage search-engine indexing for now.
+# To allow indexing later: change "Disallow: /" to "Allow: /" (or delete this file)
+# and remove the <meta name="robots" content="noindex, nofollow"> tag from index.html.
+User-agent: *
+Disallow: /

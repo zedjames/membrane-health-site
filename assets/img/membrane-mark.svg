@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="Membrane Health">
+  <!-- Ported from MembraneMark (MembraneComponents.swift): a luminous boundary
+       ring, eight radial channels meeting an octagon of nodes around a center.
+       Geometry: ring r=34.4, spokes r=43.75, octagon r=21.9, on a 100×100 field. -->
+  <g fill="none" stroke="#ECC77E" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Boundary ring: a soft wide halo under a crisp gold line -->
+    <circle cx="50" cy="50" r="34.4" stroke="#ECC77E" stroke-opacity="0.16" stroke-width="6.25"/>
+    <circle cx="50" cy="50" r="34.4" stroke="#F2DCAB" stroke-width="2.5"/>
+
+    <!-- Eight radial channels (center → spoke ends) -->
+    <g stroke="#ECC77E" stroke-opacity="0.65" stroke-width="2.2">
+      <line x1="50" y1="50" x2="50"    y2="6.25"/>
+      <line x1="50" y1="50" x2="80.94" y2="19.06"/>
+      <line x1="50" y1="50" x2="93.75" y2="50"/>
+      <line x1="50" y1="50" x2="80.94" y2="80.94"/>
+      <line x1="50" y1="50" x2="50"    y2="93.75"/>
+      <line x1="50" y1="50" x2="19.06" y2="80.94"/>
+      <line x1="50" y1="50" x2="6.25"  y2="50"/>
+      <line x1="50" y1="50" x2="19.06" y2="19.06"/>
+    </g>
+
+    <!-- Octagon of nodes -->
+    <polygon points="50,28.1 65.49,34.51 71.9,50 65.49,65.49 50,71.9 34.51,65.49 28.1,50 34.51,34.51"
+             stroke="#ECC77E" stroke-opacity="0.65" stroke-width="2.2"/>
+  </g>
+
+  <!-- Nodes at each octagon vertex + the luminous center -->
+  <g fill="#F2DCAB">
+    <circle cx="50"    cy="28.1"  r="2.2"/>
+    <circle cx="65.49" cy="34.51" r="2.2"/>
+    <circle cx="71.9"  cy="50"    r="2.2"/>
+    <circle cx="65.49" cy="65.49" r="2.2"/>
+    <circle cx="50"    cy="71.9"  r="2.2"/>
+    <circle cx="34.51" cy="65.49" r="2.2"/>
+    <circle cx="28.1"  cy="50"    r="2.2"/>
+    <circle cx="34.51" cy="34.51" r="2.2"/>
+    <circle cx="50"    cy="50"    r="4.1"/>
+  </g>
+</svg>
