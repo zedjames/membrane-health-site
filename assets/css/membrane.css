@@ -497,6 +497,31 @@ img { max-width: 100%; display: block; }
 .plans__note { margin-top: 36px; font-size: 0.9rem; }
 .plans__note strong { color: var(--glow); font-weight: 500; }
 
+/* ---- The five modes ------------------------------------------------------ */
+.modes { max-width: 720px; margin: 0 auto; }
+.mode {
+  display: flex; gap: 16px; align-items: flex-start;
+  padding: 18px 22px; border: 1px solid var(--line); border-radius: 14px;
+  background: linear-gradient(to bottom, var(--surface-top), var(--surface-bottom));
+}
+.mode + .mode { margin-top: 12px; }
+.mode__dot {
+  flex: none; width: 12px; height: 12px; border-radius: 50%; margin-top: 7px;
+  background: var(--m, var(--glow)); box-shadow: 0 0 14px -1px var(--m, var(--glow));
+}
+.mode__name { font-family: var(--serif); font-weight: 400; font-size: 1.25rem; color: var(--parchment); margin: 0 0 5px; }
+.mode__body .subtle { margin: 0; }
+.mode--earned { border-color: rgba(102, 224, 237, 0.30); }
+.mode--peak {
+  border-color: rgba(236, 199, 126, 0.45);
+  box-shadow: 0 0 54px -24px rgba(236, 199, 126, 0.65);
+}
+.mode__tag {
+  font-family: var(--body); font-weight: 500; font-size: 0.58rem; letter-spacing: 0.16em;
+  text-transform: uppercase; color: #1B140A; background: var(--glow);
+  padding: 3px 9px; border-radius: 999px; vertical-align: 0.18em; margin-left: 9px;
+}
+
 /* ---- Get / CTA ----------------------------------------------------------- */
 .get { position: relative; overflow: hidden; text-align: center; }
 .get__glow { top: 0; opacity: 0.6; }
