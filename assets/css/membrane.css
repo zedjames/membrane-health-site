@@ -650,3 +650,5 @@ img { max-width: 100%; display: block; }
 .footer__tag { margin: 2px 0 0; }
 .footer__links { margin: 6px 0 0; font-size: 0.9rem; }
 .footer__legal { font-size: 0.78rem; max-width: 60ch; line-height: 1.6; margin: 6px 0 0; }
+.footer__company { font-size: 0.9rem; }
+.footer__copyright { font-size: 0.72rem; max-width: 62ch; line-height: 1.6; }
