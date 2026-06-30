@@ -472,6 +472,15 @@ img { max-width: 100%; display: block; }
 .get__inner { position: relative; z-index: 1; }
 .get__h { margin: 14px 0 8px; }
 .get__req { margin-top: 22px; font-size: 0.82rem; letter-spacing: 0.04em; }
+.release { margin-top: 32px; display: flex; justify-content: center; }
+.release__pill {
+  display: inline-flex; align-items: center; gap: 11px;
+  font-family: var(--body); font-weight: 500; font-size: 1.02rem;
+  color: var(--parchment); letter-spacing: 0.01em;
+  padding: 14px 26px; border-radius: 999px;
+  border: 1px solid var(--glow); background: rgba(236, 199, 126, 0.08);
+  box-shadow: 0 0 44px -16px rgba(236, 199, 126, 0.6);
+}
 
 /* ---- Why it's different (contrast cards) --------------------------------- */
 .diff { position: relative; }
