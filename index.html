@@ -583,6 +583,28 @@
       <div class="release reveal">
         <span class="release__pill"><span class="glow-dot"></span>Worldwide release · August&nbsp;8, 2026</span>
       </div>
+
+      <form class="waitlist reveal" id="waitlist"
+            action="https://buttondown.com/api/emails/embed-subscribe/barefootdoc"
+            method="post" target="_blank">
+        <p class="waitlist__lead">Be first through the door.</p>
+        <div class="waitlist__row">
+          <input class="waitlist__input" id="wl-email" type="email" name="email"
+                 placeholder="you@email.com" autocomplete="email" required
+                 aria-label="Your email address">
+          <button class="btn btn--primary" type="submit">Notify me at launch</button>
+        </div>
+        <!-- honeypot: a real person leaves this blank -->
+        <input class="waitlist__hp" type="text" name="hp_url" tabindex="-1" autocomplete="off" aria-hidden="true">
+        <input type="hidden" name="embed" value="1">
+        <p class="waitlist__note muted">One email when we open on Aug&nbsp;8 — no spam, and never shared. <a href="privacy.html">Privacy</a>.</p>
+      </form>
+
+      <div class="waitlist__done" id="waitlist-done" tabindex="-1" hidden>
+        <span class="glow-dot"></span>
+        <p>You're on the list. Check your inbox to confirm — we'll see you on launch day.</p>
+      </div>
+
       <p class="get__req muted reveal">For iPhone &amp; Apple&nbsp;Watch.</p>
     </div>
   </section>

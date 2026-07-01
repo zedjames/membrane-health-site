@@ -85,10 +85,53 @@
     });
   }
 
+  // ---- Waitlist: keyless subscribe to Buttondown, stay on the page ---------
+  function initWaitlist() {
+    var form = document.getElementById("waitlist");
+    if (!form) return;
+    var done = document.getElementById("waitlist-done");
+    var sent = false;
+
+    function showDone() {
+      form.hidden = true;
+      if (done) {
+        done.hidden = false;
+        if (done.focus) done.focus();
+      }
+    }
+
+    // The submit event only fires once the browser's own email validation passes.
+    form.addEventListener("submit", function (e) {
+      // Honeypot: if a bot filled the hidden field, silently "succeed" and send nothing.
+      var hp = form.querySelector(".waitlist__hp");
+      if (hp && hp.value) { e.preventDefault(); showDone(); return; }
+
+      e.preventDefault();
+      if (sent) return;
+      sent = true;
+
+      var btn = form.querySelector('button[type="submit"]');
+      if (btn) { btn.disabled = true; btn.textContent = "Adding you…"; }
+
+      var email = (form.querySelector("#wl-email") || {}).value || "";
+      var body = new URLSearchParams({ email: email, embed: "1" });
+
+      // no-cors: the response is opaque (we can't read it), but the subscribe
+      // registers and Buttondown sends its own double-opt-in confirmation —
+      // that email is the real confirmation, so optimistic success is honest.
+      fetch(form.action, {
+        method: "POST", mode: "no-cors",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: body
+      }).then(showDone, showDone);
+    });
+  }
+
   // ---- Wire up -------------------------------------------------------------
   document.addEventListener("DOMContentLoaded", function () {
     initReveal();
     initLightbox();
+    initWaitlist();
     var t = document.querySelector("[data-theme-toggle]");
     if (t) t.addEventListener("click", toggleTheme);
   });

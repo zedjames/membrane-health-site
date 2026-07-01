@@ -538,6 +538,48 @@ img { max-width: 100%; display: block; }
   box-shadow: 0 0 44px -16px rgba(236, 199, 126, 0.6);
 }
 
+/* ---- Waitlist / email capture -------------------------------------------- */
+.waitlist { max-width: 480px; margin: 32px auto 0; }
+.waitlist__lead {
+  font-family: var(--serif); font-style: italic; font-weight: 300;
+  color: var(--glow-soft); font-size: 1.16rem; margin: 0 0 14px;
+}
+.waitlist__row { display: flex; gap: 10px; }
+.waitlist__input {
+  flex: 1 1 auto; min-width: 0;
+  font-family: var(--body); font-size: 1rem; color: var(--parchment);
+  background: linear-gradient(to bottom, var(--surface-top), var(--surface-bottom));
+  border: 1px solid var(--line); border-radius: 999px; padding: 0.85em 1.35em;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.waitlist__input::placeholder { color: var(--muted); }
+.waitlist__input:focus {
+  outline: none; border-color: var(--glow);
+  box-shadow: 0 0 0 3px rgba(236, 199, 126, 0.14);
+}
+.waitlist__row .btn { flex: none; white-space: nowrap; }
+/* honeypot — offscreen; real visitors never fill it */
+.waitlist__hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; overflow: hidden; }
+.waitlist__note { margin: 14px 0 0; font-size: 0.8rem; }
+.waitlist__note a { color: var(--parchment-dim); }
+.waitlist__note a:hover { color: var(--glow); opacity: 1; }
+
+.waitlist__done {
+  max-width: 480px; margin: 32px auto 0;
+  display: flex; align-items: center; gap: 13px; justify-content: center;
+  padding: 18px 24px; border: 1px solid rgba(236, 199, 126, 0.4); border-radius: 16px;
+  background: rgba(236, 199, 126, 0.07);
+}
+.waitlist__done p { margin: 0; color: var(--parchment); font-size: 0.98rem; text-align: left; }
+@media (prefers-reduced-motion: no-preference) {
+  .waitlist__done:not([hidden]) { animation: faq-in 0.3s ease both; }
+}
+@media (max-width: 520px) {
+  .waitlist__row { flex-direction: column; }
+  .waitlist__row .btn { width: 100%; justify-content: center; }
+  .waitlist__input { text-align: center; }
+}
+
 /* ---- Why it's different (contrast cards) --------------------------------- */
 .diff { position: relative; }
 .diff__most {
