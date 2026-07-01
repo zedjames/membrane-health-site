@@ -703,6 +703,39 @@ img { max-width: 100%; display: block; }
   display: flex; gap: 24px; flex-wrap: wrap; font-size: 0.92rem;
 }
 
+/* ---- FAQ accordion (native <details>, no JS) ----------------------------- */
+.faq-group { margin: 0 0 clamp(30px, 4vw, 46px); }
+.faq-group > .eyebrow { margin-bottom: 4px; }
+.faq-item { border-top: 1px solid var(--line); }
+.faq-group .faq-item:last-child { border-bottom: 1px solid var(--line); }
+.faq-item > summary {
+  cursor: pointer; list-style: none; padding: 20px 0;
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 20px;
+  font-family: var(--serif); font-weight: 400; font-size: 1.14rem; color: var(--parchment);
+  transition: color 0.2s ease;
+}
+.faq-item > summary::-webkit-details-marker { display: none; }
+.faq-item > summary:hover { color: var(--glow); }
+.faq-item > summary::after {
+  content: "+"; flex: none; font-family: var(--body); font-weight: 400; font-size: 1.5rem;
+  line-height: 1; color: var(--glow); margin-top: 2px;
+}
+.faq-item[open] > summary::after { content: "\2013"; }  /* en dash */
+.faq-item__body { padding: 0 0 22px; max-width: 62ch; }
+.faq-item__body p { color: var(--parchment-dim); margin: 0 0 0.85em; }
+.faq-item__body p:last-child { margin-bottom: 0; }
+.faq-item__body a { color: var(--glow); }
+@media (prefers-reduced-motion: no-preference) {
+  .faq-item[open] .faq-item__body { animation: faq-in 0.28s ease both; }
+}
+@keyframes faq-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+
+/* ---- About page pillars -------------------------------------------------- */
+.about-pillars { margin: 1.4em 0 0.4em; }
+.about-pillars .card { padding: clamp(18px, 2.2vw, 24px); }
+.about-pillars .h-card { font-size: 1.14rem; margin-bottom: 6px; }
+.about-pillars .subtle { font-size: 0.95rem; margin: 0; }
+
 /* ---- Footer -------------------------------------------------------------- */
 .footer { border-top: 1px solid var(--line); padding-block: 46px; }
 .footer__links a { color: var(--parchment-dim); }
