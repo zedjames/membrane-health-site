@@ -86,10 +86,13 @@
   }
 
   // ---- Waitlist: keyless subscribe to Buttondown, stay on the page ---------
+  // Buttondown's subscribe endpoint requires a Cloudflare Turnstile token, so
+  // the form carries the Turnstile widget; we post the email + token together.
   function initWaitlist() {
     var form = document.getElementById("waitlist");
     if (!form) return;
     var done = document.getElementById("waitlist-done");
+    var hint = form.querySelector(".waitlist__hint");
     var sent = false;
 
     function showDone() {
@@ -99,6 +102,11 @@
         if (done.focus) done.focus();
       }
     }
+    function showHint(msg) {
+      if (!hint) return;
+      hint.textContent = msg;
+      hint.hidden = false;
+    }
 
     // The submit event only fires once the browser's own email validation passes.
     form.addEventListener("submit", function (e) {
@@ -106,19 +114,34 @@
       var hp = form.querySelector(".waitlist__hp");
       if (hp && hp.value) { e.preventDefault(); showDone(); return; }
 
+      var tokenInput = form.querySelector('[name="cf-turnstile-response"]');
+      var token = tokenInput ? tokenInput.value : "";
+
+      // If Turnstile never loaded (script blocked), fall back to a native POST —
+      // Buttondown then serves its own hosted challenge page.
+      if (!tokenInput && typeof window.turnstile === "undefined") return;
+
+      // Widget present but not solved yet: ask, don't submit.
+      if (!token) {
+        e.preventDefault();
+        showHint("One quick check to prove you're human, then tap the button again.");
+        return;
+      }
+
       e.preventDefault();
       if (sent) return;
       sent = true;
+      if (hint) hint.hidden = true;
 
       var btn = form.querySelector('button[type="submit"]');
       if (btn) { btn.disabled = true; btn.textContent = "Adding you…"; }
 
       var email = (form.querySelector("#wl-email") || {}).value || "";
-      var body = new URLSearchParams({ email: email, embed: "1" });
+      var body = new URLSearchParams({ email: email, "cf-turnstile-response": token });
 
-      // no-cors: the response is opaque (we can't read it), but the subscribe
-      // registers and Buttondown sends its own double-opt-in confirmation —
-      // that email is the real confirmation, so optimistic success is honest.
+      // no-cors: the response is opaque (we can't read it), but with a valid
+      // token the subscribe registers and Buttondown sends its own double-opt-in
+      // email — that's the real confirmation, so optimistic success is honest.
       fetch(form.action, {
         method: "POST", mode: "no-cors",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },

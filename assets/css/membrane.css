@@ -560,6 +560,10 @@ img { max-width: 100%; display: block; }
 .waitlist__row .btn { flex: none; white-space: nowrap; }
 /* honeypot — offscreen; real visitors never fill it */
 .waitlist__hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; overflow: hidden; }
+/* Cloudflare Turnstile widget */
+.waitlist__captcha { margin: 16px 0 0; display: flex; justify-content: center; min-height: 65px; }
+.waitlist__captcha:empty { min-height: 0; margin: 0; }
+.waitlist__hint { margin: 12px 0 0; font-size: 0.85rem; color: var(--status-ease); }
 .waitlist__note { margin: 14px 0 0; font-size: 0.8rem; }
 .waitlist__note a { color: var(--parchment-dim); }
 .waitlist__note a:hover { color: var(--glow); opacity: 1; }
