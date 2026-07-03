@@ -94,8 +94,10 @@
     var done = document.getElementById("waitlist-done");
     var hint = form.querySelector(".waitlist__hint");
     var sent = false;
+    if (done) done.hidden = true; // never reveal the success box until we actually succeed
 
     function showDone() {
+      if (hint) hint.hidden = true;
       form.hidden = true;
       if (done) {
         done.hidden = false;
@@ -103,6 +105,7 @@
       }
     }
     function showHint(msg) {
+      if (done) done.hidden = true;
       if (!hint) return;
       hint.textContent = msg;
       hint.hidden = false;
@@ -138,7 +141,13 @@
         .then(function (r) { return r.json().catch(function () { return {}; }); })
         .then(function (data) {
           if (data && data.ok) { showDone(); }
-          else { reset(); showHint("Hmm — that didn't go through. Try again, or a different email."); }
+          else {
+            if (data && (data.detail || data.status)) {
+              console.warn("waitlist: upstream", data.status || "", data.detail || "");
+            }
+            reset();
+            showHint("Hmm — that didn't go through. Try again, or a different email.");
+          }
         })
         .catch(function () {
           reset();
