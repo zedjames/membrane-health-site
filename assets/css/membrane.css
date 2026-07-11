@@ -522,6 +522,19 @@ img { max-width: 100%; display: block; }
   padding: 3px 9px; border-radius: 999px; vertical-align: 0.18em; margin-left: 9px;
 }
 
+/* ---- Modes: compact horizontal spectrum ---- */
+.mode-spectrum { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; max-width: 1040px; margin: 0 auto; }
+.mode-spec {
+  display: flex; flex-direction: column; align-items: flex-start;
+  padding: 18px; border: 1px solid var(--line); border-radius: 14px;
+  background: linear-gradient(to bottom, var(--surface-top), var(--surface-bottom));
+}
+.mode-spec .mode__dot { margin: 0 0 12px; }
+.mode-spec .mode__name { font-size: 1.12rem; margin: 0 0 6px; }
+.mode-spec .subtle { margin: 0; font-size: 0.9rem; }
+@media (max-width: 780px) { .mode-spectrum { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 460px) { .mode-spectrum { grid-template-columns: 1fr; } }
+
 /* ---- Get / CTA ----------------------------------------------------------- */
 .get { position: relative; overflow: hidden; text-align: center; }
 .get__glow { top: 0; opacity: 0.6; }

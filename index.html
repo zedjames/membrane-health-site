@@ -3,15 +3,15 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Membrane Health — Know how much you have to give today</title>
-  <meta name="description" content="Health was never one number — it's a whole system staying in time with itself. Membrane Health listens to all of it at once, like a conductor hearing every instrument, and tells you live what today is for: go, caution, or recover. Built on the data your Apple Watch already collects.">
+  <title>Membrane Health — Know how stable your systems are today</title>
+  <meta name="description" content="Membrane Health reads the signals your Apple Watch already measures and computes how coherently your systems are holding together — then reads that against a mathematical definition of health, calibrated to you. Your result, live: go, caution, or recover. Deterministic mathematics, no black-box AI.">
   <meta name="theme-color" content="#0A0A0F">
 
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Membrane Health">
   <meta property="og:url" content="https://membrane-health.com/">
-  <meta property="og:title" content="Membrane Health — Know how much you have to give today">
-  <meta property="og:description" content="Health was never one number — it's a whole system staying in time with itself. Membrane Health reads all of it at once and tells you, live, what today is for: go, caution, or recover. Built on your Apple Watch.">
+  <meta property="og:title" content="Membrane Health — Know how stable your systems are today">
+  <meta property="og:description" content="Membrane Health computes how coherently your systems are holding together today, measured against a mathematical definition of health and calibrated to you. Your result, live: go, caution, or recover. Built on your Apple Watch.">
   <meta property="og:image" content="https://membrane-health.com/assets/img/og-card.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
@@ -25,7 +25,7 @@
   <link rel="icon" type="image/png" sizes="16x16" href="assets/img/favicon-16.png">
   <link rel="apple-touch-icon" sizes="180x180" href="assets/img/apple-touch-icon.png">
   <link rel="manifest" href="site.webmanifest">
-  <link rel="stylesheet" href="assets/css/membrane.css">
+  <link rel="stylesheet" href="assets/css/membrane.css?v=2">
 </head>
 <body>
 
@@ -37,12 +37,11 @@
         <span class="brand__word">MEMBRANE&nbsp;HEALTH</span>
       </a>
       <nav class="nav__links" aria-label="Primary">
-        <a href="#different">What it does</a>
-        <a href="#idea">The idea</a>
-        <a href="#science">The science</a>
-        <a href="#pro">Pro Mode</a>
+        <a href="#home">How it works</a>
+        <a href="science.html">The science</a>
         <a href="#plans">Plans</a>
-        <a href="https://github.com/zedjames/membrane-health-site/discussions" target="_blank" rel="noopener">Community</a>
+        <a href="#pro">Pro</a>
+        <a href="#data">Trust</a>
       </nav>
       <div class="nav__actions">
         <button class="theme-toggle" data-theme-toggle aria-label="Toggle light and dark">
@@ -60,19 +59,19 @@
       <p class="hero__sign serif-italic reveal">Timing is everything.</p>
       <p class="eyebrow reveal">Built on Apple Watch + Apple Health</p>
       <h1 class="display reveal">
-        Know how much you have<br>to <span class="serif-italic">give</span> today.
+        Know how <span class="serif-italic">stable</span><br>all your systems are today.
       </h1>
       <p class="lede reveal">
-        Health was never one number — it's a whole system staying in time with itself. Membrane
-        Health listens to all of it at once, like a conductor hearing every instrument: what's in
-        tune, where the timing is slipping, how it's holding together. Then it tells you, live, what
-        today is for — <em>go</em>, <em>caution</em>, or <em>recover</em>. From the data your Apple
-        Watch already collects.
+        Membrane Health reads the signals your Apple&nbsp;Watch already measures and computes how
+        coherently your systems are holding together under today's load. Your result —
+        <em>go</em>, <em>caution</em>, or <em>recover</em> — is measured against a mathematical
+        definition of health, calibrated to your own physiology.
       </p>
       <div class="hero__cta reveal">
-        <a class="btn btn--primary" href="#different">See what it does</a>
-        <a class="btn btn--ghost" href="#get">Release · Aug&nbsp;8, 2026</a>
+        <a class="btn btn--primary" href="#get">Join the Aug&nbsp;8 launch</a>
+        <a class="btn btn--ghost" href="#home">See how the reading works</a>
       </div>
+      <p class="muted reveal" style="margin-top:20px;font-size:.85rem;letter-spacing:.02em;">Deterministic mathematics · No black-box AI · Private through Apple&nbsp;Health</p>
 
       <div class="hero__status reveal" aria-hidden="true">
         <div class="status-chip"><span class="status-dot status-go"></span><span>Go</span></div>
@@ -82,36 +81,112 @@
     </div>
   </section>
 
+  <!-- ===================== YOUR DAY / HOME ===================== -->
+  <section class="section section--tight" id="home">
+    <div class="wrap">
+      <div class="sec-head sec-head--center reveal">
+        <p class="eyebrow">Your day · Free</p>
+        <h2 class="h-section">Open the app, get an honest read.</h2>
+        <p class="lede">
+          No wall of charts. The free home screen gives you a clear read at a glance — go, caution,
+          or recover — with the whole picture it's listening to right behind it.
+        </p>
+      </div>
+
+      <figure class="device reveal" aria-label="The Membrane Health home screen: a breathing status ring reading Ready, with Status, Membrane, and Mode tiles and today's recommendation.">
+        <div class="device__frame">
+          <img class="device__shot device__shot--dark" src="assets/img/home-dark.jpg"
+               alt="Membrane Health home screen: a 'Ready' status ring, Membrane strong 87%, Mode Rest" width="320" loading="lazy">
+          <img class="device__shot device__shot--light" src="assets/img/home-light.jpg"
+               alt="Membrane Health home screen in light mode: a 'Ready' status ring" width="320" loading="lazy">
+        </div>
+      </figure>
+
+      <div class="grid grid-2">
+        <article class="card card--feature reveal">
+          <p class="feature__kicker">Today's status</p>
+          <h3 class="h-card">Go · Caution · Recover</h3>
+          <p class="subtle">One warmed light with today's recommendation and the things to watch out for. You'll know what kind of day to have in two seconds.</p>
+        </article>
+        <article class="card card--feature reveal">
+          <p class="feature__kicker">Today's recommendation</p>
+          <h3 class="h-card">What to do about it</h3>
+          <p class="subtle">Beyond the light: a short, specific recommendation for the day — plus the areas to watch out for, so the read is something you can actually act on.</p>
+        </article>
+        <article class="card card--feature reveal">
+          <p class="feature__kicker">Mode detection</p>
+          <h3 class="h-card">Which mode you're in</h3>
+          <p class="subtle">It names the state your system is actually in — Sleep, Stress, Rest, Flow, or a rare personal peak — so the day's advice fits where you are. <a href="#modes">Meet the five modes →</a></p>
+        </article>
+        <article class="card card--feature reveal">
+          <p class="feature__kicker">Membrane Resilience</p>
+          <h3 class="h-card">How much buffer is left</h3>
+          <p class="subtle">A plain snapshot of how much room sits between today's load and the edge of what your body can comfortably take.</p>
+        </article>
+      </div>
+      <p class="plans__note muted center reveal">
+        Step up to <strong>Basic</strong> for your personalized baselines, Health Dimensions, Body Load,
+        Raw Metrics, and insights on coherence, timing, phase, amplitude, drift &amp; recovery.
+      </p>
+    </div>
+  </section>
+
+  <!-- ===================== THE WEDGE: BASELINE vs DEFINITION ===================== -->
+  <section class="section section--tight" id="wedge">
+    <div class="wrap">
+      <div class="sec-head sec-head--center reveal">
+        <p class="eyebrow">The difference</p>
+        <h2 class="h-section">Your baseline is yours.<br>The definition of health is fixed.</h2>
+        <p class="lede">
+          Most health apps ask whether today looks like your recent past. Membrane Health asks a
+          deeper question — how is your system organizing load, recovery, timing, and reserve
+          relative to a formally defined healthy state?
+        </p>
+        <p class="subtle" style="max-width:60ch;margin-inline:auto;">
+          Your 28-day history calibrates the measurement to you. The definition stays fixed; your
+          position within it changes. That is the difference between a personal average and a measurement.
+        </p>
+      </div>
+    </div>
+  </section>
+
   <!-- ===================== WHY IT'S DIFFERENT ===================== -->
   <section class="section" id="different">
     <div class="wrap">
       <div class="sec-head sec-head--center reveal">
-        <p class="eyebrow">What it does</p>
-        <h2 class="h-section">A living state, not a score.</h2>
-        <p class="lede">A single number can't hold a living state. Membrane Health doesn't try to — it reads your whole system at once, on a stable mathematical ground that lets it see what nothing else can.</p>
+        <p class="eyebrow">What it measures</p>
+        <h2 class="h-section">Health is a system remaining itself through change.</h2>
+        <p class="lede">Four things have to hold for a living system to stay itself under load. Membrane Health reads each one — and turns it into something you can act on today.</p>
       </div>
 
       <div class="grid grid-2 diffs">
         <article class="card diff reveal">
-          <h3 class="h-card">It reads the whole system</h3>
-          <p class="subtle">Not one metric — your entire baseline. Heart, sleep, breath, metabolism and movement, read together into a single live state instead of a lone number.</p>
+          <p class="feature__kicker">Boundary</p>
+          <h3 class="h-card">Your remaining capacity</h3>
+          <p class="subtle">The limit within which today's load can still be organized and recovered from — and how much room sits between where you are and where that edge is.</p>
         </article>
 
         <article class="card diff reveal">
-          <h3 class="h-card">It learns your normal</h3>
-          <p class="subtle">Over a rolling 28 days it builds a picture of <em>your</em> body and measures each day against it — your body compared to your body, not to an average — held against a formal ontology of what it actually means to be healthy.</p>
+          <p class="feature__kicker">Stability</p>
+          <h3 class="h-card">Membrane integrity</h3>
+          <p class="subtle">Whether your system holds its organization as conditions change — keeping its shape under load, rather than beginning to fragment.</p>
         </article>
 
         <article class="card diff reveal">
-          <h3 class="h-card">It's built on proven mathematics</h3>
-          <p class="subtle">A stable, formally-verified ontology for a living system. Every reading is computed and can show its work — nothing inferred, nothing guessed. <a href="#science">See the science →</a></p>
+          <p class="feature__kicker">Coherence</p>
+          <h3 class="h-card">Whole-system alignment</h3>
+          <p class="subtle">Whether your processes stay coordinated with one another — in time and in phase — instead of pulling apart. The quantity nothing else measures.</p>
         </article>
 
         <article class="card diff reveal">
-          <h3 class="h-card">It reads what nothing else can</h3>
-          <p class="subtle">Coherence, phase, timing, recovery, amplitude, drift — real, defined quantities that only become measurable once you have the mathematics underneath. No other health app has it.</p>
+          <p class="feature__kicker">Recovery</p>
+          <h3 class="h-card">Recovery direction &amp; ETA</h3>
+          <p class="subtle">How load becomes restored capacity over time — which way you're moving, and how long until you're back. <a href="science.html">See the science →</a></p>
         </article>
       </div>
+      <p class="plans__note muted center reveal" style="font-family:var(--serif);font-style:italic;">
+        measured signals &rarr; relations through time &rarr; a bounded physiological state &rarr; today's capacity
+      </p>
     </div>
   </section>
 
@@ -191,11 +266,16 @@
         <h2 class="h-section">A reading of your state —<br>not a story about it.</h2>
         <p class="lede">
           Membrane Health doesn't infer your state — it computes it, from explicit mathematics
-          that has been formally proven correct<sup class="fn">*</sup>. That stable mathematical ground is the part
+          that has been machine-checked for the properties it claims<sup class="fn">*</sup>. That stable mathematical ground is the part
           nothing else has: hand an AI your entire health history and, with no stable ontology to
           read it from, the best it can return is a plausible story. Membrane Health reads the
           state itself. It's read against something medicine has never had: a formal definition of
-          health — the observable physics of health, not the biology of disease.
+          health — the observable physics of health.
+        </p>
+        <p class="subtle" style="max-width:64ch;margin:16px auto 0;">
+          Two different things, kept separate: <em>formal verification</em> establishes the integrity of the
+          mathematics; <em>physiological validation</em> establishes how its measurements behave in people —
+          tested against real human data, and ongoing.
         </p>
       </div>
 
@@ -230,60 +310,10 @@
         <div class="sci-stat"><span class="sci-stat__n">0</span><span class="sci-stat__l">black-box models</span></div>
       </div>
       <p class="sci-more reveal" style="text-align:center; max-width:60ch; margin:26px auto 0; font-size:0.98rem; color:var(--parchment-dim);">
-        Want to go deeper? The formal definition, the proven properties, and how the proofs can be independently verified live on the company site —
-        <a href="https://fieldfluxbiosystems.com/science.html" target="_blank" rel="noopener" style="color:var(--glow); font-weight:600; white-space:nowrap;">The science at Fieldflux&nbsp;Biosystems&nbsp;&rarr;</a>
+        Want to go deeper? The whole picture — from the human idea to the mathematics to the proof —
+        <a href="science.html" style="color:var(--glow); font-weight:600; white-space:nowrap;">The science of Membrane&nbsp;Health&nbsp;&rarr;</a>
       </p>
       <p class="sci-footnote reveal"><span class="fn">*</span> <em>Formally proven</em> is not a statement of physiological truth or a disease diagnosis. What it does mean: our mathematics doesn't drift or contradict itself. Our formal mathematical ontology of health is stable, structured, auditable, and fully transparent — which is exactly what makes it reliable.</p>
-    </div>
-  </section>
-
-  <!-- ===================== YOUR DAY / HOME ===================== -->
-  <section class="section section--tight" id="home">
-    <div class="wrap">
-      <div class="sec-head sec-head--center reveal">
-        <p class="eyebrow">Your day · Free</p>
-        <h2 class="h-section">Open the app, get an honest read.</h2>
-        <p class="lede">
-          No wall of charts. The free home screen gives you a clear read at a glance — go, caution,
-          or recover — with the whole picture it's listening to right behind it.
-        </p>
-      </div>
-
-      <figure class="device reveal" aria-label="The Membrane Health home screen: a breathing status ring reading Ready, with Status, Membrane, and Mode tiles and today's recommendation.">
-        <div class="device__frame">
-          <img class="device__shot device__shot--dark" src="assets/img/home-dark.jpg"
-               alt="Membrane Health home screen: a 'Ready' status ring, Membrane strong 87%, Mode Rest" width="320" loading="lazy">
-          <img class="device__shot device__shot--light" src="assets/img/home-light.jpg"
-               alt="Membrane Health home screen in light mode: a 'Ready' status ring" width="320" loading="lazy">
-        </div>
-      </figure>
-
-      <div class="grid grid-2">
-        <article class="card card--feature reveal">
-          <p class="feature__kicker">Today's status</p>
-          <h3 class="h-card">Go · Caution · Recover</h3>
-          <p class="subtle">One warmed light with today's recommendation and the things to watch out for. You'll know what kind of day to have in two seconds.</p>
-        </article>
-        <article class="card card--feature reveal">
-          <p class="feature__kicker">Today's recommendation</p>
-          <h3 class="h-card">What to do about it</h3>
-          <p class="subtle">Beyond the light: a short, specific recommendation for the day — plus the areas to watch out for, so the read is something you can actually act on.</p>
-        </article>
-        <article class="card card--feature reveal">
-          <p class="feature__kicker">Mode detection</p>
-          <h3 class="h-card">Which mode you're in</h3>
-          <p class="subtle">It names the state your system is actually in — Sleep, Stress, Rest, Flow, or a rare personal peak — so the day's advice fits where you are. <a href="#modes">Meet the five modes →</a></p>
-        </article>
-        <article class="card card--feature reveal">
-          <p class="feature__kicker">Membrane Resilience</p>
-          <h3 class="h-card">How much buffer is left</h3>
-          <p class="subtle">A plain snapshot of how much room sits between today's load and the edge of what your body can comfortably take.</p>
-        </article>
-      </div>
-      <p class="plans__note muted center reveal">
-        Step up to <strong>Basic</strong> for your personalized baselines, Health Dimensions, Body Load,
-        Raw Metrics, and insights on coherence, timing, phase, amplitude, drift &amp; recovery.
-      </p>
     </div>
   </section>
 
@@ -295,41 +325,31 @@
         <h2 class="h-section">Your state isn't a number — it's a mode.</h2>
         <p class="lede">Each reading resolves your whole system into one of five modes, from deep restoration to a rare personal peak. The last two have to be earned.</p>
       </div>
-      <div class="modes reveal">
-        <div class="mode">
+      <div class="mode-spectrum reveal">
+        <div class="mode-spec">
           <span class="mode__dot" style="--m: var(--glow-soft)"></span>
-          <div class="mode__body">
-            <h3 class="mode__name">Sleep</h3>
-            <p class="subtle">Deep restoration. Overnight, the body clears, repairs, and rebalances — its most powerful recovery tool.</p>
-          </div>
+          <h3 class="mode__name">Sleep</h3>
+          <p class="subtle">Deep overnight restoration.</p>
         </div>
-        <div class="mode">
+        <div class="mode-spec">
           <span class="mode__dot" style="--m: var(--status-ease)"></span>
-          <div class="mode__body">
-            <h3 class="mode__name">Stress</h3>
-            <p class="subtle">Elevated demand. Healthy in bursts — it's how we grow — but sustained without recovery, it depletes you.</p>
-          </div>
+          <h3 class="mode__name">Stress</h3>
+          <p class="subtle">Elevated demand — healthy in bursts.</p>
         </div>
-        <div class="mode">
+        <div class="mode-spec">
           <span class="mode__dot" style="--m: var(--status-go)"></span>
-          <div class="mode__body">
-            <h3 class="mode__name">Rest</h3>
-            <p class="subtle">Recovery in progress. Low load, reserves rebuilding — the body quietly putting headroom back.</p>
-          </div>
+          <h3 class="mode__name">Rest</h3>
+          <p class="subtle">Recovery in progress, reserves rebuilding.</p>
         </div>
-        <div class="mode mode--earned">
+        <div class="mode-spec mode--earned">
           <span class="mode__dot" style="--m: var(--aqua)"></span>
-          <div class="mode__body">
-            <h3 class="mode__name">Flow</h3>
-            <p class="subtle">The Goldilocks zone — balanced and sustainable, reserves intact and nothing overheating. Where most of life goes well.</p>
-          </div>
+          <h3 class="mode__name">Flow</h3>
+          <p class="subtle">Balanced and sustainable — the zone.</p>
         </div>
-        <div class="mode mode--earned mode--peak">
+        <div class="mode-spec mode--earned mode--peak">
           <span class="mode__dot" style="--m: var(--glow)"></span>
-          <div class="mode__body">
-            <h3 class="mode__name">Nova <span class="mode__tag">peak</span></h3>
-            <p class="subtle">A rare alignment — deep reserve, no deficit anywhere, and surplus on top, every system clean at once. Reaching it, and holding it, is a genuine feat of attention.</p>
-          </div>
+          <h3 class="mode__name">Nova <span class="mode__tag">peak</span></h3>
+          <p class="subtle">A rare, earned alignment.</p>
         </div>
       </div>
       <p class="plans__note muted center reveal">
@@ -368,6 +388,118 @@
     </div>
   </section>
 
+  <!-- ===================== BASIC ===================== -->
+  <section class="section basic-sec" id="basic">
+    <div class="wrap">
+      <div class="sec-head sec-head--center reveal">
+        <p class="eyebrow">Basic</p>
+        <h2 class="h-section">See what’s shaping the call.</h2>
+        <p class="lede">
+          Free gives you the honest daily call — glance and go. Basic takes that very same
+          measurement and opens it up: your personal baselines, every system scored, the raw
+          signals behind them, and short reads on what’s moving today.
+        </p>
+      </div>
+
+      <div class="pro-gallery reveal">
+        <figure class="pro-shot">
+          <div class="device__frame">
+            <img class="device__shot device__shot--dark"  src="assets/img/basic-insight-dark.jpg"  loading="lazy" alt="Body Load, analysis quality, and a short read explaining a signal">
+            <img class="device__shot device__shot--light" src="assets/img/basic-insight-light.jpg" loading="lazy" alt="Body Load and insight read in light mode">
+          </div>
+          <figcaption><strong>Read behind the number</strong>Body Load, analysis quality, and short reads on what each signal means for you.</figcaption>
+        </figure>
+        <figure class="pro-shot">
+          <div class="device__frame">
+            <img class="device__shot device__shot--dark"  src="assets/img/basic-baselines-dark.jpg"  loading="lazy" alt="Your Baselines: personalized reference points across twenty metrics over 28 days">
+            <img class="device__shot device__shot--light" src="assets/img/basic-baselines-light.jpg" loading="lazy" alt="Your Baselines in light mode">
+          </div>
+          <figcaption><strong>Your personal baselines</strong>Reference points learned from 28 days of your own physiology — the yardstick everything is read against.</figcaption>
+        </figure>
+        <figure class="pro-shot">
+          <div class="device__frame">
+            <img class="device__shot device__shot--dark"  src="assets/img/basic-metric-dark.jpg"  loading="lazy" alt="A raw metric with your baseline, its deviation, and where it sits in your range">
+            <img class="device__shot device__shot--light" src="assets/img/basic-metric-light.jpg" loading="lazy" alt="Raw metric detail in light mode">
+          </div>
+          <figcaption><strong>The raw signal, in context</strong>Every metric with your baseline, its deviation, and where it sits in your own range.</figcaption>
+        </figure>
+        <figure class="pro-shot">
+          <div class="device__frame">
+            <img class="device__shot device__shot--dark"  src="assets/img/basic-dimensions-dark.jpg"  loading="lazy" alt="Health Dimensions: your body’s systems scored against your baseline">
+            <img class="device__shot device__shot--light" src="assets/img/basic-dimensions-light.jpg" loading="lazy" alt="Health Dimensions in light mode">
+          </div>
+          <figcaption><strong>Your systems at a glance</strong>Every system scored against your baseline — where today is organized, and where it isn’t.</figcaption>
+        </figure>
+        <figure class="pro-shot">
+          <div class="device__frame">
+            <img class="device__shot device__shot--dark"  src="assets/img/basic-recovery-dark.jpg"  loading="lazy" alt="A single dimension opened up, showing what is driving it and when it should settle">
+            <img class="device__shot device__shot--light" src="assets/img/basic-recovery-light.jpg" loading="lazy" alt="Dimension detail in light mode">
+          </div>
+          <figcaption><strong>Open any dimension</strong>Drill into a system to see what’s driving it — and when it’s expected to settle.</figcaption>
+        </figure>
+      </div>
+      <p class="dash__note muted center reveal">Same math as the daily call — shown in more depth. Basic is where the reading starts to explain itself.</p>
+    </div>
+  </section>
+
+  <!-- ===================== PLANS ===================== -->
+  <section class="section" id="plans">
+    <div class="wrap">
+      <div class="sec-head sec-head--center reveal">
+        <p class="eyebrow">Plans</p>
+        <h2 class="h-section">Start free. Go deeper when you want to.</h2>
+        <p class="lede">Every tier is the same measurement — the formal math read against your own 28-day baseline. Free is a quick glance-and-go; each tier above it opens that same reading into greater depth and detail.</p>
+      </div>
+
+      <div class="grid grid-3 plans">
+        <article class="card plan reveal">
+          <p class="plan__tier">Free</p>
+          <p class="plan__desc subtle">"What kind of day should I have?"</p>
+          <hr class="rule">
+          <ul class="plan__list">
+            <li>Daily status &amp; recommendations</li>
+            <li>The day's "watch out for" areas</li>
+            <li>Mode detection — the five modes</li>
+            <li>Membrane resilience</li>
+          </ul>
+        </article>
+
+        <article class="card plan reveal">
+          <p class="plan__tier">Basic</p>
+          <p class="plan__desc subtle">"What's shaping today's state?"</p>
+          <hr class="rule">
+          <ul class="plan__list">
+            <li><span class="plan__plus">Everything in Free, plus</span></li>
+            <li>Your personalized baselines</li>
+            <li>Health Dimensions &amp; Body Load</li>
+            <li>Raw Metrics</li>
+            <li>Insights on coherence, timing, phase, amplitude, drift &amp; recovery</li>
+            <li>Stability, ETA &amp; capacity tracking</li>
+          </ul>
+        </article>
+
+        <article class="card plan plan--featured reveal">
+          <span class="plan__badge">Pro</span>
+          <p class="plan__tier">Pro</p>
+          <p class="plan__desc subtle">"How is my physiology changing over time?"</p>
+          <hr class="rule">
+          <ul class="plan__list">
+            <li><span class="plan__plus">Everything in Basic, plus</span></li>
+            <li>The live Pro dashboard</li>
+            <li>My 28-Day Analysis &amp; PDF export</li>
+            <li>Professional Sharing</li>
+            <li>Phase-Based Physiology Mapping</li>
+            <li>Travel Planner</li>
+          </ul>
+        </article>
+      </div>
+
+      <p class="plans__note muted center reveal">
+        A research-grade <strong>Pro+</strong> tier — for clinicians, coaches, and power users — is on the way.
+      </p>
+    </div>
+  </section>
+
   <!-- ===================== PRO MODE ===================== -->
   <section class="section pro" id="pro">
     <div class="breath-glow pro__glow" aria-hidden="true"></div>
@@ -376,8 +508,8 @@
         <p class="eyebrow">Pro Mode</p>
         <h2 class="h-section">For when you want to see what's driving the number.</h2>
         <p class="lede">
-          Everything above is free. Pro is for the days you want to look under the hood — deeper
-          trends, a live instrument panel, and a way to hand it all to someone who can help.
+          Pro is for the days you want to look under the hood — deeper trends, a live instrument
+          panel, and a way to hand it all to someone who can help.
         </p>
       </div>
 
@@ -450,82 +582,24 @@
     </div>
   </section>
 
-  <!-- ===================== PLANS ===================== -->
-  <section class="section" id="plans">
-    <div class="wrap">
-      <div class="sec-head sec-head--center reveal">
-        <p class="eyebrow">Plans</p>
-        <h2 class="h-section">Start free. Go deeper when you want to.</h2>
-      </div>
-
-      <div class="grid grid-3 plans">
-        <article class="card plan reveal">
-          <p class="plan__tier">Free</p>
-          <p class="plan__desc subtle">Your honest daily read</p>
-          <hr class="rule">
-          <ul class="plan__list">
-            <li>Daily status &amp; recommendations</li>
-            <li>The day's "watch out for" areas</li>
-            <li>Mode detection — the five modes</li>
-            <li>Membrane resilience</li>
-          </ul>
-        </article>
-
-        <article class="card plan reveal">
-          <p class="plan__tier">Basic</p>
-          <p class="plan__desc subtle">More of the picture</p>
-          <hr class="rule">
-          <ul class="plan__list">
-            <li><span class="plan__plus">Everything in Free, plus</span></li>
-            <li>Your personalized baselines</li>
-            <li>Health Dimensions &amp; Body Load</li>
-            <li>Raw Metrics</li>
-            <li>Insights on coherence, timing, phase, amplitude, drift &amp; recovery</li>
-            <li>Stability, ETA &amp; capacity tracking</li>
-          </ul>
-        </article>
-
-        <article class="card plan plan--featured reveal">
-          <span class="plan__badge">Pro</span>
-          <p class="plan__tier">Pro</p>
-          <p class="plan__desc subtle">The instrument &amp; the tools</p>
-          <hr class="rule">
-          <ul class="plan__list">
-            <li><span class="plan__plus">Everything in Basic, plus</span></li>
-            <li>The live Pro dashboard</li>
-            <li>My 28-Day Analysis &amp; PDF export</li>
-            <li>Professional Sharing</li>
-            <li>Phase-Based Physiology Mapping</li>
-            <li>Travel Planner</li>
-          </ul>
-        </article>
-      </div>
-
-      <p class="plans__note muted center reveal">
-        A research-grade <strong>Pro+</strong> tier — for clinicians, coaches, and power users — is on the way.
-      </p>
-    </div>
-  </section>
-
   <!-- ===================== THE ROAD AHEAD ===================== -->
   <section class="section ahead" id="ahead">
     <div class="breath-glow ahead__glow" aria-hidden="true"></div>
     <div class="wrap ahead__grid">
       <div class="ahead__copy reveal">
-        <p class="eyebrow">The road ahead</p>
+        <p class="eyebrow">One foundation, two scales</p>
         <h2 class="h-section">Reading your body's coherence — with light.</h2>
         <p class="lede">
-          The daily read you get today sits on top of a deeper research program. Its question is
-          the same one the whole app is built around: not how high your numbers are, but how well
-          your body keeps time with itself.
+          Available at launch, Membrane Health computes your whole-system state from the signals your
+          Apple&nbsp;Watch already measures. The same mathematical foundation reaches a second scale — a
+          research instrument that measures boundary response directly.
         </p>
         <p class="subtle">
-          We're building a research-grade instrument that measures exactly that — a controlled
-          pulse of light from your phone, and a map of how distributed parts of the body respond
-          together, in phase. It's called phase-coherence imaging. It's patent-pending, and like
-          everything here, it's measurement, not diagnosis.
+          A controlled pulse of light from your phone, and a map of how distributed parts of the body
+          respond together, in phase — phase-coherence imaging. It's patent-pending, in research and
+          development, and like everything here, it's measurement, not diagnosis.
         </p>
-        <p class="ahead__tag muted">A preview of work in development — not yet in the app. When it's ready, your phone will see something no wearable can.</p>
+        <p class="ahead__tag muted">A preview of work in development — not yet in the app. The full research program lives on the company site — <a href="https://fieldfluxbiosystems.com/platform.html" target="_blank" rel="noopener" style="color:var(--glow);font-weight:600;">the platform at Fieldflux&nbsp;Biosystems&nbsp;&rarr;</a></p>
       </div>
 
       <figure class="ahead__device reveal" aria-label="A live topology scan: a flowing field of phase-coherence vectors across the body surface, captioned 'Support is uneven across the field. Treat weak sites cautiously.'">
