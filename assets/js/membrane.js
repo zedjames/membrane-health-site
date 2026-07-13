@@ -156,11 +156,41 @@
     });
   }
 
+  // ---- Auto-update cited corpus stats from the published attestation --------
+  // Same-origin /attestation.json (published by the verification workflow) → keeps
+  // the cited line/theorem counts current as the corpus grows. Static values in the
+  // HTML remain if the file isn't there yet.
+  function initAttest() {
+    var nodes = document.querySelectorAll("[data-attest]");
+    if (!nodes.length) return;
+    fetch("attestation.json", { cache: "no-store" })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (a) {
+        if (!a || !a.corpus || !a.invariants) return;
+        var c = a.corpus, inv = a.invariants;
+        function fmt(k) {
+          if (k === "lines") return Math.floor(c.lines / 10000) * 10 + "K+";
+          if (k === "theorems") return (Math.floor(c.theorems_plus_lemmas / 1000) * 1000).toLocaleString("en-US") + "+";
+          if (k === "theorems-plain") return (Math.floor(c.theorems_plus_lemmas / 1000) * 1000).toLocaleString("en-US");
+          if (k === "files") return c.files.toLocaleString("en-US");
+          if (k === "axioms") return String(inv.project_axioms);
+          if (k === "digest") return (a.digest && a.digest.root) || "";
+          return null;
+        }
+        nodes.forEach(function (el) {
+          var v = fmt(el.getAttribute("data-attest"));
+          if (v != null) el.textContent = v;
+        });
+      })
+      .catch(function () { /* no attestation yet — keep the static values */ });
+  }
+
   // ---- Wire up -------------------------------------------------------------
   document.addEventListener("DOMContentLoaded", function () {
     initReveal();
     initLightbox();
     initWaitlist();
+    initAttest();
     var t = document.querySelector("[data-theme-toggle]");
     if (t) t.addEventListener("click", toggleTheme);
   });
