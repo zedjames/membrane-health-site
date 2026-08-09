@@ -4,7 +4,7 @@
 
 
   /* ==========================================================================
-     GEOMETRY
+     CONSTANTS
      ========================================================================== */
 
   var NS =
@@ -32,7 +32,7 @@
 
 
   var R =
-    190;
+    192;
 
 
   var reduce =
@@ -41,35 +41,37 @@
     ).matches;
 
 
-  var svg =
-    document.getElementById(
-      "fm5-field"
-    );
-
+  /* ==========================================================================
+     DOM
+     ========================================================================== */
 
   var host =
     document.querySelector(
-      ".fm5"
+      ".fm"
     );
 
 
-  var buttons =
-    Array.prototype.slice.call(
-      document.querySelectorAll(
-        "[data-mode]"
-      )
+  var svg =
+    document.getElementById(
+      "fm-field"
+    );
+
+
+  var scene =
+    document.getElementById(
+      "fm-scene"
     );
 
 
   var phenomena =
     document.getElementById(
-      "fm5-phenomena"
+      "fm-phenomena"
     );
 
 
   var world =
     document.getElementById(
-      "fm5-world"
+      "fm-world"
     );
 
 
@@ -81,13 +83,29 @@
     world.getContext("2d");
 
 
+  var buttons =
+    Array.prototype.slice.call(
+      document.querySelectorAll(
+        "[data-mode]"
+      )
+    );
+
+
+  if (
+    !svg ||
+    !scene
+  ) {
+    return;
+  }
+
+
   /* ==========================================================================
      HELPERS
      ========================================================================== */
 
   function el(name, attrs) {
 
-    var n =
+    var node =
       document.createElementNS(
         NS,
         name
@@ -100,7 +118,7 @@
     .forEach(
       function (key) {
 
-        n.setAttribute(
+        node.setAttribute(
           key,
           attrs[key]
         );
@@ -108,16 +126,16 @@
     );
 
 
-    return n;
+    return node;
   }
 
 
-  function clamp(v, a, b) {
+  function clamp(v, lo, hi) {
 
     return Math.max(
-      a,
+      lo,
       Math.min(
-        b,
+        hi,
         v
       )
     );
@@ -157,6 +175,33 @@
   }
 
 
+  function smootherstep(t) {
+
+    t =
+      clamp(
+        t,
+        0,
+        1
+      );
+
+
+    return (
+      t *
+      t *
+      t *
+      (
+        t *
+        (
+          t *
+          6 -
+          15
+        ) +
+        10
+      )
+    );
+  }
+
+
   function hash(n) {
 
     var x =
@@ -177,72 +222,88 @@
   function polar(
     cx,
     cy,
-    r,
-    a
+    radius,
+    angle
   ) {
 
     return {
       x:
         cx +
-        Math.cos(a) *
-        r,
+        Math.cos(
+          angle
+        ) *
+        radius,
 
       y:
         cy +
-        Math.sin(a) *
-        r
+        Math.sin(
+          angle
+        ) *
+        radius
     };
   }
 
 
+  function dimensionAngle(index) {
+
+    return (
+      index /
+      9 *
+      TAU -
+      Math.PI /
+      2
+    );
+  }
+
+
+  function visualFactor(value) {
+
+    /*
+       Compress real conditioning into an elegant but meaningful visual range.
+
+       .85 remains visibly guarded.
+       1.35 becomes clearly expansive.
+    */
+
+    return (
+      .79 +
+      (
+        value -
+        .70
+      ) *
+      .64
+    );
+  }
+
+
   /* ==========================================================================
-     NINE DIMENSIONS
+     MODES
 
-     These are not rendered as labels.
-
-     They simply govern envelope geometry.
-
-     0 heart
-     1 sleep
-     2 activity
-     3 recovery
-     4 stability
-     5 thermal
-     6 metabolic
-     7 stress
-     8 overall
+     factors:
+       0 heart
+       1 sleep
+       2 activity
+       3 recovery
+       4 stability
+       5 thermal
+       6 metabolic
+       7 stress
+       8 overall
      ========================================================================== */
-
-  var NEUTRAL = [
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1
-  ];
-
 
   var MODES = {
 
 
-    /*
-       SLEEP
-       sleep strict
-       activity very open
-       stress open
-       others slightly open
-    */
     sleep: {
 
       name:
         "Sleep",
 
-      desc:
+      description:
         "Deep overnight restoration.",
+
+      duration:
+        7800,
 
       factors: [
         1.10,
@@ -256,32 +317,46 @@
         1.10
       ],
 
-      pos: {
+      position: {
         x:
-          -.12,
+          -.13,
 
         y:
-          .10
+          .11
       },
 
       energy:
-        .27
+        .28,
+
+      coherence:
+        .78,
+
+      camera: {
+        scale:
+          1.16,
+
+        x:
+          0,
+
+        y:
+          14,
+
+        rotation:
+          0
+      }
     },
 
 
-    /*
-       STRESS
-       heart expected elevated
-       stress expected elevated
-       recovery + sleep watched closely
-    */
     stress: {
 
       name:
         "Stress",
 
-      desc:
+      description:
         "Elevated demand and active adaptation.",
+
+      duration:
+        7200,
 
       factors: [
         1.15,
@@ -295,31 +370,46 @@
         1.00
       ],
 
-      pos: {
+      position: {
         x:
-          .53,
+          .54,
 
         y:
-          -.20
+          -.19
       },
 
       energy:
-        .92
+        .93,
+
+      coherence:
+        .45,
+
+      camera: {
+        scale:
+          1.06,
+
+        x:
+          18,
+
+        y:
+          -6,
+
+        rotation:
+          -1.6
+      }
     },
 
 
-    /*
-       RECOVERY
-       activity headroom open
-       recovery itself watched closely
-    */
     recovery: {
 
       name:
         "Recovery",
 
-      desc:
+      description:
         "Reserves rebuilding as capacity returns.",
+
+      duration:
+        9000,
 
       factors: [
         1.00,
@@ -333,30 +423,46 @@
         1.00
       ],
 
-      pos: {
+      position: {
         x:
           .16,
 
         y:
-          .12
+          .13
       },
 
       energy:
-        .49
+        .49,
+
+      coherence:
+        .70,
+
+      camera: {
+        scale:
+          .96,
+
+        x:
+          0,
+
+        y:
+          3,
+
+        rotation:
+          0
+      }
     },
 
 
-    /*
-       FLOW
-       balanced slight opening everywhere
-    */
     flow: {
 
       name:
         "Flow",
 
-      desc:
+      description:
         "Organization coordinated and sustainable.",
+
+      duration:
+        8200,
 
       factors: [
         1.05,
@@ -370,35 +476,46 @@
         1.05
       ],
 
-      pos: {
+      position: {
         x:
-          .25,
+          .26,
 
         y:
           -.01
       },
 
       energy:
-        .70
+        .70,
+
+      coherence:
+        .96,
+
+      camera: {
+        scale:
+          1.03,
+
+        x:
+          -10,
+
+        y:
+          0,
+
+        rotation:
+          0
+      }
     },
 
 
-    /*
-       NOVA
-       the same organisation as Flow, opened further
-
-       Nova deliberately does NOT warp. Stress and Recovery distort because
-       something is being defended or rebuilt; Nova is the whole system open
-       at once, so it keeps Flow's shape and simply has more of it. A warped
-       Nova would read as strain rather than as surplus.
-    */
     nova: {
 
       name:
         "Nova",
 
-      desc:
+      description:
         "Deep reserve, clean relationships, surplus capacity.",
+
+      duration:
+        10500,
 
       factors: [
         1.22,
@@ -412,7 +529,7 @@
         1.22
       ],
 
-      pos: {
+      position: {
         x:
           .18,
 
@@ -421,10 +538,431 @@
       },
 
       energy:
-        .99
+        1.00,
+
+      coherence:
+        1.00,
+
+      camera: {
+        scale:
+          1.06,
+
+        x:
+          0,
+
+        y:
+          -3,
+
+        rotation:
+          0
+      }
     }
 
   };
+
+
+  /* ==========================================================================
+     PERSISTENT SYSTEM STATE
+     ========================================================================== */
+
+  var system = {
+
+    factors:
+      MODES.recovery.factors.slice(),
+
+    position: {
+      x:
+        MODES.recovery.position.x,
+
+      y:
+        MODES.recovery.position.y
+    },
+
+    energy:
+      MODES.recovery.energy,
+
+    coherence:
+      MODES.recovery.coherence,
+
+    camera: {
+      scale:
+        MODES.recovery.camera.scale,
+
+      x:
+        MODES.recovery.camera.x,
+
+      y:
+        MODES.recovery.camera.y,
+
+      rotation:
+        MODES.recovery.camera.rotation
+    },
+
+    history: [
+      {
+        x:
+          .54,
+
+        y:
+          -.19
+      },
+
+      {
+        x:
+          .41,
+
+        y:
+          -.11
+      },
+
+      {
+        x:
+          .29,
+
+        y:
+          .02
+      },
+
+      {
+        x:
+          .16,
+
+        y:
+          .13
+      }
+    ]
+  };
+
+
+  var activeMode =
+    "recovery";
+
+
+  var targetMode =
+    MODES.recovery;
+
+
+  var previousMode =
+    "stress";
+
+
+  var modeStart =
+    0;
+
+
+  var clock =
+    0;
+
+
+  /*
+     Snapshot captured whenever a new mode begins.
+
+     Recovery can therefore remember the ACTUAL world that existed before it.
+  */
+
+  var eventOrigin = {
+    factors:
+      system.factors.slice(),
+
+    position: {
+      x:
+        system.position.x,
+
+      y:
+        system.position.y
+    },
+
+    energy:
+      system.energy
+  };
+
+
+  /* ==========================================================================
+     MODE CROSSFADE WEIGHTS
+     ========================================================================== */
+
+  var weights = {
+    sleep:
+      0,
+
+    stress:
+      0,
+
+    recovery:
+      1,
+
+    flow:
+      0,
+
+    nova:
+      0
+  };
+
+
+  var weightTargets = {
+    sleep:
+      0,
+
+    stress:
+      0,
+
+    recovery:
+      1,
+
+    flow:
+      0,
+
+    nova:
+      0
+  };
+
+
+  /* ==========================================================================
+     EVENT PROGRESS
+     ========================================================================== */
+
+  function eventProgress() {
+
+    var mode =
+      MODES[
+        activeMode
+      ];
+
+
+    return smoothstep(
+      clamp(
+        (
+          clock -
+          modeStart
+        ) /
+        mode.duration,
+        0,
+        1
+      )
+    );
+  }
+
+
+  function eventWindow(
+    p,
+    start,
+    end
+  ) {
+
+    return smoothstep(
+      (
+        p -
+        start
+      ) /
+      (
+        end -
+        start
+      )
+    );
+  }
+
+
+  function pulseWindow(
+    p,
+    start,
+    peak,
+    end
+  ) {
+
+    if (
+      p <=
+      start ||
+      p >=
+      end
+    ) {
+      return 0;
+    }
+
+
+    if (
+      p <
+      peak
+    ) {
+
+      return smoothstep(
+        (
+          p -
+          start
+        ) /
+        (
+          peak -
+          start
+        )
+      );
+    }
+
+
+    return (
+      1 -
+      smoothstep(
+        (
+          p -
+          peak
+        ) /
+        (
+          end -
+          peak
+        )
+      )
+    );
+  }
+
+
+  /* ==========================================================================
+     SVG DEFS
+     ========================================================================== */
+
+  var defs =
+    el("defs");
+
+
+  var edgeGradient =
+    el(
+      "linearGradient",
+      {
+        id:
+          "fm-edge-gradient",
+
+        x1:
+          "7%",
+
+        y1:
+          "92%",
+
+        x2:
+          "92%",
+
+        y2:
+          "8%"
+      }
+    );
+
+
+  [
+    [
+      "0%",
+      "var(--glow)"
+    ],
+
+    [
+      "45%",
+      "var(--glow-soft)"
+    ],
+
+    [
+      "73%",
+      "var(--aqua)"
+    ],
+
+    [
+      "100%",
+      "var(--aqua)"
+    ]
+  ]
+  .forEach(
+    function (stop) {
+
+      edgeGradient.appendChild(
+        el(
+          "stop",
+          {
+            offset:
+              stop[0],
+
+            "stop-color":
+              stop[1]
+          }
+        )
+      );
+    }
+  );
+
+
+  var fieldGradient =
+    el(
+      "radialGradient",
+      {
+        id:
+          "fm-field-gradient",
+
+        cx:
+          "50%",
+
+        cy:
+          "46%",
+
+        r:
+          "71%"
+      }
+    );
+
+
+  [
+    [
+      "0%",
+      "var(--aqua-deep)",
+      ".22"
+    ],
+
+    [
+      "60%",
+      "var(--aqua-deep)",
+      ".072"
+    ],
+
+    [
+      "83%",
+      "var(--glow)",
+      ".026"
+    ],
+
+    [
+      "100%",
+      "var(--glow)",
+      ".004"
+    ]
+  ]
+  .forEach(
+    function (stop) {
+
+      fieldGradient.appendChild(
+        el(
+          "stop",
+          {
+            offset:
+              stop[0],
+
+            "stop-color":
+              stop[1],
+
+            "stop-opacity":
+              stop[2]
+          }
+        )
+      );
+    }
+  );
+
+
+  defs.appendChild(
+    edgeGradient
+  );
+
+
+  defs.appendChild(
+    fieldGradient
+  );
+
+
+  svg.insertBefore(
+    defs,
+    scene
+  );
 
 
   /* ==========================================================================
@@ -440,24 +978,27 @@
       108;
 
 
-    var samples =
+    var points =
       [];
 
 
     for (
       var i = 0;
-      i < count;
+      i <
+      count;
       i++
     ) {
 
-      var t =
+      var coordinate =
         i /
         count *
         9;
 
 
       var a =
-        Math.floor(t) %
+        Math.floor(
+          coordinate
+        ) %
         9;
 
 
@@ -469,59 +1010,33 @@
         9;
 
 
-      var f =
+      var blend =
         smoothstep(
-          t -
-          Math.floor(t)
+          coordinate -
+          Math.floor(
+            coordinate
+          )
         );
 
 
-      samples.push(
+      var factor =
         factors[a] *
         (
           1 -
-          f
+          blend
         ) +
         factors[b] *
-        f
-      );
-    }
+        blend;
 
 
-    /*
-       Normalize visual range.
+      factor =
+        visualFactor(
+          factor
+        );
 
-       We want meaningful anisotropy without a 1.4× threshold becoming a
-       grotesquely literal 40% radius change.
-    */
-    samples =
-      samples.map(
-        function (v) {
-
-          return (
-            .78 +
-            (
-              v -
-              .70
-            ) *
-            .63
-          );
-        }
-      );
-
-
-    var points =
-      [];
-
-
-    for (
-      var j = 0;
-      j < count;
-      j++
-    ) {
 
       var angle =
-        j /
+        i /
         count *
         TAU -
         Math.PI /
@@ -534,7 +1049,7 @@
           CY,
           R *
           scale *
-          samples[j],
+          factor,
           angle
         )
       );
@@ -549,15 +1064,16 @@
 
 
     for (
-      var k = 0;
-      k < count;
-      k++
+      var j = 0;
+      j <
+      count;
+      j++
     ) {
 
       var p0 =
         points[
           (
-            k -
+            j -
             1 +
             count
           ) %
@@ -566,13 +1082,13 @@
 
 
       var p1 =
-        points[k];
+        points[j];
 
 
       var p2 =
         points[
           (
-            k +
+            j +
             1
           ) %
           count
@@ -582,7 +1098,7 @@
       var p3 =
         points[
           (
-            k +
+            j +
             2
           ) %
           count
@@ -641,161 +1157,16 @@
 
 
   /* ==========================================================================
-     SVG DEFS
-     ========================================================================== */
-
-  var defs =
-    el("defs");
-
-
-  var edgeGradient =
-    el(
-      "linearGradient",
-      {
-        id:
-          "fm5-edge-gradient",
-
-        x1:
-          "8%",
-
-        y1:
-          "90%",
-
-        x2:
-          "92%",
-
-        y2:
-          "10%"
-      }
-  );
-
-
-  [
-    [
-      "0%",
-      "var(--glow)"
-    ],
-    [
-      "45%",
-      "var(--glow-soft)"
-    ],
-    [
-      "73%",
-      "var(--aqua)"
-    ],
-    [
-      "100%",
-      "var(--aqua)"
-    ]
-  ]
-  .forEach(
-    function (stop) {
-
-      edgeGradient.appendChild(
-        el(
-          "stop",
-          {
-            offset:
-              stop[0],
-
-            "stop-color":
-              stop[1]
-          }
-    )
-  );
-    }
-  );
-
-
-  var fillGradient =
-    el(
-      "radialGradient",
-      {
-        id:
-          "fm5-fill-gradient",
-
-        cx:
-          "50%",
-
-        cy:
-          "46%",
-
-        r:
-          "70%"
-      }
-  );
-
-
-  [
-    [
-      "0%",
-      "var(--aqua-deep)",
-      ".22"
-    ],
-    [
-      "60%",
-      "var(--aqua-deep)",
-      ".07"
-    ],
-    [
-      "83%",
-      "var(--glow)",
-      ".026"
-    ],
-    [
-      "100%",
-      "var(--glow)",
-      ".004"
-    ]
-  ]
-  .forEach(
-    function (stop) {
-
-      fillGradient.appendChild(
-        el(
-          "stop",
-          {
-            offset:
-              stop[0],
-
-            "stop-color":
-              stop[1],
-
-            "stop-opacity":
-              stop[2]
-          }
-    )
-  );
-    }
-  );
-
-
-  defs.appendChild(
-    edgeGradient
-  );
-
-
-  defs.appendChild(
-    fillGradient
-  );
-
-
-  svg.appendChild(
-    defs
-  );
-
-
-  /* ==========================================================================
-     SVG BUILD
+     BASE SVG
      ========================================================================== */
 
   var identity =
-    svg.appendChild(
+    scene.appendChild(
       el(
         "circle",
         {
           class:
-            "fm5-identity",
+            "fm-identity",
 
           cx:
             CX,
@@ -803,21 +1174,21 @@
           cy:
             CY,
 
-            r:
-              R *
+          r:
+            R *
             1.18
-          }
-    )
-  );
+        }
+      )
+    );
 
 
   var identityInner =
-    svg.appendChild(
+    scene.appendChild(
       el(
         "circle",
         {
           class:
-            "fm5-identity-inner",
+            "fm-identity-inner",
 
           cx:
             CX,
@@ -825,210 +1196,198 @@
           cy:
             CY,
 
-            r:
-              R *
-            .69
-          }
-    )
-  );
+          r:
+            R *
+            .70
+        }
+      )
+    );
 
 
   var fill =
-    svg.appendChild(
+    scene.appendChild(
       el(
         "path",
         {
           class:
-            "fm5-fill",
+            "fm-fill",
 
           fill:
-            "url(#fm5-fill-gradient)"
-          }
-    )
-  );
+            "url(#fm-field-gradient)"
+        }
+      )
+    );
 
 
-  var sectors =
-    svg.appendChild(
+  var sectorGroup =
+    scene.appendChild(
       el("g")
     );
 
 
-  var sectorCaps =
-    svg.appendChild(
-      el("g")
-    );
-
-
-  var history =
-    svg.appendChild(
+  var historyPath =
+    scene.appendChild(
       el(
         "path",
         {
           class:
-            "fm5-history"
-          }
-    )
-  );
+            "fm-history"
+        }
+      )
+    );
 
 
   var historyDots =
-    svg.appendChild(
+    scene.appendChild(
       el("g")
     );
 
 
-  var contours =
-    svg.appendChild(
+  var contourGroup =
+    scene.appendChild(
       el("g")
     );
 
 
-  var threads =
-    svg.appendChild(
+  var threadGroup =
+    scene.appendChild(
       el("g")
     );
 
 
-  var nodes =
-    svg.appendChild(
+  var nodeGroup =
+    scene.appendChild(
       el("g")
     );
 
 
   var modeLayer =
-    svg.appendChild(
+    scene.appendChild(
       el("g")
     );
 
 
   var guardLayer =
-    svg.appendChild(
+    scene.appendChild(
       el("g")
     );
 
 
   var bloom =
-    svg.appendChild(
+    scene.appendChild(
       el(
         "path",
         {
           class:
-            "fm5-boundary-bloom",
+            "fm-boundary-bloom",
 
           stroke:
-            "url(#fm5-edge-gradient)"
-          }
-    )
-  );
+            "url(#fm-edge-gradient)"
+        }
+      )
+    );
 
 
-  var boundaryDeep =
-    svg.appendChild(
+  var deepBoundary =
+    scene.appendChild(
       el(
         "path",
         {
           class:
-            "fm5-boundary-deep",
+            "fm-boundary-deep",
 
           stroke:
-            "url(#fm5-edge-gradient)"
-          }
-    )
-  );
+            "url(#fm-edge-gradient)"
+        }
+      )
+    );
 
 
   var boundary =
-    svg.appendChild(
+    scene.appendChild(
       el(
         "path",
         {
           class:
-            "fm5-boundary",
+            "fm-boundary",
 
           stroke:
-            "url(#fm5-edge-gradient)"
-          }
-    )
-  );
+            "url(#fm-edge-gradient)"
+        }
+      )
+    );
 
 
-  var beads =
-    svg.appendChild(
+  var boundaryBeads =
+    scene.appendChild(
       el(
         "path",
         {
           class:
-            "fm5-boundary-beads",
+            "fm-boundary-beads",
 
           stroke:
-            "url(#fm5-edge-gradient)"
-          }
-    )
-  );
+            "url(#fm-edge-gradient)"
+        }
+      )
+    );
 
 
   var positionHalo =
-    svg.appendChild(
+    scene.appendChild(
       el(
         "circle",
         {
           class:
-            "fm5-position-halo",
+            "fm-position-halo",
 
           fill:
             "var(--aqua)"
-          }
-    )
-  );
+        }
+      )
+    );
 
 
   var positionRing =
-    svg.appendChild(
+    scene.appendChild(
       el(
         "ellipse",
         {
           class:
-            "fm5-position-ring",
-
-          stroke:
-            "var(--aqua)"
-          }
-    )
-  );
+            "fm-position-ring"
+        }
+      )
+    );
 
 
   var position =
-    svg.appendChild(
+    scene.appendChild(
       el(
         "circle",
         {
           class:
-            "fm5-position",
+            "fm-position",
 
-          fill:
-            "var(--aqua)",
-
-            r:
-              "6.2"
-          }
-    )
-  );
+          r:
+            "6.2"
+        }
+      )
+    );
 
 
-  var core =
-    svg.appendChild(
+  var positionCore =
+    scene.appendChild(
       el(
         "circle",
         {
           class:
-            "fm5-position-core",
+            "fm-position-core",
 
-            r:
-              "2.2"
-          }
-    )
-  );
+          r:
+            "2.2"
+        }
+      )
+    );
 
 
   var modeName =
@@ -1037,394 +1396,300 @@
         "text",
         {
           class:
-            "fm5-mode-name",
+            "fm-mode-name",
 
           x:
             "550",
 
           y:
-            "577",
+            "580",
 
           "text-anchor":
             "middle"
-          }
-    )
-  );
+        }
+      )
+    );
 
 
-  var modeDesc =
+  var modeDescription =
     svg.appendChild(
       el(
         "text",
         {
           class:
-            "fm5-mode-desc",
+            "fm-mode-desc",
 
           x:
             "550",
 
           y:
-            "606",
+            "609",
 
           "text-anchor":
             "middle"
-          }
-    )
-  );
+        }
+      )
+    );
 
 
-  /* base geometry */
+  /* ==========================================================================
+     REPEATED BASE OBJECTS
+     ========================================================================== */
+
+  var sectors =
+    [];
+
 
   for (
     var s = 0;
-    s < 9;
+    s <
+    9;
     s++
   ) {
 
-    sectors.appendChild(
-      el(
-        "line",
-        {
-          class:
-            "fm5-sector"
+    var line =
+      sectorGroup.appendChild(
+        el(
+          "line",
+          {
+            class:
+              "fm-sector"
           }
-    )
-  );
+        )
+      );
 
 
-    sectorCaps.appendChild(
-      el(
-        "circle",
-        {
-          class:
-            "fm5-sector-cap",
+    var tip =
+      sectorGroup.appendChild(
+        el(
+          "circle",
+          {
+            class:
+              "fm-sector-tip",
 
             r:
               "3"
           }
-    )
-  );
+        )
+      );
+
+
+    sectors.push({
+      line:
+        line,
+
+      tip:
+        tip
+    });
   }
+
+
+  var contours =
+    [];
 
 
   for (
     var c = 0;
-    c < 23;
+    c <
+    24;
     c++
   ) {
 
-    contours.appendChild(
-      el(
-        "path",
-        {
-          class:
-            "fm5-contour",
+    contours.push(
+      contourGroup.appendChild(
+        el(
+          "path",
+          {
+            class:
+              "fm-contour",
 
-          stroke:
-            c >
-            16
-              ?
-                "var(--glow)"
-              :
-                "var(--aqua)"
+            stroke:
+              c >
+              17
+                ?
+                  "var(--glow)"
+                :
+                  "var(--aqua)"
           }
-    )
-  );
+        )
+      )
+    );
   }
+
+
+  var threads =
+    [];
 
 
   for (
     var t = 0;
-    t < 38;
+    t <
+    42;
     t++
   ) {
 
-    threads.appendChild(
-      el(
-        "path",
-        {
-          class:
-            "fm5-thread",
+    threads.push(
+      threadGroup.appendChild(
+        el(
+          "path",
+          {
+            class:
+              "fm-thread",
 
-          stroke:
-            t %
-            8 ===
-            0
-              ?
-                "var(--glow)"
-              :
-                "var(--aqua)"
+            stroke:
+              t %
+              8 ===
+              0
+                ?
+                  "var(--glow)"
+                :
+                  "var(--aqua)"
           }
-    )
-  );
+        )
+      )
+    );
   }
+
+
+  var nodes =
+    [];
 
 
   for (
     var n = 0;
-    n < 48;
+    n <
+    52;
     n++
   ) {
 
-    nodes.appendChild(
-      el(
-        "circle",
-        {
-          class:
-            "fm5-node",
+    nodes.push(
+      nodeGroup.appendChild(
+        el(
+          "circle",
+          {
+            class:
+              "fm-node",
 
-          fill:
-            n %
-            10 ===
-            0
-              ?
-                "var(--glow)"
-              :
-                "var(--aqua)",
+            fill:
+              n %
+              10 ===
+              0
+                ?
+                  "var(--glow)"
+                :
+                  "var(--aqua)",
 
             r:
               (
-              1.2 +
-              hash(
-                n *
-                17
-              ) *
-              1.8
-            ).toFixed(2)
+                1.2 +
+                hash(
+                  n *
+                  17
+                ) *
+                1.8
+              ).toFixed(2)
           }
-    )
-  );
+        )
+      )
+    );
   }
+
+
+  var hDots =
+    [];
 
 
   for (
-    var hd = 0;
-    hd < 12;
-    hd++
+    var h = 0;
+    h <
+    14;
+    h++
   ) {
 
-    historyDots.appendChild(
-      el(
-        "circle",
-        {
-          class:
-            "fm5-history-dot",
+    hDots.push(
+      historyDots.appendChild(
+        el(
+          "circle",
+          {
+            class:
+              "fm-history-dot",
 
             r:
               (
-              1.1 +
-              hd /
-              11 *
-              1.4
-            ).toFixed(2)
+                1.1 +
+                h /
+                13 *
+                1.5
+              ).toFixed(2)
           }
-    )
-  );
-  }
-
-
-  /*
-     Two guarded regions.
-
-     Their meaning changes by mode through placement and visibility.
-
-     They are especially important in Nova:
-       recovery
-       stability
-  */
-
-  var guardA =
-    guardLayer.appendChild(
-      el(
-        "ellipse",
-        {
-          class:
-            "fm5-guard",
-
-          stroke:
-            "var(--glow)"
-          }
-    )
-  );
-
-
-  var guardABloom =
-    guardLayer.appendChild(
-      el(
-        "ellipse",
-        {
-          class:
-            "fm5-guard-bloom",
-
-          stroke:
-            "var(--glow)"
-          }
-    )
-  );
-
-
-  var guardB =
-    guardLayer.appendChild(
-      el(
-        "ellipse",
-        {
-          class:
-            "fm5-guard",
-
-          stroke:
-            "var(--aqua)"
-          }
-    )
-  );
-
-
-  var guardBBloom =
-    guardLayer.appendChild(
-      el(
-        "ellipse",
-        {
-          class:
-            "fm5-guard-bloom",
-
-          stroke:
-            "var(--aqua)"
-          }
-    )
-  );
-
-
-  /* ==========================================================================
-     CURRENT MODE STATE
-     ========================================================================== */
-
-  var activeMode =
-    "recovery";
-
-
-  var target =
-    MODES.recovery;
-
-
-  var factors =
-    target.factors.slice();
-
-
-  var pos = {
-    x:
-      target.pos.x,
-
-    y:
-      target.pos.y
-  };
-
-
-  var energy =
-    target.energy;
-
-
-  var weights = {
-    sleep:
-      0,
-
-    stress:
-      0,
-
-    recovery:
-      1,
-
-    flow:
-      0,
-
-    nova:
-      0
-  };
-
-
-  var weightTargets = {
-    sleep:
-      0,
-
-    stress:
-      0,
-
-    recovery:
-      1,
-
-    flow:
-      0,
-
-    nova:
-      0
-  };
-
-
-  var historyPoints = [
-    {
-      x:
-        .53,
-
-      y:
-        -.20
-    },
-
-    {
-      x:
-        .36,
-
-      y:
-        -.10
-    },
-
-    {
-      x:
-        .24,
-
-      y:
-        .03
-    },
-
-    {
-      x:
-        .16,
-
-      y:
-        .12
-    }
-  ];
-
-
-  var clock =
-    0;
-
-
-  var modeStart =
-    0;
-
-
-  function modeProgress(seconds) {
-
-    return smoothstep(
-      clamp(
-        (
-          clock -
-          modeStart
-        ) /
-        (
-          seconds *
-          1000
-        ),
-        0,
-        1
+        )
       )
     );
   }
 
 
   /* ==========================================================================
-     MODE-SPECIFIC SVG LAYERS
+     GUARDED REGIONS
      ========================================================================== */
 
-  var sleepRings =
+  function makeGuard(
+    stroke
+  ) {
+
+    return {
+
+      bloom:
+        guardLayer.appendChild(
+          el(
+            "ellipse",
+            {
+              class:
+                "fm-guard-bloom",
+
+              stroke:
+                stroke
+            }
+          )
+        ),
+
+      ring:
+        guardLayer.appendChild(
+          el(
+            "ellipse",
+            {
+              class:
+                "fm-guard",
+
+              stroke:
+                stroke
+            }
+          )
+        )
+    };
+  }
+
+
+  var guardA =
+    makeGuard(
+      "var(--glow)"
+    );
+
+
+  var guardB =
+    makeGuard(
+      "var(--aqua)"
+    );
+
+
+  /* ==========================================================================
+     SLEEP LAYER
+     ========================================================================== */
+
+  var sleepShells =
+    [];
+
+
+  var sleepWaves =
     [];
 
 
@@ -1434,28 +1699,51 @@
 
   for (
     var sr = 0;
-    sr < 12;
+    sr <
+    13;
     sr++
   ) {
 
-    sleepRings.push(
+    sleepShells.push(
       modeLayer.appendChild(
         el(
           "ellipse",
           {
             class:
-              "fm5-sleep-ring"
+              "fm-sleep-shell"
           }
+        )
       )
-    )
-  );
+    );
   }
 
 
   for (
-    var sl = 0;
-    sl < 7;
-    sl++
+    var sw = 0;
+    sw <
+    8;
+    sw++
+  ) {
+
+    sleepWaves.push(
+      modeLayer.appendChild(
+        el(
+          "ellipse",
+          {
+            class:
+              "fm-sleep-wave"
+          }
+        )
+      )
+    );
+  }
+
+
+  for (
+    var sroute = 0;
+    sroute <
+    8;
+    sroute++
   ) {
 
     sleepRoutes.push(
@@ -1464,11 +1752,11 @@
           "path",
           {
             class:
-              "fm5-sleep-route"
+              "fm-sleep-route"
           }
+        )
       )
-    )
-  );
+    );
   }
 
 
@@ -1478,158 +1766,224 @@
         "circle",
         {
           class:
-            "fm5-sleep-gate",
+            "fm-sleep-gate",
 
-            r:
-              "3.5"
-          }
-    )
-  );
+          r:
+            "3.7"
+        }
+      )
+    );
 
 
-  var pressureWaves =
+  /* ==========================================================================
+     STRESS LAYER
+     ========================================================================== */
+
+  var stressFronts =
     [];
 
 
-  var demandRoutes =
+  var stressRoutes =
     [];
 
 
-  var hotNodes =
+  var stressNodes =
     [];
+
+
+  var stressHold =
+    modeLayer.appendChild(
+      el(
+        "ellipse",
+        {
+          class:
+            "fm-stress-hold"
+        }
+      )
+    );
 
 
   for (
-    var pw = 0;
-    pw < 8;
-    pw++
+    var sf = 0;
+    sf <
+    9;
+    sf++
   ) {
 
-    pressureWaves.push(
+    stressFronts.push(
       modeLayer.appendChild(
         el(
           "ellipse",
           {
             class:
-              "fm5-pressure"
+              "fm-stress-front"
           }
+        )
       )
-    )
-  );
+    );
   }
 
 
   for (
-    var dr = 0;
-    dr < 8;
-    dr++
+    var str = 0;
+    str <
+    10;
+    str++
   ) {
 
-    demandRoutes.push(
+    stressRoutes.push(
       modeLayer.appendChild(
         el(
           "path",
           {
             class:
-              "fm5-demand"
+              "fm-stress-route"
           }
+        )
       )
-    )
-  );
+    );
   }
 
 
   for (
-    var hn = 0;
-    hn < 14;
-    hn++
+    var stn = 0;
+    stn <
+    18;
+    stn++
   ) {
 
-    hotNodes.push(
+    stressNodes.push(
       modeLayer.appendChild(
         el(
           "circle",
           {
             class:
-              "fm5-hot",
+              "fm-stress-node",
 
             r:
               (
                 1.1 +
                 hash(
-                  hn *
+                  stn *
                   13
                 ) *
-                1.5
+                1.7
               ).toFixed(2)
           }
+        )
       )
-    )
-  );
+    );
   }
 
 
-  var strainGhosts =
+  /* ==========================================================================
+     RECOVERY LAYER
+     ========================================================================== */
+
+  var recoveryGhosts =
     [];
 
 
-  var releaseRoutes =
+  var recoveryRelease =
+    [];
+
+
+  var recoveryKnots =
     [];
 
 
   for (
-    var sg = 0;
-    sg < 6;
-    sg++
+    var rg = 0;
+    rg <
+    6;
+    rg++
   ) {
 
-    strainGhosts.push(
+    recoveryGhosts.push(
       modeLayer.appendChild(
         el(
           "path",
           {
             class:
-              "fm5-strain-ghost"
+              "fm-recovery-ghost"
           }
+        )
       )
-    )
-  );
+    );
   }
 
 
   for (
-    var rel = 0;
-    rel < 12;
-    rel++
+    var rr = 0;
+    rr <
+    14;
+    rr++
   ) {
 
-    releaseRoutes.push(
+    recoveryRelease.push(
       modeLayer.appendChild(
         el(
           "path",
           {
             class:
-              "fm5-release"
+              "fm-recovery-release"
           }
+        )
       )
-    )
-  );
+    );
   }
 
 
-  var reserveGlow =
+  for (
+    var rk = 0;
+    rk <
+    12;
+    rk++
+  ) {
+
+    recoveryKnots.push(
+      modeLayer.appendChild(
+        el(
+          "ellipse",
+          {
+            class:
+              "fm-recovery-knot"
+          }
+        )
+      )
+    );
+  }
+
+
+  var recoveryReserve =
     modeLayer.appendChild(
       el(
         "circle",
         {
           class:
-            "fm5-reserve"
-          }
-    )
-  );
+            "fm-recovery-reserve"
+        }
+      )
+    );
 
 
-  var flowPaths =
+  var recoveryRoute =
+    modeLayer.appendChild(
+      el(
+        "path",
+        {
+          class:
+            "fm-recovery-route"
+        }
+      )
+    );
+
+
+  /* ==========================================================================
+     FLOW LAYER
+     ========================================================================== */
+
+  var flowRoutes =
     [];
 
 
@@ -1637,30 +1991,44 @@
     [];
 
 
+  var flowFront =
+    modeLayer.appendChild(
+      el(
+        "ellipse",
+        {
+          class:
+            "fm-flow-front"
+        }
+      )
+    );
+
+
   for (
-    var fl = 0;
-    fl < 17;
-    fl++
+    var fr = 0;
+    fr <
+    19;
+    fr++
   ) {
 
-    flowPaths.push(
+    flowRoutes.push(
       modeLayer.appendChild(
         el(
           "path",
           {
             class:
-              "fm5-flow-path"
+              "fm-flow-route"
           }
+        )
       )
-    )
-  );
+    );
   }
 
 
   for (
-    var fpn = 0;
-    fpn < 15;
-    fpn++
+    var fp = 0;
+    fp <
+    17;
+    fp++
   ) {
 
     flowPulses.push(
@@ -1669,52 +2037,41 @@
           "circle",
           {
             class:
-              "fm5-flow-pulse",
+              "fm-flow-pulse",
 
             r:
-              "2.4"
+              "2.5"
           }
+        )
       )
-    )
-  );
+    );
   }
+
+
+  /* ==========================================================================
+     NOVA LAYER
+     ========================================================================== */
+
+  var novaNodes =
+    [];
 
 
   var novaLinks =
     [];
 
 
-  var novaNodes =
+  var novaRoutes =
     [];
 
 
-  var novaReturns =
+  var novaChecks =
     [];
-
-
-  for (
-    var nl = 0;
-    nl < 32;
-    nl++
-  ) {
-
-    novaLinks.push(
-      modeLayer.appendChild(
-        el(
-          "path",
-          {
-            class:
-              "fm5-nova-link"
-          }
-      )
-    )
-  );
-  }
 
 
   for (
     var nn = 0;
-    nn < 36;
+    nn <
+    42;
     nn++
   ) {
 
@@ -1724,49 +2081,86 @@
           "circle",
           {
             class:
-              "fm5-nova-node",
+              "fm-nova-node",
 
             r:
               (
-              1.2 +
-              hash(
-                nn *
-                11
-              ) *
-              1.6
-            ).toFixed(2)
+                1.2 +
+                hash(
+                  nn *
+                  11
+                ) *
+                1.7
+              ).toFixed(2)
           }
+        )
       )
-    )
-  );
+    );
   }
 
 
   for (
-    var ret = 0;
-    ret < 12;
-    ret++
+    var nl = 0;
+    nl <
+    38;
+    nl++
   ) {
 
-    novaReturns.push(
+    novaLinks.push(
       modeLayer.appendChild(
         el(
           "path",
           {
             class:
-              "fm5-nova-return"
+              "fm-nova-link"
           }
+        )
       )
-    )
-  );
+    );
+  }
+
+
+  for (
+    var nr = 0;
+    nr <
+    14;
+    nr++
+  ) {
+
+    novaRoutes.push(
+      modeLayer.appendChild(
+        el(
+          "path",
+          {
+            class:
+              "fm-nova-route"
+          }
+        )
+      )
+    );
+
+
+    novaChecks.push(
+      modeLayer.appendChild(
+        el(
+          "circle",
+          {
+            class:
+              "fm-nova-check"
+          }
+        )
+      )
+    );
   }
 
 
   /* ==========================================================================
-     SET MODE
+     MODE CHANGE
      ========================================================================== */
 
-  function setMode(key) {
+  function selectMode(
+    key
+  ) {
 
     if (
       !MODES[key]
@@ -1775,12 +2169,38 @@
     }
 
 
+    /*
+       Same mode:
+       replay its story from the current posture.
+    */
+
+    if (
+      key ===
+      activeMode
+    ) {
+
+      captureEventOrigin();
+
+      modeStart =
+        clock;
+
+      return;
+    }
+
+
+    previousMode =
+      activeMode;
+
+
     activeMode =
       key;
 
 
-    target =
+    targetMode =
       MODES[key];
+
+
+    captureEventOrigin();
 
 
     modeStart =
@@ -1804,6 +2224,24 @@
     );
 
 
+    system.history.push({
+      x:
+        system.position.x,
+
+      y:
+        system.position.y
+    });
+
+
+    if (
+      system.history.length >
+      20
+    ) {
+
+      system.history.shift();
+    }
+
+
     buttons.forEach(
       function (button) {
 
@@ -1821,38 +2259,47 @@
     );
 
 
-    historyPoints.push({
-      x:
-        pos.x,
-
-      y:
-        pos.y
-    });
-
-
-    if (
-      historyPoints.length >
-      16
-    ) {
-
-      historyPoints.shift();
-    }
-
-
-    setAurora(
+    updateAurora(
       key
     );
 
 
-    ensure();
+    ensureAnimation();
   }
 
 
-  function setAurora(key) {
+  function captureEventOrigin() {
+
+    eventOrigin = {
+
+      factors:
+        system.factors.slice(),
+
+      position: {
+        x:
+          system.position.x,
+
+        y:
+          system.position.y
+      },
+
+      energy:
+        system.energy
+    };
+  }
+
+
+  /* ==========================================================================
+     PAGE ATMOSPHERE
+     ========================================================================== */
+
+  function updateAurora(
+    key
+  ) {
 
     var aurora =
       host.querySelector(
-        ".fm5__aurora"
+        ".fm__aurora"
       );
 
 
@@ -1866,14 +2313,20 @@
 
 
       host.style.setProperty(
-        "--fm5-scale",
-        ".82"
+        "--fm-aurora-scale",
+        ".80"
       );
 
 
       host.style.setProperty(
-        "--fm5-y",
-        "5%"
+        "--fm-aurora-y",
+        "6%"
+      );
+
+
+      host.style.setProperty(
+        "--fm-aurora-x",
+        "-1%"
       );
 
     } else if (
@@ -1882,18 +2335,24 @@
     ) {
 
       aurora.style.background =
-        "radial-gradient(ellipse at 61% 43%,color-mix(in srgb,var(--status-ease) 13%,transparent),transparent 40%)";
+        "radial-gradient(ellipse at 61% 42%,color-mix(in srgb,var(--status-ease) 14%,transparent),transparent 40%)";
 
 
       host.style.setProperty(
-        "--fm5-scale",
-        "1.08"
+        "--fm-aurora-scale",
+        "1.10"
       );
 
 
       host.style.setProperty(
-        "--fm5-x",
+        "--fm-aurora-x",
         "5%"
+      );
+
+
+      host.style.setProperty(
+        "--fm-aurora-y",
+        "-2%"
       );
 
     } else if (
@@ -1906,13 +2365,19 @@
 
 
       host.style.setProperty(
-        "--fm5-scale",
+        "--fm-aurora-scale",
         "1.08"
       );
 
 
       host.style.setProperty(
-        "--fm5-x",
+        "--fm-aurora-x",
+        "1%"
+      );
+
+
+      host.style.setProperty(
+        "--fm-aurora-y",
         "0%"
       );
 
@@ -1922,18 +2387,24 @@
     ) {
 
       aurora.style.background =
-        "radial-gradient(ellipse at 50% 47%,color-mix(in srgb,var(--glow) 14%,transparent),transparent 49%)";
+        "radial-gradient(ellipse at 50% 47%,color-mix(in srgb,var(--glow) 14%,transparent),transparent 50%)";
 
 
       host.style.setProperty(
-        "--fm5-scale",
-        "1.25"
+        "--fm-aurora-scale",
+        "1.28"
       );
 
 
       host.style.setProperty(
-        "--fm5-x",
+        "--fm-aurora-x",
         "0%"
+      );
+
+
+      host.style.setProperty(
+        "--fm-aurora-y",
+        "-2%"
       );
 
     } else {
@@ -1943,527 +2414,547 @@
 
 
       host.style.setProperty(
-        "--fm5-scale",
+        "--fm-aurora-scale",
         "1"
       );
 
 
       host.style.setProperty(
-        "--fm5-x",
+        "--fm-aurora-x",
         "0%"
+      );
+
+
+      host.style.setProperty(
+        "--fm-aurora-y",
+        "1%"
       );
     }
   }
 
 
   /* ==========================================================================
-     CORE DRAW
+     CAMERA
      ========================================================================== */
 
-  function drawCore(now) {
+  function updateCamera() {
 
-    var scale =
-      1;
+    scene.setAttribute(
+      "transform",
+
+      "translate(" +
+      system.camera.x.toFixed(2) +
+      " " +
+      system.camera.y.toFixed(2) +
+      ") " +
+
+      "translate(" +
+      CX +
+      " " +
+      CY +
+      ") " +
+
+      "rotate(" +
+      system.camera.rotation.toFixed(2) +
+      ") " +
+
+      "scale(" +
+      system.camera.scale.toFixed(4) +
+      ") " +
+
+      "translate(" +
+      (-CX) +
+      " " +
+      (-CY) +
+      ")"
+    );
+  }
 
 
-    var p =
+  /* ==========================================================================
+     CORE SYSTEM DRAW
+     ========================================================================== */
+
+  function drawCore(
+    now
+  ) {
+
+    updateCamera();
+
+
+    var path =
       envelopePath(
-        factors,
-        scale
+        system.factors,
+        1
       );
 
 
     fill.setAttribute(
       "d",
-      p
+      path
     );
 
 
     bloom.setAttribute(
       "d",
-      p
+      path
     );
 
 
-    boundaryDeep.setAttribute(
+    deepBoundary.setAttribute(
       "d",
-      p
+      path
     );
 
 
     boundary.setAttribute(
       "d",
-      p
+      path
     );
 
 
-    beads.setAttribute(
+    boundaryBeads.setAttribute(
       "d",
-      p
+      path
     );
 
 
     bloom.style.opacity =
       (
         .07 +
-        energy *
-        .16
+        system.energy *
+        .17
       ).toFixed(3);
 
 
     /* ----------------------------------------------------------------------
-       NINE SECTORS
+       NINE CONDITIONED DIRECTIONS
        ---------------------------------------------------------------------- */
 
-    var sectorLines =
-      sectors.childNodes;
+    sectors.forEach(
+      function (sector, index) {
+
+        var angle =
+          dimensionAngle(
+            index
+          );
 
 
-    var caps =
-      sectorCaps.childNodes;
-
-
-    for (
-      var i = 0;
-      i < 9;
-      i++
-    ) {
-
-      var angle =
-        angleAt9(
-          i
-        );
-
-
-      var normalized =
-        visualFactor(
-          factors[i]
-        );
-
-
-      var p0 =
-        polar(
-          CX,
-          CY,
+        var radius =
           R *
-          .24,
-          angle
-        );
+          visualFactor(
+            system.factors[
+              index
+            ]
+          );
 
 
-      var p1 =
-        polar(
-          CX,
-          CY,
-          R *
-          normalized,
-          angle
-        );
+        var inner =
+          polar(
+            CX,
+            CY,
+            R *
+            .23,
+            angle
+          );
 
 
-      sectorLines[i]
-        .setAttribute(
+        var outer =
+          polar(
+            CX,
+            CY,
+            radius,
+            angle
+          );
+
+
+        sector.line.setAttribute(
           "x1",
-          p0.x
+          inner.x
         );
 
 
-      sectorLines[i]
-        .setAttribute(
+        sector.line.setAttribute(
           "y1",
-          p0.y
+          inner.y
         );
 
 
-      sectorLines[i]
-        .setAttribute(
+        sector.line.setAttribute(
           "x2",
-          p1.x
+          outer.x
         );
 
 
-      sectorLines[i]
-        .setAttribute(
+        sector.line.setAttribute(
           "y2",
-          p1.y
+          outer.y
         );
 
 
-      caps[i]
-        .setAttribute(
+        sector.tip.setAttribute(
           "cx",
-          p1.x
+          outer.x
         );
 
 
-      caps[i]
-        .setAttribute(
+        sector.tip.setAttribute(
           "cy",
-          p1.y
+          outer.y
         );
 
 
-      caps[i]
-        .style.opacity =
-        (
-          .025 +
-          Math.abs(
-            factors[i] -
-            1
-          ) *
-          .28
-        ).toFixed(3);
-    }
+        sector.tip.style.opacity =
+          (
+            .02 +
+            Math.abs(
+              system.factors[
+                index
+              ] -
+              1
+            ) *
+            .32
+          ).toFixed(3);
+      }
+    );
 
 
     /* ----------------------------------------------------------------------
-       TOPOLOGY
+       INTERIOR CONTOURS
        ---------------------------------------------------------------------- */
 
-    var contourNodes =
-      contours.childNodes;
+    contours.forEach(
+      function (contour, index) {
+
+        var f =
+          (
+            index +
+            1
+          ) /
+          contours.length;
 
 
-    for (
-      var c = 0;
-      c < contourNodes.length;
-      c++
-    ) {
+        var factors =
+          system.factors.map(
+            function (value) {
 
-      var f =
-        (
-          c +
-          1
-        ) /
-        contourNodes.length;
+              return lerp(
+                1,
+                value,
+                .35 +
+                f *
+                .65
+              );
+            }
+          );
 
 
-      var innerFactors =
-        factors.map(
-          function (factor) {
+        /*
+           During Stress, inner geometry experiences directional shear.
 
-            return lerp(
-              1,
-              factor,
-              .45 +
-              f *
-              .55
+           During Sleep, deepest layers become more concentric.
+
+           During Flow/Nova, topology grows more regular.
+        */
+
+        if (
+          weights.stress >
+          .01
+        ) {
+
+          factors =
+            factors.map(
+              function (value, i) {
+
+                return (
+                  value +
+                  weights.stress *
+                  (
+                    1 -
+                    f
+                  ) *
+                  .03 *
+                  Math.sin(
+                    i *
+                    .9 +
+                    now *
+                    .001
+                  )
+                );
+              }
             );
-          }
-        );
+        }
 
 
-      contourNodes[c]
-        .setAttribute(
+        contour.setAttribute(
           "d",
           envelopePath(
-            innerFactors,
-            .14 +
+            factors,
+            .13 +
             f *
-            .81
+            .82
           )
         );
 
 
-      contourNodes[c]
-        .style.opacity =
-        (
-          .022 +
+        contour.style.opacity =
           (
-            1 -
-            f
-          ) *
-          .13
-        ).toFixed(3);
-    }
+            .02 +
+            (
+              1 -
+              f
+            ) *
+            (
+              .09 +
+              system.coherence *
+              .06
+            )
+          ).toFixed(3);
+      }
+    );
 
 
     /* ----------------------------------------------------------------------
-       THREADS
+       RELATIONAL THREADS
        ---------------------------------------------------------------------- */
 
-    var threadNodes =
-      threads.childNodes;
+    threads.forEach(
+      function (thread, index) {
 
-
-    for (
-      var ti = 0;
-      ti < threadNodes.length;
-      ti++
-    ) {
-
-      var a =
-        hash(
-          ti *
-          17
-        ) *
-        TAU;
-
-
-      var b =
-        a +
-        1 +
-        hash(
-          ti *
-          29
-        ) *
-        2.2;
-
-
-      var pA =
-        polar(
-          CX,
-          CY,
-          R *
-          (
-            .18 +
-            hash(
-              ti *
-              11
-            ) *
-            .50
-          ),
-          a
-        );
-
-
-      var pB =
-        polar(
-          CX,
-          CY,
-          R *
-          (
-            .42 +
-            hash(
-              ti *
-              31
-            ) *
-            .39
-          ),
-          b
-        );
-
-
-      var bend =
-        weights.stress *
-        .48 +
-        (
-          1 -
-          weights.flow
-        ) *
-        .10;
-
-
-      var control =
-        polar(
-          CX,
-          CY,
-          R *
-          (
-            .16 +
-            hash(
-              ti *
-              7
-            ) *
-            .33
-          ),
-          (
-            a +
-            b
-          ) /
-          2 +
-          Math.sin(
-            now *
-            .0005 +
-            ti
+        var a =
+          hash(
+            index *
+            17 +
+            3
           ) *
-          bend
-        );
+          TAU;
 
 
-      threadNodes[ti]
-        .setAttribute(
+        var b =
+          a +
+          1.0 +
+          hash(
+            index *
+            29 +
+            7
+          ) *
+          2.1;
+
+
+        var p0 =
+          polar(
+            CX,
+            CY,
+            R *
+            (
+              .18 +
+              hash(
+                index *
+                11
+              ) *
+              .50
+            ),
+            a
+          );
+
+
+        var p1 =
+          polar(
+            CX,
+            CY,
+            R *
+            (
+              .40 +
+              hash(
+                index *
+                31
+              ) *
+              .40
+            ),
+            b
+          );
+
+
+        var disorder =
+          (
+            1 -
+            system.coherence
+          ) *
+          .52;
+
+
+        var control =
+          polar(
+            CX,
+            CY,
+            R *
+            (
+              .16 +
+              hash(
+                index *
+                7
+              ) *
+              .33
+            ),
+            (
+              a +
+              b
+            ) /
+            2 +
+            Math.sin(
+              now *
+              .00045 +
+              index
+            ) *
+            disorder
+          );
+
+
+        thread.setAttribute(
           "d",
           "M" +
-          pA.x.toFixed(1) +
+          p0.x.toFixed(1) +
           " " +
-          pA.y.toFixed(1) +
+          p0.y.toFixed(1) +
           "Q" +
           control.x.toFixed(1) +
           " " +
           control.y.toFixed(1) +
           "," +
-          pB.x.toFixed(1) +
+          p1.x.toFixed(1) +
           " " +
-          pB.y.toFixed(1)
+          p1.y.toFixed(1)
         );
 
 
-      threadNodes[ti]
-        .style.opacity =
-        (
-          .025 +
+        thread.style.opacity =
           (
-            .06 +
-            hash(
-              ti *
-              13
-            ) *
-            .13
-          ) *
-          (
-            .72 +
-            weights.flow *
-            .28 +
-            weights.nova *
-            .34
-          )
-        ).toFixed(3);
-    }
+            .025 +
+            system.coherence *
+            (
+              .05 +
+              hash(
+                index *
+                13
+              ) *
+              .14
+            )
+          ).toFixed(3);
+      }
+    );
 
 
     /* ----------------------------------------------------------------------
        NODES
        ---------------------------------------------------------------------- */
 
-    var nodeList =
-      nodes.childNodes;
+    nodes.forEach(
+      function (node, index) {
 
-
-    for (
-      var ni = 0;
-      ni < nodeList.length;
-      ni++
-    ) {
-
-      var angle =
-        hash(
-          ni *
-          37
-        ) *
-        TAU;
-
-
-      var rr =
-        R *
-        Math.sqrt(
-          .04 +
+        var angle =
           hash(
-            ni *
-            19
+            index *
+            37 +
+            4
           ) *
-          .76
-        );
+          TAU;
 
 
-      var freedom =
-        weights.stress *
-        .72 +
-        weights.recovery *
-        (
-          1 -
-          modeProgress(
-            5.5
-          )
-        ) *
-        .22;
+        var radius =
+          R *
+          Math.sqrt(
+            .04 +
+            hash(
+              index *
+              19
+            ) *
+            .76
+          );
 
 
-      var pNode =
-        polar(
-          CX,
-          CY,
-          rr +
-          Math.cos(
-            now *
-            .0004 +
-            ni
-          ) *
-          freedom *
-          10,
-          angle +
-          Math.sin(
-            now *
-            .0003 +
-            ni
-          ) *
-          freedom *
-          .12
-        );
-
-
-      nodeList[ni]
-        .setAttribute(
-          "cx",
-          pNode.x
-        );
-
-
-      nodeList[ni]
-        .setAttribute(
-          "cy",
-          pNode.y
-        );
-
-
-      nodeList[ni]
-        .style.opacity =
-        (
-          .08 +
+        var freedom =
           (
-            weights.flow *
-            .22 +
-            weights.nova *
-            .35 +
-            weights.sleep *
-            .10
-          )
-        ).toFixed(3);
-    }
+            1 -
+            system.coherence
+          );
+
+
+        var point =
+          polar(
+            CX,
+            CY,
+            radius +
+            Math.cos(
+              now *
+              .00042 +
+              index
+            ) *
+            freedom *
+            10,
+            angle +
+            Math.sin(
+              now *
+              .00031 +
+              index
+            ) *
+            freedom *
+            .13
+          );
+
+
+        node.setAttribute(
+          "cx",
+          point.x
+        );
+
+
+        node.setAttribute(
+          "cy",
+          point.y
+        );
+
+
+        node.style.opacity =
+          (
+            .08 +
+            system.coherence *
+            .30
+          ).toFixed(3);
+      }
+    );
 
 
     drawPosition();
-    drawGuards();
+
     drawHistory();
+
+    drawGuards();
+
+
+    modeName.textContent =
+      targetMode.name;
+
+
+    modeDescription.textContent =
+      targetMode.description;
   }
 
 
-  function angleAt9(i) {
-
-    return (
-      i /
-      9 *
-      TAU -
-      Math.PI /
-      2
-    );
-  }
-
-
-  function visualFactor(v) {
-
-    return (
-      .78 +
-      (
-        v -
-        .70
-      ) *
-      .63
-    );
-  }
-
+  /* ==========================================================================
+     POSITION
+     ========================================================================== */
 
   function drawPosition() {
 
     var x =
       CX +
-      pos.x *
+      system.position.x *
       R;
 
 
     var y =
       CY +
-      pos.y *
+      system.position.y *
       R;
 
 
@@ -2481,16 +2972,20 @@
 
     positionHalo.setAttribute(
       "r",
-      19 +
-      energy *
-      30
+      (
+        19 +
+        system.energy *
+        30
+      ).toFixed(1)
     );
 
 
     positionHalo.style.opacity =
-      .07 +
-      energy *
-      .21;
+      (
+        .07 +
+        system.energy *
+        .21
+      ).toFixed(3);
 
 
     positionRing.setAttribute(
@@ -2507,17 +3002,38 @@
 
     positionRing.setAttribute(
       "rx",
-      11 +
-      weights.stress *
-      13
+      (
+        10 +
+        weights.stress *
+        14 +
+        weights.nova *
+        4
+      ).toFixed(1)
     );
 
 
     positionRing.setAttribute(
       "ry",
-      9 +
-      energy *
-      3
+      (
+        9 +
+        system.energy *
+        4
+      ).toFixed(1)
+    );
+
+
+    positionRing.setAttribute(
+      "transform",
+      "rotate(" +
+      (
+        weights.stress *
+        28
+      ).toFixed(1) +
+      " " +
+      x +
+      " " +
+      y +
+      ")"
     );
 
 
@@ -2533,24 +3049,135 @@
     );
 
 
-    core.setAttribute(
+    positionCore.setAttribute(
       "cx",
       x
     );
 
 
-    core.setAttribute(
+    positionCore.setAttribute(
       "cy",
       y
     );
+  }
 
 
-    modeName.textContent =
-      target.name;
+  /* ==========================================================================
+     HISTORY
+     ========================================================================== */
+
+  function drawHistory() {
+
+    var points =
+      system.history.concat([
+        {
+          x:
+            system.position.x,
+
+          y:
+            system.position.y
+        }
+      ]);
 
 
-    modeDesc.textContent =
-      target.desc;
+    var d =
+      "";
+
+
+    points.forEach(
+      function (point, index) {
+
+        d +=
+          (
+            index
+              ?
+                "L"
+              :
+                "M"
+          ) +
+          (
+            CX +
+            point.x *
+            R
+          ).toFixed(1) +
+          " " +
+          (
+            CY +
+            point.y *
+            R
+          ).toFixed(1);
+      }
+    );
+
+
+    historyPath.setAttribute(
+      "d",
+      d
+    );
+
+
+    historyPath.style.opacity =
+      (
+        .09 +
+        weights.recovery *
+        .50
+      ).toFixed(3);
+
+
+    hDots.forEach(
+      function (dot, index) {
+
+        var pointIndex =
+          Math.round(
+            index *
+            (
+              points.length -
+              1
+            ) /
+            Math.max(
+              1,
+              hDots.length -
+              1
+            )
+          );
+
+
+        var point =
+          points[
+            Math.min(
+              points.length -
+              1,
+              pointIndex
+            )
+          ];
+
+
+        dot.setAttribute(
+          "cx",
+          CX +
+          point.x *
+          R
+        );
+
+
+        dot.setAttribute(
+          "cy",
+          CY +
+          point.y *
+          R
+        );
+
+
+        dot.style.opacity =
+          (
+            .02 +
+            weights.recovery *
+            index /
+            hDots.length *
+            .32
+          ).toFixed(3);
+      }
+    );
   }
 
 
@@ -2558,94 +3185,33 @@
      GUARDED REGIONS
      ========================================================================== */
 
-  function drawGuards() {
-
-    /*
-       approximate dimension angles:
-       recovery = 3
-       stability = 4
-       sleep = 1
-    */
-
-    var guardStrengthA =
-      weights.nova *
-      .92 +
-      weights.stress *
-      .62 +
-      weights.recovery *
-      .78;
-
-
-    var guardStrengthB =
-      weights.nova *
-      .78 +
-      weights.stress *
-      .54;
-
-
-    var aAngle =
-      activeMode ===
-      "stress"
-        ?
-          angleAt9(1)
-        :
-          angleAt9(3);
-
-
-    var bAngle =
-      angleAt9(4);
-
-
-    var A =
-      polar(
-        CX,
-        CY,
-        R *
-        .53,
-        aAngle
-      );
-
-
-    var B =
-      polar(
-        CX,
-        CY,
-        R *
-        .53,
-        bAngle
-      );
-
-
-    setGuard(
-      guardA,
-      guardABloom,
-      A,
-      guardStrengthA,
-      -22
-    );
-
-
-    setGuard(
-      guardB,
-      guardBBloom,
-      B,
-      guardStrengthB,
-      18
-    );
-  }
-
-
-  function setGuard(
-    ring,
-    bloomRing,
-    point,
+  function positionGuard(
+    guard,
+    dimension,
     strength,
+    scale,
     rotation
   ) {
 
+    var angle =
+      dimensionAngle(
+        dimension
+      );
+
+
+    var point =
+      polar(
+        CX,
+        CY,
+        R *
+        .53,
+        angle
+      );
+
+
     [
-      ring,
-      bloomRing
+      guard.ring,
+      guard.bloom
     ]
     .forEach(
       function (node) {
@@ -2664,13 +3230,15 @@
 
         node.setAttribute(
           "rx",
-          23
+          24 *
+          scale
         );
 
 
         node.setAttribute(
           "ry",
-          11
+          11 *
+          scale
         );
 
 
@@ -2688,269 +3256,308 @@
     );
 
 
-    ring.style.opacity =
-      strength *
-      .62;
+    guard.ring.style.opacity =
+      (
+        strength *
+        .66
+      ).toFixed(3);
 
 
-    bloomRing.style.opacity =
-      strength *
-      .14;
+    guard.bloom.style.opacity =
+      (
+        strength *
+        .15
+      ).toFixed(3);
   }
 
 
-  /* ==========================================================================
-     HISTORY
-     ========================================================================== */
+  function drawGuards() {
 
-  function drawHistory() {
+    /*
+       Recovery dimension = 3
+       Stability = 4
+       Sleep = 1
+    */
 
-    var points =
-      historyPoints.concat([
-        {
-          x:
-            pos.x,
-
-          y:
-            pos.y
-        }
-      ]);
-
-
-    var d =
-      "";
-
-
-    points.forEach(
-      function (p, i) {
-
-        d +=
-          (
-            i
-              ?
-                "L"
-              :
-                "M"
-          ) +
-          (
-            CX +
-            p.x *
-            R
-          ).toFixed(1) +
-          " " +
-          (
-            CY +
-            p.y *
-            R
-          ).toFixed(1);
-      }
-    );
-
-
-    history.setAttribute(
-      "d",
-      d
-    );
-
-
-    history.style.opacity =
-      .10 +
-      weights.recovery *
-      .48;
-
-
-    var dots =
-      historyDots.childNodes;
-
-
-    for (
-      var i = 0;
-      i < dots.length;
-      i++
+    if (
+      weights.stress >
+      weights.nova
     ) {
 
-      var idx =
-        Math.round(
-          i *
-          (
-            points.length -
-            1
-          ) /
-          Math.max(
-            1,
-            dots.length -
-            1
-          )
-        );
-
-
-      var p =
-        points[
-          Math.min(
-            points.length -
-            1,
-            idx
-          )
-        ];
-
-
-      dots[i]
-        .setAttribute(
-          "cx",
-          CX +
-          p.x *
-          R
-        );
-
-
-      dots[i]
-        .setAttribute(
-          "cy",
-          CY +
-          p.y *
-          R
-        );
-
-
-      dots[i]
-        .style.opacity =
-        .03 +
+      positionGuard(
+        guardA,
+        3,
+        weights.stress *
+        .88 +
         weights.recovery *
-        i /
-        12 *
-        .30;
+        .52,
+        1,
+        -20
+      );
+
+
+      positionGuard(
+        guardB,
+        1,
+        weights.stress *
+        .78 +
+        weights.sleep *
+        .62,
+        1,
+        18
+      );
+
+    } else {
+
+      positionGuard(
+        guardA,
+        3,
+        weights.nova *
+        .95 +
+        weights.recovery *
+        .70,
+        1,
+        -20
+      );
+
+
+      positionGuard(
+        guardB,
+        4,
+        weights.nova *
+        .88,
+        1,
+        17
+      );
     }
   }
 
 
   /* ==========================================================================
-     SLEEP SVG
+     SLEEP STORY
 
-     The reader should immediately see:
-       outside ignored
-       inside active
-       a deep governing rhythm
+     0-.20    exterior still active
+     .15-.45  exterior begins bypassing
+     .22-.65  field folds inward
+     .35-.82  internal circulation organizes
+     .62-1    restoration pulse reaches the core
      ========================================================================== */
 
-  function drawSleep(now) {
+  function drawSleep(
+    now,
+    p
+  ) {
 
     var w =
       weights.sleep;
 
 
-    var p =
-      modeProgress(
-        5
+    var fold =
+      eventWindow(
+        p,
+        .18,
+        .67
       );
 
 
-    sleepRings.forEach(
-      function (ring, i) {
+    sleepShells.forEach(
+      function (shell, index) {
 
         var f =
           (
-            i +
+            index +
             1
           ) /
-          sleepRings.length;
+          sleepShells.length;
 
 
-        var rr =
+        var radius =
           R *
           (
-            .11 +
+            .10 +
             f *
-            .69
-          ) *
-          lerp(
-            1.10,
-            .91,
-            p
+            .70
           );
 
 
-        ring.setAttribute(
+        shell.setAttribute(
           "cx",
           CX -
-          16 *
-          p
+          fold *
+          17
         );
 
 
-        ring.setAttribute(
+        shell.setAttribute(
           "cy",
           CY +
-          13 *
-          p
+          fold *
+          13
         );
 
 
-        ring.setAttribute(
+        shell.setAttribute(
           "rx",
-          rr
-        );
-
-
-        ring.setAttribute(
-          "ry",
-          rr *
-          (
-            .90 -
-            f *
-            .04
+          radius *
+          lerp(
+            1.05,
+            .89,
+            fold
           )
         );
 
 
-        ring.style.opacity =
-          w *
+        shell.setAttribute(
+          "ry",
+          radius *
           (
-            .025 +
-            p *
-            .11
-          ) *
-          (
-            1 -
+            .91 -
             f *
-            .35
-          );
+            .035
+          ) *
+          lerp(
+            1.04,
+            .90,
+            fold
+          )
+        );
+
+
+        shell.style.opacity =
+          (
+            w *
+            (
+              .025 +
+              fold *
+              .10
+            ) *
+            (
+              1 -
+              f *
+              .34
+            )
+          ).toFixed(3);
       }
     );
 
 
     /*
-       Deep circulating routes.
+       Slow pulse moves OUTSIDE → INNER → CORE.
     */
 
-    sleepRoutes.forEach(
-      function (route, i) {
+    sleepWaves.forEach(
+      function (wave, index) {
 
-        var a =
-          i /
+        var local =
+          clamp(
+            (
+              p -
+              .52 -
+              index *
+              .035
+            ) /
+            .38,
+            0,
+            1
+          );
+
+
+        var radius =
+          lerp(
+            R *
+            .86,
+            18,
+            smoothstep(
+              local
+            )
+          );
+
+
+        wave.setAttribute(
+          "cx",
+          CX -
+          fold *
+          17
+        );
+
+
+        wave.setAttribute(
+          "cy",
+          CY +
+          fold *
+          13
+        );
+
+
+        wave.setAttribute(
+          "rx",
+          radius
+        );
+
+
+        wave.setAttribute(
+          "ry",
+          radius *
+          .87
+        );
+
+
+        wave.style.opacity =
+          (
+            w *
+            pulseWindow(
+              local,
+              0,
+              .45,
+              1
+            ) *
+            .20
+          ).toFixed(3);
+      }
+    );
+
+
+    /*
+       Internal restoration routes.
+    */
+
+    var routeReveal =
+      eventWindow(
+        p,
+        .30,
+        .80
+      );
+
+
+    sleepRoutes.forEach(
+      function (route, index) {
+
+        var angle =
+          index /
           sleepRoutes.length *
           TAU;
 
 
-        var start =
+        var outside =
           polar(
             CX,
             CY,
             R *
             .65,
-            a
+            angle
           );
 
 
-        var end =
+        var inside =
           polar(
             CX -
-            18,
+            17,
             CY +
-            12,
+            13,
             R *
-            .16,
-            a +
-            1.5
+            .15,
+            angle +
+            1.45
           );
 
 
@@ -2960,234 +3567,287 @@
             CY,
             R *
             .27,
-            a +
-            .7
+            angle +
+            .72
           );
 
 
         route.setAttribute(
           "d",
           "M" +
-          start.x +
+          outside.x +
           " " +
-          start.y +
+          outside.y +
           "Q" +
           control.x +
           " " +
           control.y +
           "," +
-          end.x +
+          inside.x +
           " " +
-          end.y
+          inside.y
         );
 
 
         route.style.opacity =
-          w *
-          p *
-          .23;
+          (
+            w *
+            routeReveal *
+            .23
+          ).toFixed(3);
       }
     );
 
 
     /*
-       Circadian / sleep-quality gate:
-       one specific internal relationship remains sharply visible.
+       Sleep-sensitive gate remains visually precise.
     */
 
-    var gate =
+    var gatePoint =
       polar(
         CX,
         CY,
         R *
-        .60,
-        angleAt9(1)
+        .62,
+        dimensionAngle(
+          1
+        )
       );
 
 
     sleepGate.setAttribute(
       "cx",
-      gate.x
+      gatePoint.x
     );
 
 
     sleepGate.setAttribute(
       "cy",
-      gate.y
+      gatePoint.y
     );
 
 
     sleepGate.style.opacity =
-      w *
       (
-        .20 +
-        p *
-        .80
-      );
+        w *
+        (
+          .20 +
+          fold *
+          .80
+        )
+      ).toFixed(3);
   }
 
 
   /* ==========================================================================
-     STRESS SVG
+     STRESS STORY
 
-     Immediately visible:
-       system recruits toward load
-       high-demand side opens
-       protected reserves become evident
+     0-.18    incoming pressure appears
+     .10-.32  demand side opens
+     .18-.40  position accelerates
+     .24-.56  routes recruit
+     .28-.60  reserves tighten
+     .40-.73  pressure crosses
+     .72-1    system HOLDS
      ========================================================================== */
 
-  function drawStress(now) {
+  function drawStress(
+    now,
+    p
+  ) {
 
     var w =
       weights.stress;
 
 
-    var age =
-      Math.max(
-        0,
-        clock -
-        modeStart
+    var pressure =
+      eventWindow(
+        p,
+        .02,
+        .62
       );
 
 
-    pressureWaves.forEach(
-      function (wave, i) {
+    var hold =
+      eventWindow(
+        p,
+        .70,
+        .94
+      );
+
+
+    stressFronts.forEach(
+      function (front, index) {
 
         var local =
-          Math.max(
-            0,
-            age -
-            i *
-            100
-          );
-
-
-        var p =
           clamp(
-            local /
-            1700,
+            (
+              p -
+              index *
+              .015
+            ) /
+            .68,
             0,
             1
           );
 
 
-        wave.setAttribute(
+        var cx =
+          lerp(
+            180,
+            650,
+            local
+          );
+
+
+        var size =
+          lerp(
+            50,
+            340,
+            local
+          );
+
+
+        front.setAttribute(
           "cx",
-          225 +
-          p *
-          430
+          cx
         );
 
 
-        wave.setAttribute(
+        front.setAttribute(
           "cy",
           CY
         );
 
 
-        wave.setAttribute(
+        front.setAttribute(
           "rx",
-          30 +
-          p *
-          150
+          size *
+          .42
         );
 
 
-        wave.setAttribute(
+        front.setAttribute(
           "ry",
-          75 +
-          p *
-          260
+          size
         );
 
 
-        wave.style.opacity =
-          w *
+        front.style.opacity =
           (
-            1 -
-            p
-          ) *
-          .32;
+            w *
+            (
+              1 -
+              local
+            ) *
+            .34
+          ).toFixed(3);
       }
     );
 
 
     /*
-       Demand routes converge on the high-tolerance stress/heart side.
+       Recruitment routes converge toward demand-facing quadrant.
     */
 
-    demandRoutes.forEach(
-      function (route, i) {
+    stressRoutes.forEach(
+      function (route, index) {
 
-        var y =
-          155 +
-          i *
-          42;
-
-
-        var targetPoint =
+        var source =
           polar(
             CX,
             CY,
             R *
-            .83,
-            -.38 +
-            i *
-            .025
+            (
+              .30 +
+              hash(
+                index *
+                19
+              ) *
+              .40
+            ),
+            1.3 +
+            index *
+            .44
+          );
+
+
+        var demand =
+          polar(
+            CX,
+            CY,
+            R *
+            .82,
+            -.45 +
+            index *
+            .018
+          );
+
+
+        var control =
+          polar(
+            CX,
+            CY,
+            R *
+            .30,
+            -.10 +
+            index *
+            .08
           );
 
 
         route.setAttribute(
           "d",
-          "M120 " +
-          y +
-          "C300 " +
-          (
-            y +
-            Math.sin(
-              now *
-              .002 +
-              i
-            ) *
-            24
-          ) +
-          ",410 " +
-          targetPoint.y +
-          "," +
-          targetPoint.x +
+          "M" +
+          source.x +
           " " +
-          targetPoint.y
+          source.y +
+          "Q" +
+          control.x +
+          " " +
+          control.y +
+          "," +
+          demand.x +
+          " " +
+          demand.y
         );
 
 
         route.style.opacity =
-          w *
           (
-            .05 +
-            .15 *
-            Math.abs(
-              Math.sin(
-                now *
-                .001 +
-                i
+            w *
+            eventWindow(
+              p,
+              .22,
+              .58
+            ) *
+            (
+              .07 +
+              .13 *
+              Math.abs(
+                Math.sin(
+                  now *
+                  .0012 +
+                  index
+                )
               )
             )
-          );
+          ).toFixed(3);
       }
     );
 
 
-    hotNodes.forEach(
-      function (node, i) {
+    stressNodes.forEach(
+      function (node, index) {
 
         var angle =
           -.52 +
           (
-            i /
-            hotNodes.length -
+            index /
+            stressNodes.length -
             .5
           ) *
-          .90;
+          .95;
 
 
         var point =
@@ -3196,9 +3856,9 @@
             CY,
             R *
             (
-              .72 +
+              .73 +
               hash(
-                i *
+                index *
                 13
               ) *
               .25
@@ -3220,60 +3880,136 @@
 
 
         node.style.opacity =
-          w *
           (
-            .18 +
-            .58 *
-            Math.abs(
-              Math.sin(
-                now *
-                .004 +
-                i
+            w *
+            eventWindow(
+              p,
+              .20,
+              .52
+            ) *
+            (
+              .20 +
+              .60 *
+              Math.abs(
+                Math.sin(
+                  now *
+                  .004 +
+                  index
+                )
               )
             )
-          );
+          ).toFixed(3);
       }
     );
+
+
+    /*
+       HOLD ring.
+
+       Stress is not allowed to end visually as "chaos."
+
+       The final frame must communicate:
+         the system has organized itself around demand.
+    */
+
+    var holdPoint =
+      polar(
+        CX,
+        CY,
+        R *
+        .58,
+        -.47
+      );
+
+
+    stressHold.setAttribute(
+      "cx",
+      holdPoint.x
+    );
+
+
+    stressHold.setAttribute(
+      "cy",
+      holdPoint.y
+    );
+
+
+    stressHold.setAttribute(
+      "rx",
+      72
+    );
+
+
+    stressHold.setAttribute(
+      "ry",
+      34
+    );
+
+
+    stressHold.setAttribute(
+      "transform",
+      "rotate(-27 " +
+      holdPoint.x +
+      " " +
+      holdPoint.y +
+      ")"
+    );
+
+
+    stressHold.style.opacity =
+      (
+        w *
+        hold *
+        .46
+      ).toFixed(3);
   }
 
 
   /* ==========================================================================
-     RECOVERY SVG
+     RECOVERY STORY
 
-     Immediately visible:
-       strain ghost
-       outward release
-       reserve filling
-       room reopening
+     Begins from the ACTUAL prior envelope captured at transition.
+
+     .05-.28  position moves first
+     .12-.45  load exits
+     .20-.60  knots loosen
+     .35-.72  reserve pools reconnect
+     .48-.82  route continuity returns
+     .65-1    boundary finishes settling
      ========================================================================== */
 
-  function drawRecovery(now) {
+  function drawRecovery(
+    now,
+    p
+  ) {
 
     var w =
       weights.recovery;
 
 
-    var p =
-      modeProgress(
-        6
+    var boundaryReturn =
+      eventWindow(
+        p,
+        .62,
+        1
       );
 
 
     /*
-       Stress envelope remains as memory.
+       Prior envelope remains as ghost.
     */
 
-    strainGhosts.forEach(
-      function (ghost, i) {
+    recoveryGhosts.forEach(
+      function (ghost, index) {
 
         var ghostFactors =
-          MODES.stress.factors.map(
-            function (value, j) {
+          eventOrigin.factors.map(
+            function (value, i) {
 
               return lerp(
                 value,
-                factors[j],
-                p
+                system.factors[i],
+                boundaryReturn
               );
             }
           );
@@ -3284,44 +4020,52 @@
           envelopePath(
             ghostFactors,
             1 +
-            i *
-            .015
+            index *
+            .014
           )
         );
 
 
         ghost.style.opacity =
-          w *
           (
-            1 -
-            p
-          ) *
-          (
-            .03 +
-            i *
-            .011
-          );
+            w *
+            (
+              1 -
+              boundaryReturn
+            ) *
+            (
+              .035 +
+              index *
+              .011
+            )
+          ).toFixed(3);
       }
     );
 
 
     /*
-       Load visibly exits the system.
-
-       These begin deep and extend outward as recovery matures.
+       Load exits.
     */
 
-    releaseRoutes.forEach(
-      function (route, i) {
+    var release =
+      eventWindow(
+        p,
+        .10,
+        .53
+      );
+
+
+    recoveryRelease.forEach(
+      function (route, index) {
 
         var angle =
-          i /
-          releaseRoutes.length *
+          index /
+          recoveryRelease.length *
           TAU +
-          .4;
+          .36;
 
 
-        var start =
+        var source =
           polar(
             CX,
             CY,
@@ -3329,30 +4073,30 @@
             (
               .18 +
               hash(
-                i *
+                index *
                 19
               ) *
-              .30
+              .31
             ),
             angle
           );
 
 
-        var end =
+        var destination =
           polar(
             CX,
             CY,
             R *
-            (
-              .75 +
-              p *
-              .54
+            lerp(
+              .74,
+              1.42,
+              release
             ),
             angle +
             Math.sin(
-              i
+              index
             ) *
-            .13
+            .10
           );
 
 
@@ -3361,12 +4105,12 @@
             CX,
             CY,
             R *
-            .55,
+            .57,
             angle +
-            .18 *
+            .16 *
             Math.sin(
-              i *
-              .7
+              index *
+              .72
             )
           );
 
@@ -3374,100 +4118,345 @@
         route.setAttribute(
           "d",
           "M" +
-          start.x +
+          source.x +
           " " +
-          start.y +
+          source.y +
           "Q" +
           control.x +
           " " +
           control.y +
           "," +
-          end.x +
+          destination.x +
           " " +
-          end.y
+          destination.y
         );
 
 
         route.style.opacity =
-          w *
           (
-            .04 +
-            p *
-            .22
-          );
+            w *
+            pulseWindow(
+              p,
+              .10,
+              .34,
+              .72
+            ) *
+            .26
+          ).toFixed(3);
       }
     );
 
 
     /*
-       Reserve visibly fills near the current position.
+       Knots visibly loosen.
     */
+
+    var loosen =
+      eventWindow(
+        p,
+        .18,
+        .64
+      );
+
+
+    recoveryKnots.forEach(
+      function (knot, index) {
+
+        var angle =
+          index /
+          recoveryKnots.length *
+          TAU;
+
+
+        var point =
+          polar(
+            CX,
+            CY,
+            R *
+            (
+              .27 +
+              hash(
+                index *
+                17
+              ) *
+              .46
+            ),
+            angle
+          );
+
+
+        knot.setAttribute(
+          "cx",
+          point.x
+        );
+
+
+        knot.setAttribute(
+          "cy",
+          point.y
+        );
+
+
+        knot.setAttribute(
+          "rx",
+          lerp(
+            8,
+            27,
+            loosen
+          )
+        );
+
+
+        knot.setAttribute(
+          "ry",
+          lerp(
+            19,
+            9,
+            loosen
+          )
+        );
+
+
+        knot.setAttribute(
+          "transform",
+          "rotate(" +
+          (
+            index *
+            31 -
+            loosen *
+            index *
+            7
+          ) +
+          " " +
+          point.x +
+          " " +
+          point.y +
+          ")"
+        );
+
+
+        knot.style.opacity =
+          (
+            w *
+            (
+              .18 -
+              loosen *
+              .08
+            )
+          ).toFixed(3);
+      }
+    );
+
+
+    /*
+       Reserve returns.
+    */
+
+    var reserve =
+      eventWindow(
+        p,
+        .32,
+        .74
+      );
+
 
     var reservePoint =
       polar(
         CX,
         CY,
         R *
-        .48,
-        angleAt9(3)
+        .47,
+        dimensionAngle(
+          3
+        )
       );
 
 
-    reserveGlow.setAttribute(
+    recoveryReserve.setAttribute(
       "cx",
       reservePoint.x
     );
 
 
-    reserveGlow.setAttribute(
+    recoveryReserve.setAttribute(
       "cy",
       reservePoint.y
     );
 
 
-    reserveGlow.setAttribute(
+    recoveryReserve.setAttribute(
       "r",
-      25 +
-      p *
-      80
+      lerp(
+        22,
+        104,
+        reserve
+      )
     );
 
 
-    reserveGlow.style.opacity =
-      w *
-      p *
-      .09;
+    recoveryReserve.style.opacity =
+      (
+        w *
+        reserve *
+        .09
+      ).toFixed(3);
+
+
+    /*
+       Main recovery trajectory.
+    */
+
+    var startX =
+      CX +
+      eventOrigin.position.x *
+      R;
+
+
+    var startY =
+      CY +
+      eventOrigin.position.y *
+      R;
+
+
+    var endX =
+      CX +
+      system.position.x *
+      R;
+
+
+    var endY =
+      CY +
+      system.position.y *
+      R;
+
+
+    recoveryRoute.setAttribute(
+      "d",
+      "M" +
+      startX +
+      " " +
+      startY +
+      "Q" +
+      lerp(
+        startX,
+        endX,
+        .47
+      ) +
+      " " +
+      (
+        Math.max(
+          startY,
+          endY
+        ) +
+        70
+      ) +
+      "," +
+      endX +
+      " " +
+      endY
+    );
+
+
+    recoveryRoute.style.opacity =
+      (
+        w *
+        eventWindow(
+          p,
+          .05,
+          .56
+        ) *
+        .72
+      ).toFixed(3);
   }
 
 
   /* ==========================================================================
-     FLOW SVG
+     FLOW STORY
 
-     Immediately visible:
-       parallel transport
-       pulses share direction
-       position is in motion
+     .00-.22  independent motion
+     .18-.50  coordination front
+     .32-.66  paths become channels
+     .50-.80  pulses synchronize
+     .65-1    position joins current
      ========================================================================== */
 
-  function drawFlow(now) {
+  function drawFlow(
+    now,
+    p
+  ) {
 
     var w =
       weights.flow;
 
 
-    var p =
-      modeProgress(
-        4.5
+    var lock =
+      eventWindow(
+        p,
+        .18,
+        .70
       );
 
 
-    flowPaths.forEach(
-      function (path, i) {
+    /*
+       Visible phase-lock front.
+    */
+
+    flowFront.setAttribute(
+      "cx",
+      lerp(
+        245,
+        830,
+        eventWindow(
+          p,
+          .16,
+          .58
+        )
+      )
+    );
+
+
+    flowFront.setAttribute(
+      "cy",
+      CY
+    );
+
+
+    flowFront.setAttribute(
+      "rx",
+      54
+    );
+
+
+    flowFront.setAttribute(
+      "ry",
+      250
+    );
+
+
+    flowFront.style.opacity =
+      (
+        w *
+        pulseWindow(
+          p,
+          .14,
+          .38,
+          .63
+        ) *
+        .22
+      ).toFixed(3);
+
+
+    flowRoutes.forEach(
+      function (route, index) {
 
         var lane =
           (
-            i -
-            8
+            index -
+            (
+              flowRoutes.length -
+              1
+            ) /
+            2
           ) *
           14;
 
@@ -3475,38 +4464,38 @@
         var disorder =
           (
             1 -
-            p
+            lock
           ) *
           Math.sin(
             now *
             .0015 +
-            i *
-            .70
+            index *
+            .71
           ) *
-          30;
+          31;
 
 
-        path.setAttribute(
+        route.setAttribute(
           "d",
-          "M240 " +
+          "M225 " +
           (
             CY +
             lane +
             disorder
           ) +
-          "C365 " +
+          "C370 " +
           (
             CY +
             lane *
             .64
           ) +
-          ",570 " +
+          ",580 " +
           (
             CY +
             lane *
             .12
           ) +
-          ",860 " +
+          ",880 " +
           (
             CY +
             lane *
@@ -3515,33 +4504,39 @@
         );
 
 
-        path.style.opacity =
-          w *
+        route.style.opacity =
           (
-            .03 +
-            p *
-            .24
-          );
+            w *
+            (
+              .035 +
+              lock *
+              .25
+            )
+          ).toFixed(3);
       }
     );
 
 
+    /*
+       Synchronized moving packets.
+    */
+
     flowPulses.forEach(
-      function (pulse, i) {
+      function (pulse, index) {
 
         var phase =
           reduce
             ?
-              .62
+              .64
             :
               (
                 now /
                 (
-                  2500 +
-                  i *
+                  2450 +
+                  index *
                   31
                 ) +
-                i /
+                index /
                 flowPulses.length
               ) %
               1;
@@ -3549,16 +4544,20 @@
 
         var x =
           lerp(
-            260,
-            850,
+            245,
+            875,
             phase
           );
 
 
         var lane =
           (
-            i -
-            7
+            index -
+            (
+              flowPulses.length -
+              1
+            ) /
+            2
           ) *
           18;
 
@@ -3588,80 +4587,88 @@
 
 
         pulse.style.opacity =
-          w *
-          p *
-          Math.sin(
-            phase *
-            Math.PI
-          ) *
-          .68;
+          (
+            w *
+            eventWindow(
+              p,
+              .44,
+              .76
+            ) *
+            Math.sin(
+              phase *
+              Math.PI
+            ) *
+            .74
+          ).toFixed(3);
       }
     );
   }
 
 
   /* ==========================================================================
-     NOVA SVG
+     NOVA STORY
 
-     Immediately visible:
-       many simultaneously active regions
-       long-range connections
-       out-and-return traffic
-       guarded reserve/stability still present
+     Begins from coherent substrate.
+
+     Additional relationships are recruited sequentially.
+
+     Each new region is followed by a global coherence check.
+
+     Existing routes brighten together before next degree of freedom opens.
+
+     Recovery + stability remain guarded throughout.
      ========================================================================== */
 
-  function drawNova(now) {
+  function drawNova(
+    now,
+    p
+  ) {
 
     var w =
       weights.nova;
 
 
-    var p =
-      modeProgress(
-        6.4
-      );
-
-
-    var pts =
+    var points =
       [];
 
 
     novaNodes.forEach(
-      function (node, i) {
+      function (node, index) {
 
-        var threshold =
-          i /
+        var recruitment =
+          index /
           novaNodes.length *
-          .82;
+          .76;
 
 
         var reveal =
-          smoothstep(
-            (
-              p -
-              threshold
-            ) /
+          eventWindow(
+            p,
+            recruitment,
+            recruitment +
             .16
           );
 
 
         var angle =
           hash(
-            i *
-            29
+            index *
+            29 +
+            3
           ) *
           TAU;
 
 
-        var rr =
+        var radius =
           R *
           (
-            .44 +
+            .45 +
             hash(
-              i *
-              17
+              index *
+              17 +
+              7
             ) *
-            1.05
+            1.07
           );
 
 
@@ -3669,14 +4676,21 @@
           polar(
             CX,
             CY,
-            rr,
+            radius,
             angle
           );
 
 
-        pts.push(
-          point
-        );
+        points.push({
+          x:
+            point.x,
+
+          y:
+            point.y,
+
+          reveal:
+            reveal
+        });
 
 
         node.setAttribute(
@@ -3692,54 +4706,51 @@
 
 
         node.style.opacity =
-          w *
-          reveal *
           (
-            .14 +
-            hash(
-              i *
-              7
-            ) *
-            .70
-          );
+            w *
+            reveal *
+            (
+              .14 +
+              hash(
+                index *
+                7
+              ) *
+              .72
+            )
+          ).toFixed(3);
       }
     );
 
 
+    /*
+       Sparse long-distance relationships.
+    */
+
     novaLinks.forEach(
-      function (link, i) {
+      function (link, index) {
 
         var A =
-          pts[
-            i %
-            pts.length
+          points[
+            index %
+            points.length
           ];
 
 
         var B =
-          pts[
+          points[
             (
-              i *
+              index *
               7 +
-              9
+              11
             ) %
-            pts.length
+            points.length
           ];
 
 
-        var threshold =
-          i /
-          novaLinks.length *
-          .72;
-
-
         var reveal =
-          smoothstep(
-            (
-              p -
-              threshold
-            ) /
-            .22
+          Math.min(
+            A.reveal,
+            B.reveal
           );
 
 
@@ -3785,39 +4796,38 @@
 
 
         link.style.opacity =
-          w *
-          reveal *
           (
-            .025 +
-            hash(
-              i *
-              13
-            ) *
-            .10
-          );
+            w *
+            reveal *
+            (
+              .025 +
+              hash(
+                index *
+                13
+              ) *
+              .11
+            )
+          ).toFixed(3);
       }
     );
 
 
     /*
-       Energy explicitly travels out and returns.
-
-       This is crucial:
-       expansion without fragmentation.
+       Out-and-return traffic.
     */
 
-    novaReturns.forEach(
-      function (route, i) {
+    novaRoutes.forEach(
+      function (route, index) {
 
         var angle =
-          i /
-          novaReturns.length *
+          index /
+          novaRoutes.length *
           TAU +
           Math.sin(
-            i *
+            index *
             .8
           ) *
-          .06;
+          .07;
 
 
         var outer =
@@ -3825,8 +4835,19 @@
             CX,
             CY,
             R *
-            1.48,
+            1.52,
             angle
+          );
+
+
+        var control =
+          polar(
+            CX,
+            CY,
+            R *
+            .82,
+            angle +
+            .32
           );
 
 
@@ -3837,25 +4858,9 @@
           " " +
           CY +
           "Q" +
-          (
-            CX +
-            Math.cos(
-              angle +
-              .30
-            ) *
-            R *
-            .86
-          ) +
+          control.x +
           " " +
-          (
-            CY +
-            Math.sin(
-              angle +
-              .30
-            ) *
-            R *
-            .86
-          ) +
+          control.y +
           "," +
           outer.x +
           " " +
@@ -3864,19 +4869,107 @@
 
 
         route.style.opacity =
-          w *
-          p *
           (
-            .03 +
-            .08 *
-            Math.abs(
-              Math.sin(
-                now *
-                .001 +
-                i
+            w *
+            eventWindow(
+              p,
+              .46,
+              .86
+            ) *
+            (
+              .03 +
+              .09 *
+              Math.abs(
+                Math.sin(
+                  now *
+                  .001 +
+                  index
+                )
               )
             )
+          ).toFixed(3);
+
+
+        /*
+           Coherence check.
+
+           Every recruited degree of freedom briefly sends a ring back inward.
+        */
+
+        var cycle =
+          (
+            now /
+            (
+              3600 +
+              index *
+              50
+            ) +
+            index /
+            novaRoutes.length
+          ) %
+          1;
+
+
+        var checkRadius =
+          lerp(
+            R *
+            1.45,
+            R *
+            .28,
+            cycle
           );
+
+
+        var point =
+          polar(
+            CX,
+            CY,
+            checkRadius,
+            angle
+          );
+
+
+        novaChecks[index]
+          .setAttribute(
+            "cx",
+            point.x
+          );
+
+
+        novaChecks[index]
+          .setAttribute(
+            "cy",
+            point.y
+          );
+
+
+        novaChecks[index]
+          .setAttribute(
+            "r",
+            5 +
+            (
+              1 -
+              cycle
+            ) *
+            7
+          );
+
+
+        novaChecks[index]
+          .style.opacity =
+          (
+            w *
+            eventWindow(
+              p,
+              .48,
+              .88
+            ) *
+            (
+              1 -
+              cycle
+            ) *
+            .18
+          ).toFixed(3);
       }
     );
   }
@@ -3886,7 +4979,13 @@
      SVG MASTER
      ========================================================================== */
 
-  function drawSVG(now) {
+  function drawSVG(
+    now
+  ) {
+
+    var p =
+      eventProgress();
+
 
     drawCore(
       now
@@ -3894,52 +4993,61 @@
 
 
     drawSleep(
-      now
+      now,
+      p
     );
 
 
     drawStress(
-      now
+      now,
+      p
     );
 
 
     drawRecovery(
-      now
+      now,
+      p
     );
 
 
     drawFlow(
-      now
+      now,
+      p
     );
 
 
     drawNova(
-      now
+      now,
+      p
     );
   }
 
 
   /* ==========================================================================
-     CANVAS SIZING
+     CANVAS SIZE
      ========================================================================== */
 
   var DPR =
     1;
 
 
-  var cw =
+  var CW =
     0;
 
 
-  var ch =
+  var CH =
     0;
 
 
-  function resizePhenomena() {
+  var WW =
+    0;
 
-    var rect =
-      phenomena.getBoundingClientRect();
 
+  var WH =
+    0;
+
+
+  function resizeCanvases() {
 
     DPR =
       Math.min(
@@ -3949,22 +5057,30 @@
       );
 
 
-    cw =
-      rect.width;
+    var stageRect =
+      phenomena.getBoundingClientRect();
 
 
-    ch =
-      rect.height;
+    CW =
+      stageRect.width;
+
+
+    CH =
+      stageRect.height;
 
 
     phenomena.width =
-      cw *
-      DPR;
+      Math.round(
+        CW *
+        DPR
+      );
 
 
     phenomena.height =
-      ch *
-      DPR;
+      Math.round(
+        CH *
+        DPR
+      );
 
 
     ctx.setTransform(
@@ -3975,39 +5091,32 @@
       0,
       0
     );
-  }
 
 
-  var worldW =
-    0;
-
-
-  var worldH =
-    0;
-
-
-  function resizeWorld() {
-
-    var rect =
+    var worldRect =
       world.getBoundingClientRect();
 
 
-    worldW =
-      rect.width;
+    WW =
+      worldRect.width;
 
 
-    worldH =
-      rect.height;
+    WH =
+      worldRect.height;
 
 
     world.width =
-      worldW *
-      DPR;
+      Math.round(
+        WW *
+        DPR
+      );
 
 
     world.height =
-      worldH *
-      DPR;
+      Math.round(
+        WH *
+        DPR
+      );
 
 
     worldCtx.setTransform(
@@ -4022,7 +5131,7 @@
 
 
   /* ==========================================================================
-     CANVAS PARTICLES
+     CANVAS DATA
      ========================================================================== */
 
   var particles =
@@ -4035,7 +5144,8 @@
 
   for (
     var i = 0;
-    i < 145;
+    i <
+    160;
     i++
   ) {
 
@@ -4044,35 +5154,39 @@
       x:
         hash(
           i *
-          17
+          17 +
+          3
         ),
 
       y:
         hash(
           i *
           29 +
-          3
+          7
         ),
 
       depth:
         .12 +
         hash(
           i *
-          37
+          37 +
+          4
         ) *
         .88,
 
       phase:
         hash(
           i *
-          13
+          13 +
+          8
         ) *
         TAU,
 
       warm:
         hash(
           i *
-          11
+          11 +
+          5
         ) >
         .84
     });
@@ -4081,7 +5195,8 @@
 
   for (
     var st = 0;
-    st < 46;
+    st <
+    48;
     st++
   ) {
 
@@ -4090,20 +5205,23 @@
       y:
         hash(
           st *
-          31
+          31 +
+          3
         ),
 
       phase:
         hash(
           st *
-          19
+          19 +
+          6
         ) *
         TAU,
 
       warm:
         hash(
           st *
-          23
+          23 +
+          5
         ) >
         .78
     });
@@ -4113,14 +5231,15 @@
   /* ==========================================================================
      SLEEP CANVAS
 
-     Exterior traffic approaches but bends around.
+     Outside traffic DIVERTS around the system.
 
-     Interior particles continue circulating.
-
-     This alone should tell the story.
+     Inside remains active.
      ========================================================================== */
 
-  function canvasSleep(now) {
+  function canvasSleep(
+    now,
+    p
+  ) {
 
     var w =
       weights.sleep;
@@ -4134,63 +5253,72 @@
     }
 
 
-    var p =
-      modeProgress(
-        5
+    var bypass =
+      eventWindow(
+        p,
+        .12,
+        .50
+      );
+
+
+    var internal =
+      eventWindow(
+        p,
+        .28,
+        .76
       );
 
 
     var cx =
-      cw *
-      .5;
+      CW *
+      .50;
 
 
     var cy =
-      ch *
+      CH *
       .47;
 
 
     var radius =
       Math.min(
-        cw,
-        ch
+        CW,
+        CH
       ) *
       .29;
 
 
     /*
-       Exterior traffic bypass.
+       Exterior streams continue moving.
+
+       Near the membrane they bend around rather than enter.
     */
 
     streams.forEach(
-      function (stream, i) {
+      function (stream, index) {
 
         ctx.beginPath();
 
 
-        var steps =
-          60;
-
-
         for (
           var s = 0;
-          s <= steps;
+          s <=
+          64;
           s++
         ) {
 
           var u =
             s /
-            steps;
+            64;
 
 
           var x =
             u *
-            cw;
+            CW;
 
 
           var y =
             stream.y *
-            ch;
+            CH;
 
 
           var dx =
@@ -4212,46 +5340,41 @@
             );
 
 
-          if (
-            dist <
-            radius *
-            1.48
-          ) {
-
-            var sign =
-              dy >=
-              0
-                ?
-                  1
-                :
-                  -1;
-
-
-            var avoidance =
+          var approach =
+            clamp(
+              1 -
+              dist /
               (
-                1 -
-                dist /
-                (
-                  radius *
-                  1.48
-                )
-              );
+                radius *
+                1.52
+              ),
+              0,
+              1
+            );
 
 
-            y +=
-              sign *
-              avoidance *
-              radius *
-              .48 *
-              p;
-          }
+          var side =
+            dy >=
+            0
+              ?
+                1
+              :
+                -1;
+
+
+          y +=
+            side *
+            approach *
+            radius *
+            .50 *
+            bypass;
 
 
           y +=
             Math.sin(
               u *
               TAU *
-              1.2 +
+              1.15 +
               stream.phase +
               now *
               .00013
@@ -4307,11 +5430,11 @@
 
 
     /*
-       Interior restoration circulation.
+       Interior circulation grows quieter but more organized.
     */
 
     particles.forEach(
-      function (particle, i) {
+      function (particle, index) {
 
         var angle =
           particle.phase +
@@ -4323,12 +5446,20 @@
           );
 
 
-        var rr =
+        var r =
           radius *
           (
-            .18 +
+            .15 +
             particle.depth *
-            .78
+            .79
+          );
+
+
+        r *=
+          lerp(
+            1,
+            .86,
+            internal
           );
 
 
@@ -4337,7 +5468,7 @@
           Math.cos(
             angle
           ) *
-          rr;
+          r;
 
 
         var y =
@@ -4345,8 +5476,8 @@
           Math.sin(
             angle
           ) *
-          rr *
-          .77;
+          r *
+          .76;
 
 
         var alpha =
@@ -4355,6 +5486,11 @@
             .02 +
             particle.depth *
             .09
+          ) *
+          (
+            .45 +
+            internal *
+            .55
           );
 
 
@@ -4394,11 +5530,17 @@
   /* ==========================================================================
      STRESS CANVAS
 
-     Load moves INTO the field.
-     Recruitment and deformation are obvious.
+     Demand arrives from outside.
+
+     Routes bend toward load.
+
+     Final phase stabilizes instead of becoming increasingly chaotic.
      ========================================================================== */
 
-  function canvasStress(now) {
+  function canvasStress(
+    now,
+    p
+  ) {
 
     var w =
       weights.stress;
@@ -4412,104 +5554,105 @@
     }
 
 
-    var age =
-      clock -
-      modeStart;
-
-
     var cx =
-      cw *
+      CW *
       .50;
 
 
     var cy =
-      ch *
+      CH *
       .47;
 
 
     var radius =
       Math.min(
-        cw,
-        ch
+        CW,
+        CH
       ) *
       .30;
 
 
-    /*
-       Repeating pressure wave.
-    */
-
-    var cycle =
-      (
-        age /
-        2400
-      ) %
-      1;
-
-
-    var frontX =
-      lerp(
-        -cw *
-        .12,
-        cw *
-        1.08,
-        cycle
+    var frontProgress =
+      eventWindow(
+        p,
+        .02,
+        .66
       );
 
 
-    var gradient =
+    /*
+       Screen-wide pressure front.
+    */
+
+    var frontX =
+      lerp(
+        -CW *
+        .12,
+        CW *
+        1.06,
+        frontProgress
+      );
+
+
+    var pressure =
       ctx.createLinearGradient(
         frontX -
-        130,
+        150,
         0,
         frontX +
-        160,
+        180,
         0
       );
 
 
-    gradient.addColorStop(
+    pressure.addColorStop(
       0,
       "rgba(227,166,63,0)"
     );
 
 
-    gradient.addColorStop(
-      .52,
+    pressure.addColorStop(
+      .50,
       "rgba(227,166,63," +
       (
         w *
-        .050
+        pulseWindow(
+          p,
+          .02,
+          .42,
+          .75
+        ) *
+        .055
       ) +
       ")"
     );
 
 
-    gradient.addColorStop(
+    pressure.addColorStop(
       1,
       "rgba(227,166,63,0)"
     );
 
 
     ctx.fillStyle =
-      gradient;
+      pressure;
 
 
     ctx.fillRect(
       frontX -
-      130,
+      150,
       0,
-      290,
-      ch
+      330,
+      CH
     );
 
 
     /*
-       Demand packets rush toward system.
+       Fast demand packets.
     */
 
     particles.forEach(
-      function (particle, i) {
+      function (particle, index) {
 
         var speed =
           85 +
@@ -4520,13 +5663,13 @@
         var x =
           (
             particle.x *
-            cw +
+            CW +
             now /
             1000 *
             speed
           ) %
           (
-            cw +
+            CW +
             120
           ) -
           60;
@@ -4534,7 +5677,7 @@
 
         var y =
           particle.y *
-          ch +
+          CH +
           Math.sin(
             now *
             .002 +
@@ -4573,7 +5716,7 @@
 
 
         /*
-           Near the field, trajectories bend toward the demand-facing quadrant.
+           Recruitment toward upper-right demand side.
         */
 
         y =
@@ -4583,7 +5726,12 @@
             radius *
             .20,
             recruit *
-            .20
+            eventWindow(
+              p,
+              .18,
+              .54
+            ) *
+            .27
           );
 
 
@@ -4593,6 +5741,16 @@
             .025 +
             particle.depth *
             .12
+          ) *
+          (
+            .45 +
+            pulseWindow(
+              p,
+              .08,
+              .50,
+              .80
+            ) *
+            .55
           );
 
 
@@ -4623,7 +5781,7 @@
             :
               "rgba(102,224,237," +
               alpha *
-              .65 +
+              .62 +
               ")";
 
 
@@ -4634,17 +5792,131 @@
         ctx.stroke();
       }
     );
+
+
+    /*
+       HOLD phase.
+
+       Motion becomes more parallel as the system stabilizes under the demand.
+    */
+
+    var hold =
+      eventWindow(
+        p,
+        .72,
+        .96
+      );
+
+
+    if (
+      hold >
+      .01
+    ) {
+
+      streams.forEach(
+        function (stream, index) {
+
+          ctx.beginPath();
+
+
+          for (
+            var s = 0;
+            s <=
+            46;
+            s++
+          ) {
+
+            var u =
+              s /
+              46;
+
+
+            var x =
+              CW *
+              (
+                .28 +
+                u *
+                .56
+              );
+
+
+            var lane =
+              (
+                stream.y -
+                .5
+              ) *
+              radius *
+              1.6;
+
+
+            var y =
+              cy +
+              lane *
+              .62 +
+              Math.sin(
+                u *
+                TAU *
+                1.2 +
+                index
+              ) *
+              4;
+
+
+            if (
+              s ===
+              0
+            ) {
+
+              ctx.moveTo(
+                x,
+                y
+              );
+
+            } else {
+
+              ctx.lineTo(
+                x,
+                y
+              );
+            }
+          }
+
+
+          ctx.strokeStyle =
+            "rgba(227,166,63," +
+            (
+              w *
+              hold *
+              .018
+            ) +
+            ")";
+
+
+          ctx.lineWidth =
+            .55;
+
+
+          ctx.stroke();
+        }
+      );
+    }
   }
 
 
   /* ==========================================================================
      RECOVERY CANVAS
 
-     Load leaves.
-     New clean routes open behind it.
+     Strain leaves.
+
+     Routes progressively straighten.
+
+     Space grows around current position.
      ========================================================================== */
 
-  function canvasRecovery(now) {
+  function canvasRecovery(
+    now,
+    p
+  ) {
 
     var w =
       weights.recovery;
@@ -4658,37 +5930,32 @@
     }
 
 
-    var p =
-      modeProgress(
-        6
-      );
-
-
     var cx =
-      cw *
+      CW *
       .50;
 
 
     var cy =
-      ch *
+      CH *
       .47;
 
 
     var radius =
       Math.min(
-        cw,
-        ch
+        CW,
+        CH
       ) *
       .29;
 
 
     /*
-       Load particles travel from inside to outside.
+       Load leaves the field.
     */
 
     for (
       var i = 0;
-      i < 70;
+      i <
+      78;
       i++
     ) {
 
@@ -4716,12 +5983,12 @@
         TAU;
 
 
-      var rr =
+      var radial =
         lerp(
           radius *
           .16,
           radius *
-          1.55,
+          1.58,
           phase
         );
 
@@ -4731,7 +5998,7 @@
         Math.cos(
           angle
         ) *
-        rr;
+        radial;
 
 
       var y =
@@ -4739,23 +6006,29 @@
         Math.sin(
           angle
         ) *
-        rr *
+        radial *
         .82;
 
 
       var alpha =
         w *
+        pulseWindow(
+          p,
+          .10,
+          .34,
+          .70
+        ) *
         (
           1 -
           phase
         ) *
         (
-          .03 +
+          .025 +
           (
             1 -
             p
           ) *
-          .09
+          .10
         );
 
 
@@ -4794,49 +6067,58 @@
 
 
     /*
-       Clean routes gradually appear.
+       Distorted routes become long clean ones.
     */
 
+    var clean =
+      eventWindow(
+        p,
+        .36,
+        .84
+      );
+
+
     streams.forEach(
-      function (stream, i) {
+      function (stream, index) {
 
         ctx.beginPath();
 
 
         for (
           var s = 0;
-          s <= 56;
+          s <=
+          60;
           s++
         ) {
 
           var u =
             s /
-            56;
+            60;
 
 
           var x =
             u *
-            cw;
+            CW;
 
 
           var baseline =
             stream.y *
-            ch;
+            CH;
 
 
           var strain =
             (
               1 -
-              p
+              clean
             ) *
             Math.sin(
               u *
               TAU *
               4.4 +
-              i *
+              index *
               .65
             ) *
-            20;
+            22;
 
 
           var y =
@@ -4851,7 +6133,9 @@
 
           var influence =
             Math.exp(
-              -Math.abs(dx) /
+              -Math.abs(
+                dx
+              ) /
               (
                 radius *
                 1.25
@@ -4868,9 +6152,9 @@
                 cy
               ) *
               .78,
-              p *
+              clean *
               influence *
-              .22
+              .24
             );
 
 
@@ -4900,8 +6184,8 @@
             w *
             (
               .008 +
-              p *
-              .020
+              clean *
+              .022
             )
           ) +
           ")";
@@ -4914,16 +6198,103 @@
         ctx.stroke();
       }
     );
+
+
+    /*
+       Increasing room.
+    */
+
+    var room =
+      eventWindow(
+        p,
+        .42,
+        .90
+      );
+
+
+    var gradient =
+      ctx.createRadialGradient(
+        cx,
+        cy,
+        0,
+        cx,
+        cy,
+        radius *
+        (
+          .46 +
+          room *
+          .92
+        )
+      );
+
+
+    gradient.addColorStop(
+      0,
+      "rgba(102,224,237," +
+      (
+        w *
+        room *
+        .036
+      ) +
+      ")"
+    );
+
+
+    gradient.addColorStop(
+      .48,
+      "rgba(102,224,237," +
+      (
+        w *
+        room *
+        .010
+      ) +
+      ")"
+    );
+
+
+    gradient.addColorStop(
+      1,
+      "rgba(102,224,237,0)"
+    );
+
+
+    ctx.fillStyle =
+      gradient;
+
+
+    ctx.beginPath();
+
+
+    ctx.arc(
+      cx,
+      cy,
+      radius *
+      (
+        .46 +
+        room *
+        .92
+      ),
+      0,
+      TAU
+    );
+
+
+    ctx.fill();
   }
 
 
   /* ==========================================================================
      FLOW CANVAS
 
-     Disorder visibly self-organizes into transport.
+     Independent trajectories synchronize into transport.
+
+     Current position later enters a stream.
      ========================================================================== */
 
-  function canvasFlow(now) {
+  function canvasFlow(
+    now,
+    p
+  ) {
 
     var w =
       weights.flow;
@@ -4937,37 +6308,40 @@
     }
 
 
-    var p =
-      modeProgress(
-        4.8
+    var lock =
+      eventWindow(
+        p,
+        .18,
+        .68
       );
 
 
     var cy =
-      ch *
+      CH *
       .47;
 
 
     streams.forEach(
-      function (stream, i) {
+      function (stream, index) {
 
         ctx.beginPath();
 
 
         for (
           var s = 0;
-          s <= 70;
+          s <=
+          72;
           s++
         ) {
 
           var u =
             s /
-            70;
+            72;
 
 
           var x =
             u *
-            cw;
+            CW;
 
 
           var lane =
@@ -4975,36 +6349,36 @@
               stream.y -
               .5
             ) *
-            ch;
+            CH;
 
 
           var chaos =
             (
               1 -
-              p
+              lock
             ) *
             Math.sin(
               u *
               TAU *
               (
                 3.7 +
-                i %
+                index %
                 4
               ) +
               now *
               .0014 +
-              i
+              index
             ) *
-            26;
+            27;
 
 
           var commonWave =
             Math.sin(
               u *
               TAU *
-              1.25 +
+              1.24 +
               now *
-              .00048
+              .00047
             ) *
             10;
 
@@ -5015,7 +6389,7 @@
             lerp(
               .82,
               .58,
-              p
+              lock
             ) +
             chaos +
             commonWave;
@@ -5048,8 +6422,8 @@
               (
                 w *
                 (
-                  .008 +
-                  p *
+                  .007 +
+                  lock *
                   .018
                 )
               ) +
@@ -5059,9 +6433,9 @@
               (
                 w *
                 (
-                  .012 +
-                  p *
-                  .031
+                  .011 +
+                  lock *
+                  .033
                 )
               ) +
               ")";
@@ -5069,27 +6443,128 @@
 
         ctx.lineWidth =
           .55 +
-          p *
-          .17;
+          lock *
+          .18;
 
 
         ctx.stroke();
       }
     );
+
+
+    /*
+       Synchronized packet spacing.
+    */
+
+    var packets =
+      eventWindow(
+        p,
+        .46,
+        .78
+      );
+
+
+    for (
+      var i = 0;
+      i <
+      18;
+      i++
+    ) {
+
+      var phase =
+        (
+          now /
+          (
+            2600 +
+            i *
+            29
+          ) +
+          i /
+          18
+        ) %
+        1;
+
+
+      var x =
+        phase *
+        CW;
+
+
+      var lane =
+        (
+          i -
+          8.5
+        ) *
+        18;
+
+
+      var y =
+        cy +
+        lane *
+        .55 +
+        Math.sin(
+          phase *
+          TAU +
+          now *
+          .00045
+        ) *
+        7;
+
+
+      var alpha =
+        w *
+        packets *
+        Math.sin(
+          phase *
+          Math.PI
+        ) *
+        .50;
+
+
+      ctx.beginPath();
+
+
+      ctx.arc(
+        x,
+        y,
+        1.8 +
+        (
+          i %
+          3
+        ) *
+        .45,
+        0,
+        TAU
+      );
+
+
+      ctx.fillStyle =
+        "rgba(102,224,237," +
+        alpha +
+        ")";
+
+
+      ctx.fill();
+    }
   }
 
 
   /* ==========================================================================
      NOVA CANVAS
 
-     The key visual:
-       high throughput
-       long-range simultaneous relation
-       pulses travel outward AND return
-       no breakup
+     More coherent territory becomes sustainable.
+
+     New regions are recruited sequentially.
+
+     Existing routes remain active.
+
+     Packets travel out AND back.
      ========================================================================== */
 
-  function canvasNova(now) {
+  function canvasNova(
+    now,
+    p
+  ) {
 
     var w =
       weights.nova;
@@ -5103,33 +6578,23 @@
     }
 
 
-    var p =
-      modeProgress(
-        6.5
-      );
-
-
     var cx =
-      cw *
+      CW *
       .50;
 
 
     var cy =
-      ch *
+      CH *
       .47;
 
 
     var radius =
       Math.min(
-        cw,
-        ch
+        CW,
+        CH
       ) *
       .30;
 
-
-    /*
-       Large remote constellation.
-    */
 
     var points =
       [];
@@ -5137,23 +6602,23 @@
 
     for (
       var i = 0;
-      i < 52;
+      i <
+      58;
       i++
     ) {
 
-      var threshold =
+      var recruitment =
         i /
-        52 *
-        .82;
+        58 *
+        .78;
 
 
       var reveal =
-        smoothstep(
-          (
-            p -
-            threshold
-          ) /
-          .16
+        eventWindow(
+          p,
+          recruitment,
+          recruitment +
+          .15
         );
 
 
@@ -5165,15 +6630,15 @@
         TAU;
 
 
-      var rr =
+      var radial =
         radius *
         (
-          .65 +
+          .64 +
           hash(
             i *
             17
           ) *
-          1.34
+          1.42
         );
 
 
@@ -5182,7 +6647,7 @@
         Math.cos(
           angle
         ) *
-        rr;
+        radial;
 
 
       var y =
@@ -5190,7 +6655,7 @@
         Math.sin(
           angle
         ) *
-        rr *
+        radial *
         .78;
 
 
@@ -5206,6 +6671,19 @@
       });
 
 
+      var alpha =
+        w *
+        reveal *
+        (
+          .10 +
+          hash(
+            i *
+            7
+          ) *
+          .38
+        );
+
+
       ctx.beginPath();
 
 
@@ -5217,7 +6695,7 @@
           i *
           13
         ) *
-        1.5,
+        1.6,
         0,
         TAU
       );
@@ -5229,19 +6707,12 @@
         0
           ?
             "rgba(236,199,126," +
-            (
-              w *
-              reveal *
-              .45
-            ) +
+            alpha +
             ")"
           :
             "rgba(102,224,237," +
-            (
-              w *
-              reveal *
-              .26
-            ) +
+            alpha *
+            .72 +
             ")";
 
 
@@ -5250,12 +6721,13 @@
 
 
     /*
-       Sparse long-range coupling.
+       Long-range relationships.
     */
 
     for (
       var line = 0;
-      line < 38;
+      line <
+      44;
       line++
     ) {
 
@@ -5330,7 +6802,7 @@
         (
           w *
           reveal *
-          .037
+          .038
         ) +
         ")";
 
@@ -5344,21 +6816,29 @@
 
 
     /*
-       Throughput pulses:
-       center → outer field → center.
+       OUT-AND-RETURN throughput.
 
-       If they only went outward, Nova would imply depletion.
+       This explicitly prevents Nova from looking like expenditure.
     */
+
+    var traffic =
+      eventWindow(
+        p,
+        .45,
+        .88
+      );
+
 
     for (
       var pulse = 0;
-      pulse < 14;
+      pulse <
+      16;
       pulse++
     ) {
 
       var angle =
         pulse /
-        14 *
+        16 *
         TAU +
         Math.sin(
           pulse *
@@ -5372,12 +6852,12 @@
           now /
           4700 +
           pulse /
-          14
+          16
         ) %
         1;
 
 
-      var returnCycle =
+      var thereAndBack =
         cycle <
         .5
           ?
@@ -5391,14 +6871,14 @@
             2;
 
 
-      var rr =
+      var radial =
         lerp(
           radius *
-          .72,
+          .70,
           radius *
-          1.65,
+          1.76,
           smoothstep(
-            returnCycle
+            thereAndBack
           )
         );
 
@@ -5408,7 +6888,7 @@
         Math.cos(
           angle
         ) *
-        rr;
+        radial;
 
 
       var y =
@@ -5416,18 +6896,18 @@
         Math.sin(
           angle
         ) *
-        rr *
+        radial *
         .78;
 
 
       var alpha =
         w *
-        p *
+        traffic *
         Math.sin(
-          returnCycle *
+          thereAndBack *
           Math.PI
         ) *
-        .50;
+        .54;
 
 
       ctx.beginPath();
@@ -5450,6 +6930,88 @@
 
       ctx.fill();
     }
+
+
+    /*
+       Global coherence pulse after each new territory band joins.
+
+       Existing structure brightens together before further recruitment.
+    */
+
+    var bandCount =
+      6;
+
+
+    var band =
+      Math.floor(
+        clamp(
+          p,
+          0,
+          .96
+        ) *
+        bandCount
+      );
+
+
+    var local =
+      (
+        p *
+        bandCount
+      ) %
+      1;
+
+
+    if (
+      local <
+      .24
+    ) {
+
+      var check =
+        1 -
+        local /
+        .24;
+
+
+      var checkRadius =
+        radius *
+        (
+          .65 +
+          (
+            band /
+            bandCount
+          ) *
+          1.0
+        );
+
+
+      ctx.beginPath();
+
+
+      ctx.arc(
+        cx,
+        cy,
+        checkRadius,
+        0,
+        TAU
+      );
+
+
+      ctx.strokeStyle =
+        "rgba(102,224,237," +
+        (
+          w *
+          check *
+          .10
+        ) +
+        ")";
+
+
+      ctx.lineWidth =
+        .8;
+
+
+      ctx.stroke();
+    }
   }
 
 
@@ -5457,58 +7019,72 @@
      CANVAS MASTER
      ========================================================================== */
 
-  function drawPhenomena(now) {
+  function drawPhenomena(
+    now
+  ) {
 
     ctx.clearRect(
       0,
       0,
-      cw,
-      ch
+      CW,
+      CH
     );
 
 
+    var p =
+      eventProgress();
+
+
     canvasSleep(
-      now
+      now,
+      p
     );
 
 
     canvasStress(
-      now
+      now,
+      p
     );
 
 
     canvasRecovery(
-      now
+      now,
+      p
     );
 
 
     canvasFlow(
-      now
+      now,
+      p
     );
 
 
     canvasNova(
-      now
+      now,
+      p
     );
   }
 
 
   /* ==========================================================================
-     WORLD CANVAS
+     PAGE-SCALE WORLD RESPONSE
      ========================================================================== */
 
-  function drawWorld(now) {
+  function drawWorld(
+    now
+  ) {
 
     worldCtx.clearRect(
       0,
       0,
-      worldW,
-      worldH
+      WW,
+      WH
     );
 
 
     /*
-       Sleep darkens periphery.
+       SLEEP:
+       peripheral environment becomes darker and quieter.
     */
 
     if (
@@ -5518,18 +7094,18 @@
 
       var dark =
         worldCtx.createRadialGradient(
-          worldW *
+          WW *
           .5,
-          worldH *
+          WH *
           .52,
           0,
-          worldW *
+          WW *
           .5,
-          worldH *
+          WH *
           .52,
           Math.max(
-            worldW,
-            worldH
+            WW,
+            WH
           ) *
           .70
         );
@@ -5559,14 +7135,91 @@
       worldCtx.fillRect(
         0,
         0,
-        worldW,
-        worldH
+        WW,
+        WH
       );
     }
 
 
     /*
-       Nova extends beyond the stage itself.
+       STRESS:
+       direction enters PAGE itself.
+    */
+
+    if (
+      weights.stress >
+      .01
+    ) {
+
+      var p =
+        eventProgress();
+
+
+      var x =
+        lerp(
+          -WW *
+          .15,
+          WW *
+          1.05,
+          eventWindow(
+            p,
+            .02,
+            .72
+          )
+        );
+
+
+      var stressGradient =
+        worldCtx.createLinearGradient(
+          x -
+          220,
+          0,
+          x +
+          260,
+          0
+        );
+
+
+      stressGradient.addColorStop(
+        0,
+        "rgba(227,166,63,0)"
+      );
+
+
+      stressGradient.addColorStop(
+        .52,
+        "rgba(227,166,63," +
+        (
+          weights.stress *
+          .018
+        ) +
+        ")"
+      );
+
+
+      stressGradient.addColorStop(
+        1,
+        "rgba(227,166,63,0)"
+      );
+
+
+      worldCtx.fillStyle =
+        stressGradient;
+
+
+      worldCtx.fillRect(
+        x -
+        220,
+        0,
+        480,
+        WH
+      );
+    }
+
+
+    /*
+       NOVA:
+       some organized territory exists outside the stage itself.
     */
 
     if (
@@ -5574,18 +7227,38 @@
       .01
     ) {
 
+      var novaP =
+        eventProgress();
+
+
       for (
         var i = 0;
-        i < 42;
+        i <
+        50;
         i++
       ) {
+
+        var threshold =
+          i /
+          50 *
+          .78;
+
+
+        var reveal =
+          eventWindow(
+            novaP,
+            threshold,
+            threshold +
+            .18
+          );
+
 
         var x =
           hash(
             i *
             23
           ) *
-          worldW;
+          WW;
 
 
         var y =
@@ -5593,13 +7266,14 @@
             i *
             31
           ) *
-          worldH;
+          WH;
 
 
         var alpha =
           weights.nova *
+          reveal *
           (
-            .018 +
+            .015 +
             .035 *
             Math.abs(
               Math.sin(
@@ -5640,6 +7314,779 @@
 
 
   /* ==========================================================================
+     MODE CHOREOGRAPHY → PERSISTENT STATE
+
+     This is the crucial architectural change.
+
+     The event itself changes the persistent system state.
+
+     Switching modes interrupts here and the next event takes over from the
+     current values rather than resetting the scene.
+     ========================================================================== */
+
+  function updatePersistentState(
+    dt
+  ) {
+
+    var p =
+      eventProgress();
+
+
+    var positionTarget = {
+      x:
+        targetMode.position.x,
+
+      y:
+        targetMode.position.y
+    };
+
+
+    var factorTargets =
+      targetMode.factors.slice();
+
+
+    var coherenceTarget =
+      targetMode.coherence;
+
+
+    var cameraTarget = {
+      scale:
+        targetMode.camera.scale,
+
+      x:
+        targetMode.camera.x,
+
+      y:
+        targetMode.camera.y,
+
+      rotation:
+        targetMode.camera.rotation
+    };
+
+
+    /* ======================================================================
+       SLEEP CHOREOGRAPHY
+       ====================================================================== */
+
+    if (
+      activeMode ===
+      "sleep"
+    ) {
+
+      /*
+         Position descends inward late rather than immediately.
+      */
+
+      var descend =
+        eventWindow(
+          p,
+          .18,
+          .62
+        );
+
+
+      positionTarget.x =
+        lerp(
+          eventOrigin.position.x,
+          targetMode.position.x,
+          descend
+        );
+
+
+      positionTarget.y =
+        lerp(
+          eventOrigin.position.y,
+          targetMode.position.y,
+          descend
+        );
+
+
+      /*
+         Envelope establishes before deep restoration finishes.
+      */
+
+      var shape =
+        eventWindow(
+          p,
+          .12,
+          .58
+        );
+
+
+      factorTargets =
+        eventOrigin.factors.map(
+          function (value, index) {
+
+            return lerp(
+              value,
+              targetMode.factors[index],
+              shape
+            );
+          }
+        );
+
+
+      coherenceTarget =
+        lerp(
+          eventOrigin.energy >
+          .70
+            ?
+              .48
+            :
+              system.coherence,
+          targetMode.coherence,
+          eventWindow(
+            p,
+            .30,
+            .84
+          )
+        );
+
+
+      cameraTarget.scale =
+        lerp(
+          eventOrigin.energy >
+          .8
+            ?
+              1.02
+            :
+              system.camera.scale,
+          targetMode.camera.scale,
+          eventWindow(
+            p,
+            .18,
+            .70
+          )
+        );
+    }
+
+
+    /* ======================================================================
+       STRESS CHOREOGRAPHY
+       ====================================================================== */
+
+    if (
+      activeMode ===
+      "stress"
+    ) {
+
+      /*
+         Envelope anticipates incoming demand BEFORE position arrives.
+      */
+
+      var recruitGeometry =
+        eventWindow(
+          p,
+          .08,
+          .34
+        );
+
+
+      factorTargets =
+        eventOrigin.factors.map(
+          function (value, index) {
+
+            return lerp(
+              value,
+              targetMode.factors[index],
+              recruitGeometry
+            );
+          }
+        );
+
+
+      /*
+         Position accelerates after geometry recruits.
+      */
+
+      var positionRecruit =
+        eventWindow(
+          p,
+          .17,
+          .43
+        );
+
+
+      positionTarget.x =
+        lerp(
+          eventOrigin.position.x,
+          targetMode.position.x,
+          positionRecruit
+        );
+
+
+      positionTarget.y =
+        lerp(
+          eventOrigin.position.y,
+          targetMode.position.y,
+          positionRecruit
+        );
+
+
+      /*
+         Coherence falls under active recruitment,
+         then partially RE-STABILIZES in hold phase.
+      */
+
+      var destabilize =
+        pulseWindow(
+          p,
+          .18,
+          .47,
+          .72
+        );
+
+
+      var hold =
+        eventWindow(
+          p,
+          .70,
+          .96
+        );
+
+
+      coherenceTarget =
+        lerp(
+          targetMode.coherence,
+          .36,
+          destabilize
+        );
+
+
+      coherenceTarget =
+        lerp(
+          coherenceTarget,
+          .63,
+          hold
+        );
+
+
+      /*
+         Camera acquires direction.
+      */
+
+      cameraTarget.x =
+        lerp(
+          system.camera.x,
+          targetMode.camera.x,
+          eventWindow(
+            p,
+            .05,
+            .40
+          )
+        );
+
+
+      cameraTarget.rotation =
+        lerp(
+          system.camera.rotation,
+          targetMode.camera.rotation,
+          eventWindow(
+            p,
+            .12,
+            .44
+          )
+        );
+    }
+
+
+    /* ======================================================================
+       RECOVERY CHOREOGRAPHY
+       ====================================================================== */
+
+    if (
+      activeMode ===
+      "recovery"
+    ) {
+
+      /*
+         Position moves FIRST.
+      */
+
+      var positionReturn =
+        eventWindow(
+          p,
+          .04,
+          .30
+        );
+
+
+      positionTarget.x =
+        lerp(
+          eventOrigin.position.x,
+          targetMode.position.x,
+          positionReturn
+        );
+
+
+      positionTarget.y =
+        lerp(
+          eventOrigin.position.y,
+          targetMode.position.y,
+          positionReturn
+        );
+
+
+      /*
+         Coherence returns second.
+      */
+
+      coherenceTarget =
+        lerp(
+          Math.min(
+            system.coherence,
+            .50
+          ),
+          targetMode.coherence,
+          eventWindow(
+            p,
+            .22,
+            .78
+          )
+        );
+
+
+      /*
+         Boundary changes last.
+      */
+
+      var boundaryReturn =
+        eventWindow(
+          p,
+          .58,
+          1
+        );
+
+
+      factorTargets =
+        eventOrigin.factors.map(
+          function (value, index) {
+
+            return lerp(
+              value,
+              targetMode.factors[index],
+              boundaryReturn
+            );
+          }
+        );
+
+
+      /*
+         Camera backs away as room becomes perceivable.
+      */
+
+      cameraTarget.scale =
+        lerp(
+          system.camera.scale,
+          targetMode.camera.scale,
+          eventWindow(
+            p,
+            .46,
+            .90
+          )
+        );
+    }
+
+
+    /* ======================================================================
+       FLOW CHOREOGRAPHY
+       ====================================================================== */
+
+    if (
+      activeMode ===
+      "flow"
+    ) {
+
+      var lock =
+        eventWindow(
+          p,
+          .18,
+          .70
+        );
+
+
+      coherenceTarget =
+        lerp(
+          Math.min(
+            system.coherence,
+            .58
+          ),
+          targetMode.coherence,
+          lock
+        );
+
+
+      factorTargets =
+        eventOrigin.factors.map(
+          function (value, index) {
+
+            return lerp(
+              value,
+              targetMode.factors[index],
+              eventWindow(
+                p,
+                .24,
+                .72
+              )
+            );
+          }
+        );
+
+
+      /*
+         Position does not teleport into Flow.
+
+         It gets carried into the stream during the late phase.
+      */
+
+      var carry =
+        eventWindow(
+          p,
+          .62,
+          .92
+        );
+
+
+      var wave =
+        Math.sin(
+          p *
+          Math.PI *
+          2
+        ) *
+        .035 *
+        carry;
+
+
+      positionTarget.x =
+        lerp(
+          eventOrigin.position.x,
+          targetMode.position.x +
+          wave,
+          carry
+        );
+
+
+      positionTarget.y =
+        lerp(
+          eventOrigin.position.y,
+          targetMode.position.y -
+          wave *
+          .35,
+          carry
+        );
+
+
+      /*
+         Camera drifts laterally with current.
+      */
+
+      cameraTarget.x =
+        lerp(
+          0,
+          targetMode.camera.x,
+          eventWindow(
+            p,
+            .50,
+            .88
+          )
+        );
+    }
+
+
+    /* ======================================================================
+       NOVA CHOREOGRAPHY
+       ====================================================================== */
+
+    if (
+      activeMode ===
+      "nova"
+    ) {
+
+      /*
+         If Nova was entered from disorder,
+         coherence establishes BEFORE territory expands.
+      */
+
+      var coherence =
+        eventWindow(
+          p,
+          .03,
+          .30
+        );
+
+
+      coherenceTarget =
+        lerp(
+          system.coherence,
+          targetMode.coherence,
+          coherence
+        );
+
+
+      /*
+         Envelope expands in six earned increments.
+
+         It therefore appears to OPEN as new relationships are successfully
+         held rather than inflating continuously.
+      */
+
+      var stages =
+        6;
+
+
+      var completed =
+        Math.floor(
+          clamp(
+            p,
+            0,
+            .999
+          ) *
+          stages
+        );
+
+
+      var stageLocal =
+        (
+          p *
+          stages
+        ) %
+        1;
+
+
+      var earned =
+        (
+          completed +
+          smoothstep(
+            clamp(
+              (
+                stageLocal -
+                .28
+              ) /
+              .36,
+              0,
+              1
+            )
+          )
+        ) /
+        stages;
+
+
+      factorTargets =
+        eventOrigin.factors.map(
+          function (value, index) {
+
+            return lerp(
+              value,
+              targetMode.factors[index],
+              earned
+            );
+          }
+        );
+
+
+      /*
+         Position remains relatively controlled.
+
+         Nova is not "state flying to edge."
+      */
+
+      positionTarget.x =
+        lerp(
+          eventOrigin.position.x,
+          targetMode.position.x,
+          eventWindow(
+            p,
+            .18,
+            .55
+          )
+        );
+
+
+      positionTarget.y =
+        lerp(
+          eventOrigin.position.y,
+          targetMode.position.y,
+          eventWindow(
+            p,
+            .18,
+            .55
+          )
+        );
+
+
+      /*
+         Camera pulls BACK so expanded relational territory becomes visible.
+      */
+
+      cameraTarget.scale =
+        lerp(
+          system.camera.scale,
+          targetMode.camera.scale,
+          eventWindow(
+            p,
+            .22,
+            .92
+          )
+        );
+    }
+
+
+    /* =========================================================================
+       APPLY WITH DIFFERENT TIME CONSTANTS
+       ========================================================================= */
+
+    var positionK =
+      1 -
+      Math.exp(
+        -dt /
+        300
+      );
+
+
+    var factorK =
+      1 -
+      Math.exp(
+        -dt /
+        760
+      );
+
+
+    var coherenceK =
+      1 -
+      Math.exp(
+        -dt /
+        560
+      );
+
+
+    var energyK =
+      1 -
+      Math.exp(
+        -dt /
+        640
+      );
+
+
+    var cameraK =
+      1 -
+      Math.exp(
+        -dt /
+        820
+      );
+
+
+    system.position.x =
+      lerp(
+        system.position.x,
+        positionTarget.x,
+        positionK
+      );
+
+
+    system.position.y =
+      lerp(
+        system.position.y,
+        positionTarget.y,
+        positionK
+      );
+
+
+    system.factors =
+      system.factors.map(
+        function (value, index) {
+
+          return lerp(
+            value,
+            factorTargets[index],
+            factorK
+          );
+        }
+      );
+
+
+    system.coherence =
+      lerp(
+        system.coherence,
+        coherenceTarget,
+        coherenceK
+      );
+
+
+    system.energy =
+      lerp(
+        system.energy,
+        targetMode.energy,
+        energyK
+      );
+
+
+    system.camera.scale =
+      lerp(
+        system.camera.scale,
+        cameraTarget.scale,
+        cameraK
+      );
+
+
+    system.camera.x =
+      lerp(
+        system.camera.x,
+        cameraTarget.x,
+        cameraK
+      );
+
+
+    system.camera.y =
+      lerp(
+        system.camera.y,
+        cameraTarget.y,
+        cameraK
+      );
+
+
+    system.camera.rotation =
+      lerp(
+        system.camera.rotation,
+        cameraTarget.rotation,
+        cameraK
+      );
+  }
+
+
+  /* ==========================================================================
+     MODE WEIGHTS
+     ========================================================================== */
+
+  function updateModeWeights(
+    dt
+  ) {
+
+    var k =
+      1 -
+      Math.exp(
+        -dt /
+        620
+      );
+
+
+    Object.keys(
+      weights
+    )
+    .forEach(
+      function (key) {
+
+        weights[key] =
+          lerp(
+            weights[key],
+            weightTargets[key],
+            k
+          );
+      }
+    );
+  }
+
+
+  /* ==========================================================================
      ANIMATION
      ========================================================================== */
 
@@ -5655,7 +8102,9 @@
     0;
 
 
-  function frame(now) {
+  function frame(
+    now
+  ) {
 
     if (
       !visible
@@ -5688,93 +8137,14 @@
       dt;
 
 
-    var modeK =
-      1 -
-      Math.exp(
-        -dt /
-        700
-      );
-
-
-    Object.keys(
-      weights
-    )
-    .forEach(
-      function (key) {
-
-        weights[key] =
-          lerp(
-            weights[key],
-            weightTargets[key],
-            modeK
-          );
-      }
+    updateModeWeights(
+      dt
     );
 
 
-    /*
-       Position moves first.
-    */
-
-    var positionK =
-      1 -
-      Math.exp(
-        -dt /
-        400
-      );
-
-
-    pos.x =
-      lerp(
-        pos.x,
-        target.pos.x,
-        positionK
-      );
-
-
-    pos.y =
-      lerp(
-        pos.y,
-        target.pos.y,
-        positionK
-      );
-
-
-    /*
-       The mode-conditioned envelope reorganizes more slowly.
-    */
-
-    var boundaryK =
-      1 -
-      Math.exp(
-        -dt /
-        1050
-      );
-
-
-    factors =
-      factors.map(
-        function (value, i) {
-
-          return lerp(
-            value,
-            target.factors[i],
-            boundaryK
-          );
-        }
-      );
-
-
-    energy =
-      lerp(
-        energy,
-        target.energy,
-        1 -
-        Math.exp(
-          -dt /
-          850
-        )
-      );
+    updatePersistentState(
+      dt
+    );
 
 
     drawSVG(
@@ -5804,7 +8174,7 @@
   }
 
 
-  function ensure() {
+  function ensureAnimation() {
 
     if (
       reduce ||
@@ -5827,7 +8197,7 @@
 
 
   /* ==========================================================================
-     CONTROLS
+     BUTTONS
      ========================================================================== */
 
   buttons.forEach(
@@ -5837,33 +8207,10 @@
         "click",
         function () {
 
-          var key =
+          selectMode(
             button.getAttribute(
               "data-mode"
-            );
-
-
-          /*
-             Clicking active mode replays its full physical event.
-          */
-
-          if (
-            key ===
-            activeMode
-          ) {
-
-            modeStart =
-              clock;
-
-
-            ensure();
-
-            return;
-          }
-
-
-          setMode(
-            key
+            )
           );
         }
       );
@@ -5872,14 +8219,101 @@
 
 
   /* ==========================================================================
-     SIZE
+     CANVAS RESIZE
      ========================================================================== */
 
-  function resize() {
+  function resizeCanvases() {
 
-    resizePhenomena();
+    DPR =
+      Math.min(
+        2,
+        window.devicePixelRatio ||
+        1
+      );
 
-    resizeWorld();
+
+    var stageRect =
+      phenomena.getBoundingClientRect();
+
+
+    CW =
+      Math.max(
+        1,
+        stageRect.width
+      );
+
+
+    CH =
+      Math.max(
+        1,
+        stageRect.height
+      );
+
+
+    phenomena.width =
+      Math.round(
+        CW *
+        DPR
+      );
+
+
+    phenomena.height =
+      Math.round(
+        CH *
+        DPR
+      );
+
+
+    ctx.setTransform(
+      DPR,
+      0,
+      0,
+      DPR,
+      0,
+      0
+    );
+
+
+    var worldRect =
+      world.getBoundingClientRect();
+
+
+    WW =
+      Math.max(
+        1,
+        worldRect.width
+      );
+
+
+    WH =
+      Math.max(
+        1,
+        worldRect.height
+      );
+
+
+    world.width =
+      Math.round(
+        WW *
+        DPR
+      );
+
+
+    world.height =
+      Math.round(
+        WH *
+        DPR
+      );
+
+
+    worldCtx.setTransform(
+      DPR,
+      0,
+      0,
+      DPR,
+      0,
+      0
+    );
   }
 
 
@@ -5887,12 +8321,12 @@
     !reduce
   ) {
 
-    resize();
+    resizeCanvases();
 
 
     window.addEventListener(
       "resize",
-      resize,
+      resizeCanvases,
       {
         passive: true
       }
@@ -5923,7 +8357,7 @@
               visible
             ) {
 
-              ensure();
+              ensureAnimation();
 
             } else if (
               raf
@@ -5955,10 +8389,131 @@
 
 
   /* ==========================================================================
+     REDUCED MOTION
+     ========================================================================== */
+
+  function snapToMode(
+    key
+  ) {
+
+    activeMode =
+      key;
+
+
+    targetMode =
+      MODES[
+        key
+      ];
+
+
+    system.factors =
+      targetMode.factors.slice();
+
+
+    system.position.x =
+      targetMode.position.x;
+
+
+    system.position.y =
+      targetMode.position.y;
+
+
+    system.energy =
+      targetMode.energy;
+
+
+    system.coherence =
+      targetMode.coherence;
+
+
+    system.camera.scale =
+      targetMode.camera.scale;
+
+
+    system.camera.x =
+      targetMode.camera.x;
+
+
+    system.camera.y =
+      targetMode.camera.y;
+
+
+    system.camera.rotation =
+      targetMode.camera.rotation;
+
+
+    Object.keys(
+      weights
+    )
+    .forEach(
+      function (name) {
+
+        weights[name] =
+          name ===
+          key
+            ?
+              1
+            :
+              0;
+
+
+        weightTargets[name] =
+          weights[name];
+      }
+    );
+
+
+    buttons.forEach(
+      function (button) {
+
+        button.setAttribute(
+          "aria-pressed",
+
+          String(
+            button.getAttribute(
+              "data-mode"
+            ) ===
+            key
+          )
+        );
+      }
+    );
+
+
+    drawSVG(
+      0
+    );
+  }
+
+
+  if (
+    reduce
+  ) {
+
+    buttons.forEach(
+      function (button) {
+
+        button.addEventListener(
+          "click",
+          function () {
+
+            snapToMode(
+              button.getAttribute(
+                "data-mode"
+              )
+            );
+          }
+        );
+      }
+    );
+  }
+
+
+  /* ==========================================================================
      INITIAL
      ========================================================================== */
 
-  setAurora(
+  updateAurora(
     "recovery"
   );
 
@@ -5968,6 +8523,7 @@
 
       button.setAttribute(
         "aria-pressed",
+
         String(
           button.getAttribute(
             "data-mode"
@@ -5979,17 +8535,24 @@
   );
 
 
+  captureEventOrigin();
+
+
+  modeStart =
+    0;
+
+
   if (
     reduce
   ) {
 
-    drawSVG(
-      0
+    snapToMode(
+      "recovery"
     );
 
   } else {
 
-    ensure();
+    ensureAnimation();
   }
 
 })();

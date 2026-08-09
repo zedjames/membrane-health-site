@@ -4310,65 +4310,62 @@ img { max-width: 100%; display: block; }
 /* ==== The five modes (experiential) ==== */
 /* ============================================================================
    THE FIVE MODES
-   ONE SYSTEM — FIVE PHYSICS
+   ONE LIVING SYSTEM — FIVE PHYSIOLOGICAL STORIES
    ============================================================================
 
-   The envelope is generated from nine hidden physiological dimensions:
+   Acceptance test:
 
-     heart
-     sleep
-     activity
-     recovery
-     stability
-     thermal
-     metabolic
-     stress
-     overall
+   Remove every mode name.
 
-   Mode-conditioned tolerance changes the shape of that envelope.
+   A viewer should still be able to recognize:
 
-   The visitor never sees those thresholds or formulas.
+     SLEEP
+       exterior demand passes around the system
+       internal work deepens
+       nested restoration propagates inward
 
-   What they experience is their consequence.
+     STRESS
+       demand approaches
+       the system recruits toward it
+       stress / cardiac headroom expands
+       recovery / sleep remain protected
+       the system HOLDS the load
 
-   Each mode also has a distinct EVENT:
+     RECOVERY
+       begins from the actual prior posture
+       position returns first
+       load exits
+       knots release
+       reserve reconnects
+       membrane settles last
 
-   SLEEP
-     exterior demand glides around the system
-     internal circulation deepens
-     repair waves travel inward
-     one circadian/sleep corridor remains sharply governed
+     FLOW
+       independent motion
+       phase-locking front
+       turbulence collapses
+       stable transport emerges
+       the position joins the current
 
-   STRESS
-     directional demand strikes
-     the system recruits toward it
-     heart/stress corridors expand to absorb expected demand
-     sleep/recovery regions tighten and become protected reserves
+     NOVA
+       begins from organized throughput
+       additional relationships are recruited one by one
+       existing organization is preserved
+       territory expands selectively
+       energy travels outward and returns
+       recovery + stability stay guarded
 
-   RECOVERY
-     retained strain is visible at first
-     load drains outward
-     reserve wells refill
-     position returns before the boundary finishes settling
-     room reappears
+   The modes are not slides.
 
-   FLOW
-     independent trajectories begin disordered
-     phase-lock sweeps across the field
-     turbulence collapses
-     long clean transport routes appear
-     position enters the current
-
-   NOVA
-     high-throughput corridors open
-     distant regions become simultaneously connected
-     energy travels outward and returns
-     recovery + stability remain visibly guarded
-     expansion occurs without loss of structure
+   Switching mode interrupts the current transformation and begins from the
+   exact world currently on screen.
    ============================================================================ */
 
 
-.fm5 {
+/* ============================================================================
+   PAGE WORLD
+   ============================================================================ */
+
+.fm {
   position: relative;
   isolation: isolate;
   overflow: hidden;
@@ -4377,29 +4374,29 @@ img { max-width: 100%; display: block; }
 
   background:
     radial-gradient(
-      circle at 50% 48%,
+      ellipse at 50% 49%,
       color-mix(in srgb, var(--aqua-deep) 8%, transparent),
-      transparent 31%
+      transparent 32%
     ),
     radial-gradient(
-      circle at 50% 52%,
+      ellipse at 51% 53%,
       color-mix(in srgb, var(--glow) 5%, transparent),
-      transparent 54%
+      transparent 56%
     ),
     linear-gradient(
       150deg,
       var(--night-deep),
-      var(--night) 58%,
-      color-mix(in srgb, var(--night) 94%, var(--indigo))
+      var(--night) 57%,
+      color-mix(in srgb, var(--night) 95%, var(--indigo))
     );
 }
 
 
-.fm5::before {
+.fm::before {
   content: "";
   position: absolute;
   inset: 0;
-  z-index: -9;
+  z-index: -10;
 
   pointer-events: none;
 
@@ -4407,7 +4404,7 @@ img { max-width: 100%; display: block; }
     radial-gradient(
       circle,
       color-mix(in srgb, var(--parchment) 14%, transparent) 0 .5px,
-      transparent .75px
+      transparent .78px
     );
 
   background-size: 9px 9px;
@@ -4422,10 +4419,11 @@ img { max-width: 100%; display: block; }
 }
 
 
-.fm5__world {
+/* page-scale atmosphere */
+.fm__world {
   position: absolute;
   inset: 0;
-  z-index: -7;
+  z-index: -8;
 
   width: 100%;
   height: 100%;
@@ -4434,38 +4432,40 @@ img { max-width: 100%; display: block; }
 }
 
 
-.fm5__aurora {
+/* large atmospheric field */
+.fm__aurora {
   position: absolute;
-  inset: -18%;
-  z-index: -8;
+  inset: -20%;
+  z-index: -9;
 
   pointer-events: none;
 
-  filter: blur(52px);
+  filter: blur(58px);
 
-  opacity: .74;
+  opacity: .72;
 
   background:
     radial-gradient(
-      ellipse at 50% 50%,
-      color-mix(in srgb, var(--status-go) 7%, transparent),
+      ellipse at 50% 53%,
+      color-mix(in srgb, var(--status-go) 8%, transparent),
       transparent 43%
     );
 
   transform:
-    scale(var(--fm5-scale, 1))
+    scale(var(--fm-aurora-scale, 1))
     translate(
-      var(--fm5-x, 0),
-      var(--fm5-y, 0)
+      var(--fm-aurora-x, 0%),
+      var(--fm-aurora-y, 0%)
     );
 
   transition:
-    background 1.6s ease,
-    transform 1.8s ease;
+    background 1.8s ease,
+    transform 1.8s ease,
+    opacity 1.4s ease;
 }
 
 
-.fm5__shell {
+.fm__shell {
   position: relative;
   z-index: 5;
 
@@ -4477,7 +4477,7 @@ img { max-width: 100%; display: block; }
   padding:
     clamp(72px, 9vh, 110px)
     var(--gutter)
-    clamp(58px, 8vh, 90px);
+    clamp(58px, 8vh, 92px);
 }
 
 
@@ -4485,16 +4485,14 @@ img { max-width: 100%; display: block; }
    EXISTING COPY
    ============================================================================ */
 
-.fm5__head {
+.fm__head {
   max-width: 900px;
-
   margin-inline: auto;
-
   text-align: center;
 }
 
 
-.fm5__head .lede {
+.fm__head .lede {
   max-width: 64ch;
 
   margin:
@@ -4505,24 +4503,23 @@ img { max-width: 100%; display: block; }
 
 
 /* ============================================================================
-   STAGE
+   MAIN EXPERIENCE
    ============================================================================ */
 
-.fm5__experience {
-  width: min(1180px, 100%);
+.fm__experience {
+  width: min(1200px, 100%);
 
   margin:
-    clamp(42px, 5vw, 68px)
+    clamp(42px, 5vw, 70px)
     auto
     0;
 }
 
 
-.fm5__stage {
+.fm__stage {
   position: relative;
 
   width: 100%;
-
   aspect-ratio: 16 / 9;
 
   min-height: 650px;
@@ -4548,7 +4545,7 @@ img { max-width: 100%; display: block; }
     radial-gradient(
       ellipse at center,
       color-mix(in srgb, var(--aqua-deep) 5%, transparent),
-      transparent 47%
+      transparent 46%
     ),
     linear-gradient(
       to bottom,
@@ -4557,7 +4554,7 @@ img { max-width: 100%; display: block; }
     );
 
   box-shadow:
-    0 52px 140px -84px
+    0 54px 145px -84px
     color-mix(
       in srgb,
       var(--aqua) 48%,
@@ -4569,25 +4566,26 @@ img { max-width: 100%; display: block; }
 }
 
 
-.fm5__stage::after {
+.fm__stage::after {
   content: "";
   position: absolute;
   inset: 0;
-  z-index: 5;
+  z-index: 8;
 
   pointer-events: none;
 
   background:
     radial-gradient(
       ellipse at center,
-      transparent 0 50%,
-      color-mix(in srgb, var(--night) 7%, transparent) 70%,
-      color-mix(in srgb, var(--night) 24%, transparent)
+      transparent 0 52%,
+      color-mix(in srgb, var(--night) 7%, transparent) 71%,
+      color-mix(in srgb, var(--night) 25%, transparent)
     );
 }
 
 
-.fm5__phenomena {
+/* mode-scale physical world */
+.fm__phenomena {
   position: absolute;
   inset: 0;
   z-index: 1;
@@ -4599,14 +4597,27 @@ img { max-width: 100%; display: block; }
 }
 
 
-.fm5__stage svg {
+.fm__stage svg {
   position: relative;
-  z-index: 3;
+  z-index: 4;
 
   display: block;
 
   width: 100%;
   height: 100%;
+
+  overflow: visible;
+}
+
+
+/* ============================================================================
+   CAMERA GROUP
+   ============================================================================ */
+
+.fm-scene {
+  transform-origin: 550px 315px;
+
+  will-change: transform;
 }
 
 
@@ -4614,7 +4625,7 @@ img { max-width: 100%; display: block; }
    FIXED IDENTITY
    ============================================================================ */
 
-.fm5-identity {
+.fm-identity {
   fill: none;
 
   stroke:
@@ -4625,13 +4636,14 @@ img { max-width: 100%; display: block; }
     );
 
   stroke-width: 1;
+
   stroke-dasharray: 2 10;
 
   opacity: .48;
 }
 
 
-.fm5-identity-inner {
+.fm-identity-inner {
   fill: none;
 
   stroke:
@@ -4641,6 +4653,7 @@ img { max-width: 100%; display: block; }
     );
 
   stroke-width: .8;
+
   stroke-dasharray: 1 12;
 
   opacity: .25;
@@ -4648,26 +4661,26 @@ img { max-width: 100%; display: block; }
 
 
 /* ============================================================================
-   NINE-DIRECTION TOLERANCE ENVELOPE
+   ACTIVE ENVELOPE
    ============================================================================ */
 
-.fm5-fill {
+.fm-fill {
   stroke: none;
 }
 
 
-.fm5-boundary-bloom {
+.fm-boundary-bloom {
   fill: none;
 
   stroke-width: 18;
 
   filter: blur(14px);
 
-  opacity: .14;
+  opacity: .13;
 }
 
 
-.fm5-boundary-deep {
+.fm-boundary-deep {
   fill: none;
 
   stroke-width: 8;
@@ -4676,7 +4689,7 @@ img { max-width: 100%; display: block; }
 }
 
 
-.fm5-boundary {
+.fm-boundary {
   fill: none;
 
   stroke-width: 1.7;
@@ -4693,12 +4706,12 @@ img { max-width: 100%; display: block; }
 }
 
 
-.fm5-boundary-beads {
+.fm-boundary-beads {
   fill: none;
 
   stroke-width: 2.5;
 
-  stroke-dasharray: .4 5.5;
+  stroke-dasharray: .4 5.4;
 
   stroke-linecap: round;
 
@@ -4706,29 +4719,25 @@ img { max-width: 100%; display: block; }
 }
 
 
-/*
-   These nine sectors remain unlabeled.
+/* ============================================================================
+   NINE HIDDEN CONDITIONED DIRECTIONS
+   ============================================================================ */
 
-   Their changing reach gives the envelope real anisotropy without turning
-   the public experience into a technical diagram.
-*/
-.fm5-sector {
-  fill: none;
-
+.fm-sector {
   stroke:
     color-mix(
       in srgb,
-      var(--parchment) 11%,
+      var(--parchment) 10%,
       transparent
     );
 
   stroke-width: .65;
 
-  opacity: .11;
+  opacity: .10;
 }
 
 
-.fm5-sector-cap {
+.fm-sector-tip {
   fill: var(--aqua);
 
   opacity: .08;
@@ -4736,28 +4745,30 @@ img { max-width: 100%; display: block; }
 
 
 /* ============================================================================
-   INTERIOR
+   BASE INTERNAL TOPOLOGY
    ============================================================================ */
 
-.fm5-contour {
+.fm-contour {
   fill: none;
+
   stroke-width: .7;
 }
 
 
-.fm5-thread {
+.fm-thread {
   fill: none;
+
   stroke-width: .78;
 }
 
 
-.fm5-node {
+.fm-node {
   filter:
     drop-shadow(
       0 0 5px
       color-mix(
         in srgb,
-        var(--aqua) 44%,
+        var(--aqua) 43%,
         transparent
       )
     );
@@ -4765,16 +4776,16 @@ img { max-width: 100%; display: block; }
 
 
 /* ============================================================================
-   POSITION / HISTORY
+   POSITION
    ============================================================================ */
 
-.fm5-history {
+.fm-history {
   fill: none;
 
   stroke:
     color-mix(
       in srgb,
-      var(--aqua) 44%,
+      var(--aqua) 45%,
       transparent
     );
 
@@ -4784,68 +4795,63 @@ img { max-width: 100%; display: block; }
 }
 
 
-.fm5-history-dot {
+.fm-history-dot {
   fill: var(--aqua);
 }
 
 
-.fm5-position-halo {
+.fm-position-halo {
   filter: blur(14px);
 }
 
 
-.fm5-position-ring {
+.fm-position-ring {
   fill: none;
+
+  stroke: var(--aqua);
+
   stroke-width: .9;
 }
 
 
-.fm5-position {
+.fm-position {
+  fill: var(--aqua);
+
   filter:
     drop-shadow(0 0 10px var(--aqua))
     drop-shadow(
       0 0 20px
       color-mix(
         in srgb,
-        var(--aqua) 40%,
+        var(--aqua) 42%,
         transparent
       )
     );
 }
 
 
-.fm5-position-core {
+.fm-position-core {
   fill: var(--parchment);
 }
 
 
 /* ============================================================================
    GUARDED REGIONS
-
-   These become important in Stress, Sleep, Recovery, and Nova.
-
-   They communicate:
-      "the system may be open elsewhere while this relationship is being
-       watched more closely."
    ============================================================================ */
 
-.fm5-guard {
+.fm-guard {
   fill: none;
 
   stroke-width: 1;
-
-  opacity: 0;
 }
 
 
-.fm5-guard-bloom {
+.fm-guard-bloom {
   fill: none;
 
-  stroke-width: 8;
+  stroke-width: 9;
 
-  filter: blur(7px);
-
-  opacity: 0;
+  filter: blur(8px);
 }
 
 
@@ -4853,7 +4859,7 @@ img { max-width: 100%; display: block; }
    SLEEP
    ============================================================================ */
 
-.fm5-sleep-ring {
+.fm-sleep-shell {
   fill: none;
 
   stroke:
@@ -4863,25 +4869,34 @@ img { max-width: 100%; display: block; }
       var(--aqua)
     );
 
-  stroke-width: .75;
+  stroke-width: .78;
 }
 
 
-.fm5-sleep-route {
+.fm-sleep-wave {
   fill: none;
 
   stroke: var(--glow-soft);
 
-  stroke-width: .85;
+  stroke-width: .8;
 }
 
 
-.fm5-sleep-gate {
+.fm-sleep-route {
+  fill: none;
+
+  stroke: var(--glow-soft);
+
+  stroke-width: .9;
+}
+
+
+.fm-sleep-gate {
   fill: var(--glow-soft);
 
   filter:
     drop-shadow(
-      0 0 7px
+      0 0 8px
       var(--glow-soft)
     );
 }
@@ -4891,7 +4906,7 @@ img { max-width: 100%; display: block; }
    STRESS
    ============================================================================ */
 
-.fm5-pressure {
+.fm-stress-front {
   fill: none;
 
   stroke: var(--status-ease);
@@ -4900,13 +4915,13 @@ img { max-width: 100%; display: block; }
 }
 
 
-.fm5-demand {
+.fm-stress-route {
   fill: none;
 
   stroke:
     color-mix(
       in srgb,
-      var(--status-ease) 68%,
+      var(--status-ease) 72%,
       var(--glow)
     );
 
@@ -4914,7 +4929,7 @@ img { max-width: 100%; display: block; }
 }
 
 
-.fm5-hot {
+.fm-stress-node {
   fill: var(--status-ease);
 
   filter:
@@ -4925,11 +4940,20 @@ img { max-width: 100%; display: block; }
 }
 
 
+.fm-stress-hold {
+  fill: none;
+
+  stroke: var(--status-ease);
+
+  stroke-width: .85;
+}
+
+
 /* ============================================================================
    RECOVERY
    ============================================================================ */
 
-.fm5-strain-ghost {
+.fm-recovery-ghost {
   fill: none;
 
   stroke: var(--status-ease);
@@ -4938,19 +4962,41 @@ img { max-width: 100%; display: block; }
 }
 
 
-.fm5-release {
+.fm-recovery-release {
   fill: none;
 
   stroke: var(--aqua);
 
-  stroke-width: 1.1;
+  stroke-width: 1.05;
+
+  stroke-linecap: round;
 }
 
 
-.fm5-reserve {
+.fm-recovery-knot {
+  fill: none;
+
+  stroke: var(--aqua);
+
+  stroke-width: .8;
+}
+
+
+.fm-recovery-reserve {
   fill: var(--aqua);
 
-  filter: blur(15px);
+  filter: blur(16px);
+}
+
+
+.fm-recovery-route {
+  fill: none;
+
+  stroke: var(--aqua);
+
+  stroke-width: 1.2;
+
+  stroke-linecap: round;
 }
 
 
@@ -4958,7 +5004,7 @@ img { max-width: 100%; display: block; }
    FLOW
    ============================================================================ */
 
-.fm5-flow-path {
+.fm-flow-route {
   fill: none;
 
   stroke: var(--aqua);
@@ -4967,7 +5013,7 @@ img { max-width: 100%; display: block; }
 }
 
 
-.fm5-flow-pulse {
+.fm-flow-pulse {
   fill: var(--aqua);
 
   filter:
@@ -4978,17 +5024,31 @@ img { max-width: 100%; display: block; }
 }
 
 
-/* ============================================================================
-   NOVA
-   ============================================================================ */
-
-.fm5-nova-link {
+.fm-flow-front {
   fill: none;
 
   stroke:
     color-mix(
       in srgb,
-      var(--glow) 72%,
+      var(--aqua) 72%,
+      transparent
+    );
+
+  stroke-width: .8;
+}
+
+
+/* ============================================================================
+   NOVA
+   ============================================================================ */
+
+.fm-nova-link {
+  fill: none;
+
+  stroke:
+    color-mix(
+      in srgb,
+      var(--glow) 76%,
       var(--aqua)
     );
 
@@ -4996,7 +5056,7 @@ img { max-width: 100%; display: block; }
 }
 
 
-.fm5-nova-node {
+.fm-nova-node {
   fill: var(--glow);
 
   filter:
@@ -5007,7 +5067,7 @@ img { max-width: 100%; display: block; }
 }
 
 
-.fm5-nova-return {
+.fm-nova-route {
   fill: none;
 
   stroke: var(--glow);
@@ -5016,28 +5076,38 @@ img { max-width: 100%; display: block; }
 }
 
 
+.fm-nova-check {
+  fill: none;
+
+  stroke: var(--aqua);
+
+  stroke-width: .7;
+}
+
+
 /* ============================================================================
-   MODE TITLE
+   MODE LABEL
    ============================================================================ */
 
-.fm5-mode-name {
+.fm-mode-name {
   font-family: var(--serif);
 
-  font-size: 37px;
+  font-size: 38px;
   font-weight: 300;
 
   fill: var(--parchment);
 
-  opacity: .91;
+  opacity: .92;
 }
 
 
-.fm5-mode-desc {
+.fm-mode-desc {
   font-family: var(--body);
 
   font-size: 10px;
 
   letter-spacing: .16em;
+
   text-transform: uppercase;
 
   fill: var(--parchment-dim);
@@ -5047,10 +5117,10 @@ img { max-width: 100%; display: block; }
 
 
 /* ============================================================================
-   MODE BUTTONS — EXACT COPY
+   MODE BUTTONS — EXISTING COPY
    ============================================================================ */
 
-.fm5__modes {
+.fm__modes {
   display: grid;
 
   grid-template-columns:
@@ -5058,7 +5128,7 @@ img { max-width: 100%; display: block; }
 
   gap: 10px;
 
-  width: min(1090px, 97%);
+  width: min(1100px, 97%);
 
   margin:
     18px
@@ -5067,7 +5137,7 @@ img { max-width: 100%; display: block; }
 }
 
 
-.fm5-mode {
+.fm-mode {
   appearance: none;
 
   position: relative;
@@ -5079,6 +5149,8 @@ img { max-width: 100%; display: block; }
   min-height: 118px;
 
   padding: 17px;
+
+  overflow: hidden;
 
   border:
     1px solid
@@ -5107,9 +5179,8 @@ img { max-width: 100%; display: block; }
 
   cursor: pointer;
 
-  overflow: hidden;
-
   backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 
   transition:
     transform .35s ease,
@@ -5119,7 +5190,7 @@ img { max-width: 100%; display: block; }
 }
 
 
-.fm5-mode::before {
+.fm-mode::before {
   content: "";
 
   position: absolute;
@@ -5148,13 +5219,13 @@ img { max-width: 100%; display: block; }
 }
 
 
-.fm5-mode:hover {
+.fm-mode:hover {
   transform:
     translateY(-3px);
 }
 
 
-.fm5-mode[aria-pressed="true"] {
+.fm-mode[aria-pressed="true"] {
   border-color:
     color-mix(
       in srgb,
@@ -5179,13 +5250,13 @@ img { max-width: 100%; display: block; }
 }
 
 
-.fm5-mode[aria-pressed="true"]::before {
+.fm-mode[aria-pressed="true"]::before {
   transform:
     scaleX(1);
 }
 
 
-.fm5-mode:focus-visible {
+.fm-mode:focus-visible {
   outline:
     2px solid
     var(--aqua);
@@ -5194,7 +5265,7 @@ img { max-width: 100%; display: block; }
 }
 
 
-.fm5-mode__top {
+.fm-mode__top {
   display: flex;
   align-items: center;
 
@@ -5204,7 +5275,7 @@ img { max-width: 100%; display: block; }
 }
 
 
-.fm5-mode .mode__dot {
+.fm-mode .mode__dot {
   flex: none;
 
   width: 9px;
@@ -5223,14 +5294,14 @@ img { max-width: 100%; display: block; }
 }
 
 
-.fm5-mode .mode__name {
+.fm-mode .mode__name {
   margin: 0;
 
   font-size: 1.13rem;
 }
 
 
-.fm5-mode .subtle {
+.fm-mode .subtle {
   margin: 0;
 
   font-size: .85rem;
@@ -5238,12 +5309,12 @@ img { max-width: 100%; display: block; }
 }
 
 
-.fm5-mode .mode__tag {
+.fm-mode .mode__tag {
   font-size: .52rem;
 }
 
 
-.fm5__note {
+.fm__note {
   max-width: 730px;
 
   margin:
@@ -5259,14 +5330,14 @@ img { max-width: 100%; display: block; }
 
 @media (max-width: 940px) {
 
-  .fm5__stage {
+  .fm__stage {
     aspect-ratio: 1 / 1;
 
-    min-height: 670px;
+    min-height: 680px;
   }
 
 
-  .fm5__modes {
+  .fm__modes {
     grid-template-columns:
       repeat(
         5,
@@ -5284,7 +5355,7 @@ img { max-width: 100%; display: block; }
   }
 
 
-  .fm5-mode {
+  .fm-mode {
     scroll-snap-align: center;
   }
 }
@@ -5292,23 +5363,23 @@ img { max-width: 100%; display: block; }
 
 @media (max-width: 620px) {
 
-  .fm5 {
+  .fm {
     min-height: auto;
   }
 
 
-  .fm5__stage {
+  .fm__stage {
     width: 110%;
 
-    min-height: 510px;
-
     margin-left: -5%;
+
+    min-height: 520px;
 
     border-radius: 24px;
   }
 
 
-  .fm5__modes {
+  .fm__modes {
     grid-template-columns:
       repeat(
         5,
@@ -5320,20 +5391,20 @@ img { max-width: 100%; display: block; }
 
 @media (prefers-reduced-motion: reduce) {
 
-  .fm5__world,
-  .fm5__phenomena {
+  .fm__world,
+  .fm__phenomena {
     display: none;
   }
 
 
-  .fm5-boundary-bloom,
-  .fm5-boundary,
-  .fm5-node,
-  .fm5-position,
-  .fm5-position-halo,
-  .fm5-hot,
-  .fm5-flow-pulse,
-  .fm5-nova-node {
+  .fm-boundary-bloom,
+  .fm-boundary,
+  .fm-node,
+  .fm-position,
+  .fm-position-halo,
+  .fm-stress-node,
+  .fm-flow-pulse,
+  .fm-nova-node {
     filter: none;
   }
 }

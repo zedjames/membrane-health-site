@@ -25,7 +25,7 @@
   <link rel="icon" type="image/png" sizes="16x16" href="assets/img/favicon-16.png">
   <link rel="apple-touch-icon" sizes="180x180" href="assets/img/apple-touch-icon.png">
   <link rel="manifest" href="site.webmanifest">
-  <link rel="stylesheet" href="assets/css/membrane.css?v=8">
+  <link rel="stylesheet" href="assets/css/membrane.css?v=9">
 </head>
 <body>
 
@@ -1009,32 +1009,33 @@
 
   <!-- ===================== THE FIVE MODES ===================== -->
 <section
-  class="section section--tight modes-sec fm5"
+  class="section section--tight modes-sec fm"
   id="modes"
-  aria-labelledby="fm5-heading"
+  aria-labelledby="fm-heading"
 >
 
+
   <div
-    class="fm5__aurora"
+    class="fm__aurora"
     aria-hidden="true"
   ></div>
 
 
   <canvas
-    class="fm5__world"
-    id="fm5-world"
+    class="fm__world"
+    id="fm-world"
     aria-hidden="true"
   ></canvas>
 
 
-  <div class="fm5__shell">
+  <div class="fm__shell">
 
 
     <!-- ================================================================
          EXISTING COPY — UNCHANGED
          ================================================================ -->
 
-    <div class="fm5__head">
+    <div class="fm__head">
 
       <p class="eyebrow">
         The five modes
@@ -1043,7 +1044,7 @@
 
       <h2
         class="h-section"
-        id="fm5-heading"
+        id="fm-heading"
       >
         Your position tells you where you are.<br>Your mode describes how the system is holding there.
       </h2>
@@ -1056,39 +1057,49 @@
     </div>
 
 
-    <div class="fm5__experience">
+    <!-- ================================================================
+         EXPERIENCE
+         ================================================================ -->
+
+    <div class="fm__experience">
 
 
-      <div class="fm5__stage">
+      <div class="fm__stage">
 
 
         <canvas
-          class="fm5__phenomena"
-          id="fm5-phenomena"
+          class="fm__phenomena"
+          id="fm-phenomena"
           aria-hidden="true"
         ></canvas>
 
 
         <svg
-          id="fm5-field"
+          id="fm-field"
           viewBox="0 0 1100 650"
           role="img"
-          aria-labelledby="fm5-title fm5-desc"
+          aria-labelledby="fm-title fm-desc"
         >
 
-          <title id="fm5-title">
+          <title id="fm-title">
             One living system expressed through five physiological modes.
           </title>
 
 
-          <desc id="fm5-desc">
-            Each mode reorganizes the same living field. Sleep turns inward
-            toward restoration. Stress recruits the system toward demand while
-            protecting recovery. Recovery releases accumulated strain and
-            rebuilds reserve. Flow synchronizes movement into coordinated
-            transport. Nova expands high-performance capacity while preserving
-            stability and recovery constraints.
+          <desc id="fm-desc">
+            Sleep turns the system inward toward restoration. Stress recruits
+            the system toward incoming demand while preserving protected
+            recovery regions. Recovery releases accumulated load and rebuilds
+            reserve. Flow synchronizes movement into coordinated transport.
+            Nova expands simultaneous high-performance relationships while
+            retaining guarded recovery and stability.
           </desc>
+
+
+          <g
+            class="fm-scene"
+            id="fm-scene"
+          ></g>
 
         </svg>
 
@@ -1101,21 +1112,21 @@
            ================================================================ -->
 
       <div
-        class="fm5__modes"
+        class="fm__modes"
         role="group"
         aria-label="Explore the five modes"
       >
 
 
         <button
-          class="fm5-mode"
+          class="fm-mode"
           type="button"
           data-mode="sleep"
           aria-pressed="false"
           style="--mode-color:var(--glow-soft)"
         >
 
-          <span class="fm5-mode__top">
+          <span class="fm-mode__top">
 
             <span
               class="mode__dot"
@@ -1136,14 +1147,14 @@
 
 
         <button
-          class="fm5-mode"
+          class="fm-mode"
           type="button"
           data-mode="stress"
           aria-pressed="false"
           style="--mode-color:var(--status-ease)"
         >
 
-          <span class="fm5-mode__top">
+          <span class="fm-mode__top">
 
             <span
               class="mode__dot"
@@ -1164,14 +1175,14 @@
 
 
         <button
-          class="fm5-mode"
+          class="fm-mode"
           type="button"
           data-mode="recovery"
           aria-pressed="true"
           style="--mode-color:var(--status-go)"
         >
 
-          <span class="fm5-mode__top">
+          <span class="fm-mode__top">
 
             <span
               class="mode__dot"
@@ -1192,14 +1203,14 @@
 
 
         <button
-          class="fm5-mode"
+          class="fm-mode"
           type="button"
           data-mode="flow"
           aria-pressed="false"
           style="--mode-color:var(--aqua)"
         >
 
-          <span class="fm5-mode__top">
+          <span class="fm-mode__top">
 
             <span
               class="mode__dot"
@@ -1220,14 +1231,14 @@
 
 
         <button
-          class="fm5-mode"
+          class="fm-mode"
           type="button"
           data-mode="nova"
           aria-pressed="false"
           style="--mode-color:var(--glow)"
         >
 
-          <span class="fm5-mode__top">
+          <span class="fm-mode__top">
 
             <span
               class="mode__dot"
@@ -1259,7 +1270,7 @@
          EXISTING COPY — UNCHANGED
          ================================================================ -->
 
-    <p class="plans__note muted center fm5__note">
+    <p class="plans__note muted center fm__note">
       Flow and Nova emerge from the organization of the whole system, and their meaning comes from the relationships that make those states possible.
     </p>
 
@@ -1627,7 +1638,7 @@
   <script src="assets/js/what-it-measures.js?v=1" defer></script>
   <script src="assets/js/why-membrane.js?v=2" defer></script>
   <script src="assets/js/whats-under-the-hood.js?v=1" defer></script>
-  <script src="assets/js/five-modes.js?v=1" defer></script>
+  <script src="assets/js/five-modes.js?v=2" defer></script>
   <!-- Cloudflare Web Analytics --><script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "a9e884119528421d9d6197e196f332e5"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>
