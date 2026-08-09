@@ -18,9 +18,615 @@
   <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
   <link rel="apple-touch-icon" sizes="180x180" href="assets/img/apple-touch-icon.png">
   <link rel="manifest" href="site.webmanifest">
-  <link rel="stylesheet" href="assets/css/membrane.css?v=9">
+  <link rel="stylesheet" href="assets/css/membrane.css?v=10">
+
+  <style>
+    /* ======================================================================
+       SCIENCE / LIVING FIELD
+       Page-local on purpose: this is the proving ground for the persistent
+       site-state architecture. Nothing here changes the shared design system.
+       ====================================================================== */
+
+    html { background: var(--night); }
+    body.science-live { position: relative; isolation: isolate; }
+
+    .living-field {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -3;
+      pointer-events: none;
+    }
+
+    .field-vignette {
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 50% 48%, transparent 0 28%, color-mix(in srgb, var(--night) 16%, transparent) 58%, color-mix(in srgb, var(--night) 72%, transparent) 100%),
+        linear-gradient(to bottom, color-mix(in srgb, var(--night) 22%, transparent), transparent 18%, transparent 80%, color-mix(in srgb, var(--night) 55%, transparent));
+    }
+
+    .field-grain {
+      position: fixed;
+      inset: -50%;
+      z-index: -1;
+      pointer-events: none;
+      opacity: .055;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.78' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.45'/%3E%3C/svg%3E");
+      transform: rotate(2deg);
+      animation: scienceGrain 1.6s steps(2) infinite;
+    }
+
+    @keyframes scienceGrain {
+      0% { transform: translate3d(-1.5%, -1%, 0) rotate(2deg); }
+      50% { transform: translate3d(1%, 1.5%, 0) rotate(2deg); }
+      100% { transform: translate3d(-.5%, .5%, 0) rotate(2deg); }
+    }
+
+    .science-live .nav {
+      background: color-mix(in srgb, var(--night) 68%, transparent);
+      border-bottom-color: color-mix(in srgb, var(--line) 70%, transparent);
+    }
+
+    .science-live main,
+    .science-live .footer { position: relative; z-index: 1; }
+
+    /* Persistent layer rail ------------------------------------------------ */
+    .science-rail {
+      position: fixed;
+      z-index: 20;
+      right: clamp(18px, 2.6vw, 38px);
+      top: 50%;
+      transform: translateY(-50%);
+      display: grid;
+      grid-template-columns: 1px auto;
+      gap: 0 12px;
+      align-items: stretch;
+      pointer-events: none;
+    }
+
+    .science-rail__track {
+      grid-row: 1 / span 4;
+      position: relative;
+      width: 1px;
+      background: var(--line);
+      overflow: hidden;
+    }
+
+    .science-rail__fill {
+      position: absolute;
+      inset: 0;
+      transform-origin: top;
+      transform: scaleY(0);
+      background: linear-gradient(to bottom, var(--aqua), var(--glow));
+      box-shadow: 0 0 14px color-mix(in srgb, var(--glow) 55%, transparent);
+    }
+
+    .science-rail__item {
+      grid-column: 2;
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      color: var(--muted);
+      font-size: 9px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      opacity: .55;
+      transition: opacity .5s ease, color .5s ease, transform .5s ease;
+    }
+
+    .science-rail__item::before {
+      content: "";
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 0 0 transparent;
+      transition: box-shadow .5s ease, transform .5s ease;
+    }
+
+    .science-rail__item.is-active {
+      color: var(--glow);
+      opacity: 1;
+      transform: translateX(-3px);
+    }
+
+    .science-rail__item.is-active::before {
+      transform: scale(1.35);
+      box-shadow: 0 0 13px 2px color-mix(in srgb, var(--glow) 58%, transparent);
+    }
+
+    /* Persistent readout --------------------------------------------------- */
+    .science-readout {
+      position: fixed;
+      z-index: 15;
+      left: max(20px, calc((100vw - var(--maxw)) / 2 + var(--gutter)));
+      bottom: 22px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 9px;
+      line-height: 1;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      pointer-events: none;
+      mix-blend-mode: normal;
+    }
+
+    .science-readout__pulse {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--glow);
+      box-shadow: 0 0 13px 2px color-mix(in srgb, var(--glow) 60%, transparent);
+      animation: readoutPulse 3.6s ease-in-out infinite;
+    }
+
+    @keyframes readoutPulse {
+      0%, 100% { opacity: .4; transform: scale(.78); }
+      50% { opacity: 1; transform: scale(1.15); }
+    }
+
+    .science-readout strong {
+      color: var(--parchment-dim);
+      font-weight: 500;
+    }
+
+    /* Hero ----------------------------------------------------------------- */
+    .science-hero {
+      min-height: calc(100svh - 64px);
+      display: grid;
+      place-items: center;
+      padding-block: clamp(72px, 10vw, 132px);
+      overflow: clip;
+    }
+
+    .science-hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(circle at 50% 53%, color-mix(in srgb, var(--glow) 5%, transparent), transparent 40%);
+    }
+
+    .science-hero .sec-head {
+      position: relative;
+      z-index: 2;
+      max-width: 920px;
+      margin-inline: auto;
+    }
+
+    .science-hero .display {
+      font-size: clamp(3.2rem, 7.5vw, 6.6rem);
+      line-height: .94;
+      letter-spacing: -.028em;
+      text-wrap: balance;
+      text-shadow: 0 18px 70px color-mix(in srgb, var(--night-deep) 60%, transparent);
+    }
+
+    .science-hero .lede {
+      margin: clamp(28px, 4vw, 44px) auto 0;
+      max-width: 68ch;
+    }
+
+    .science-hero__cue {
+      position: absolute;
+      left: 50%;
+      bottom: clamp(28px, 5vh, 52px);
+      transform: translateX(-50%);
+      width: 1px;
+      height: 54px;
+      background: linear-gradient(to bottom, transparent, var(--line), var(--glow));
+      opacity: .7;
+      overflow: hidden;
+    }
+
+    .science-hero__cue::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: -18px;
+      width: 1px;
+      height: 18px;
+      background: var(--glow);
+      box-shadow: 0 0 10px var(--glow);
+      animation: cueFall 2.8s ease-in-out infinite;
+    }
+
+    @keyframes cueFall {
+      0% { transform: translateY(0); opacity: 0; }
+      22% { opacity: 1; }
+      75% { opacity: .85; }
+      100% { transform: translateY(74px); opacity: 0; }
+    }
+
+    /* Chapters ------------------------------------------------------------- */
+    .science-chapter {
+      position: relative;
+      min-height: 110svh;
+      display: flex;
+      align-items: center;
+      padding-block: clamp(88px, 13vw, 170px);
+    }
+
+    .science-chapter::before {
+      content: "";
+      position: absolute;
+      inset: 8% 0;
+      pointer-events: none;
+      opacity: .8;
+    }
+
+    .science-chapter--left::before {
+      background: linear-gradient(90deg,
+        color-mix(in srgb, var(--night) 92%, transparent) 0%,
+        color-mix(in srgb, var(--night) 72%, transparent) 35%,
+        transparent 68%);
+    }
+
+    .science-chapter--right::before {
+      background: linear-gradient(270deg,
+        color-mix(in srgb, var(--night) 92%, transparent) 0%,
+        color-mix(in srgb, var(--night) 72%, transparent) 35%,
+        transparent 68%);
+    }
+
+    .chapter-grid {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(320px, .86fr);
+      gap: clamp(48px, 9vw, 132px);
+      align-items: center;
+    }
+
+    .science-chapter--right .chapter__copy { grid-column: 2; }
+    .science-chapter--right .chapter__visual-space { grid-column: 1; grid-row: 1; }
+
+    .chapter__copy {
+      max-width: 610px;
+      padding: clamp(24px, 3.8vw, 48px);
+      border: 1px solid color-mix(in srgb, var(--line) 75%, transparent);
+      border-radius: 26px;
+      background: linear-gradient(145deg,
+        color-mix(in srgb, var(--night) 70%, transparent),
+        color-mix(in srgb, var(--night-deep) 38%, transparent));
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow:
+        0 35px 90px -60px color-mix(in srgb, var(--glow) 38%, transparent),
+        inset 0 1px 0 color-mix(in srgb, var(--parchment) 5%, transparent);
+    }
+
+    .chapter__copy .h-section {
+      font-size: clamp(2.3rem, 4.2vw, 4rem);
+      line-height: 1.02;
+      margin-bottom: 30px;
+      text-wrap: balance;
+    }
+
+    .chapter__copy .lede { margin-bottom: 24px; }
+    .chapter__copy .subtle:last-child { margin-bottom: 0; }
+
+    .chapter__visual-space {
+      position: relative;
+      min-height: min(64vw, 660px);
+      pointer-events: none;
+    }
+
+    .chapter__visual-space::before,
+    .chapter__visual-space::after {
+      content: "";
+      position: absolute;
+      width: 34px;
+      height: 34px;
+      opacity: .35;
+    }
+
+    .chapter__visual-space::before {
+      left: 10%; top: 8%;
+      border-left: 1px solid var(--line);
+      border-top: 1px solid var(--line);
+    }
+
+    .chapter__visual-space::after {
+      right: 10%; bottom: 8%;
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+
+    /* Layer 2 has a second movement beneath the opening statement ---------- */
+    .object-stage {
+      align-items: start;
+      padding-bottom: clamp(110px, 15vw, 190px);
+    }
+
+    .object-stage .chapter-grid { align-items: center; }
+
+    .object-instruments {
+      position: relative;
+      z-index: 2;
+      margin-top: clamp(34px, 7vw, 82px);
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: clamp(18px, 2.4vw, 28px);
+    }
+
+    .science-instrument {
+      position: relative;
+      overflow: hidden;
+      min-height: 250px;
+      border-radius: 22px;
+      border: 1px solid var(--line);
+      padding: clamp(24px, 3.2vw, 38px);
+      background: linear-gradient(155deg,
+        color-mix(in srgb, var(--surface-top) 58%, transparent),
+        color-mix(in srgb, var(--surface-bottom) 36%, transparent));
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      transition: transform .55s cubic-bezier(.2,.8,.2,1), border-color .5s ease, background .5s ease;
+      outline: none;
+    }
+
+    .science-instrument::after {
+      content: "";
+      position: absolute;
+      inset: auto -15% -58% 30%;
+      height: 160px;
+      border-radius: 50%;
+      background: radial-gradient(circle, color-mix(in srgb, var(--glow) 16%, transparent), transparent 68%);
+      opacity: .4;
+      transition: opacity .5s ease, transform .7s ease;
+    }
+
+    .science-instrument:hover,
+    .science-instrument:focus-visible {
+      transform: translateY(-5px);
+      border-color: color-mix(in srgb, var(--glow) 45%, var(--line));
+      background: linear-gradient(155deg,
+        color-mix(in srgb, var(--surface-top) 76%, transparent),
+        color-mix(in srgb, var(--surface-bottom) 48%, transparent));
+    }
+
+    .science-instrument:hover::after,
+    .science-instrument:focus-visible::after {
+      opacity: .9;
+      transform: translate(-4%, -10%) scale(1.1);
+    }
+
+    .science-instrument .h-card {
+      font-size: clamp(1.45rem, 2.3vw, 2rem);
+      margin-bottom: 12px;
+    }
+
+    /* The causal ladder ---------------------------------------------------- */
+    .reading-path {
+      position: relative;
+      z-index: 2;
+      max-width: 820px;
+      margin: clamp(70px, 10vw, 122px) auto 0;
+      padding: clamp(30px, 4.5vw, 54px);
+      border-radius: 28px;
+      border: 1px solid var(--line);
+      background: color-mix(in srgb, var(--night) 66%, transparent);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+
+    .reading-path__title {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .reading-path__title .h-section {
+      font-size: clamp(1.7rem, 3vw, 2.4rem);
+    }
+
+    .reading-path ol {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      counter-reset: step;
+    }
+
+    .reading-path li {
+      position: relative;
+      min-height: 58px;
+      display: flex;
+      align-items: center;
+      padding: 12px 18px 12px 58px;
+      border-top: 1px solid var(--line);
+      color: var(--parchment-dim);
+      outline: none;
+      cursor: default;
+      transition: color .35s ease, background .35s ease, padding-left .35s ease;
+    }
+
+    .reading-path li:first-child { border-top: 0; }
+
+    .reading-path li::before {
+      counter-increment: step;
+      content: counter(step, decimal-leading-zero);
+      position: absolute;
+      left: 10px;
+      font-family: var(--serif);
+      font-size: .98rem;
+      color: var(--glow);
+      opacity: .7;
+      transition: opacity .35s ease, text-shadow .35s ease, transform .35s ease;
+    }
+
+    .reading-path li:hover,
+    .reading-path li:focus-visible,
+    .reading-path li.is-active {
+      color: var(--parchment);
+      background: linear-gradient(90deg, color-mix(in srgb, var(--glow) 7%, transparent), transparent 65%);
+      padding-left: 64px;
+    }
+
+    .reading-path li:hover::before,
+    .reading-path li:focus-visible::before,
+    .reading-path li.is-active::before {
+      opacity: 1;
+      transform: scale(1.12);
+      text-shadow: 0 0 16px var(--glow);
+    }
+
+    /* Computation / proof -------------------------------------------------- */
+    .deeper-stage { min-height: 130svh; }
+
+    .deeper-cards {
+      position: relative;
+      z-index: 2;
+      margin-top: clamp(58px, 9vw, 110px);
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: clamp(18px, 2.5vw, 30px);
+    }
+
+    .deeper-card {
+      min-height: 340px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      border-radius: 28px;
+      border: 1px solid var(--line);
+      padding: clamp(28px, 4vw, 46px);
+      background:
+        linear-gradient(to top, color-mix(in srgb, var(--night) 92%, transparent), color-mix(in srgb, var(--night) 42%, transparent)),
+        radial-gradient(circle at 78% 20%, color-mix(in srgb, var(--aqua) 8%, transparent), transparent 48%);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      outline: none;
+      transition: transform .6s cubic-bezier(.2,.8,.2,1), border-color .5s ease, box-shadow .6s ease;
+    }
+
+    .deeper-card:nth-child(2) {
+      background:
+        linear-gradient(to top, color-mix(in srgb, var(--night) 92%, transparent), color-mix(in srgb, var(--night) 42%, transparent)),
+        radial-gradient(circle at 78% 20%, color-mix(in srgb, var(--glow) 10%, transparent), transparent 48%);
+    }
+
+    .deeper-card:hover,
+    .deeper-card:focus-visible {
+      transform: translateY(-6px);
+      border-color: color-mix(in srgb, var(--glow) 45%, var(--line));
+      box-shadow: 0 34px 95px -60px color-mix(in srgb, var(--glow) 60%, transparent);
+    }
+
+    .deeper-card .h-card {
+      font-size: clamp(1.7rem, 3vw, 2.45rem);
+      margin-bottom: 14px;
+    }
+
+    .deeper-card .subtle { max-width: 56ch; }
+
+    /* Closing state -------------------------------------------------------- */
+    .science-get {
+      min-height: 92svh;
+      display: grid;
+      place-items: center;
+      overflow: clip;
+      padding-block: clamp(96px, 14vw, 170px);
+    }
+
+    .science-get::before {
+      content: "";
+      position: absolute;
+      width: min(920px, 92vw);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      border: 1px solid color-mix(in srgb, var(--glow) 12%, transparent);
+      box-shadow:
+        0 0 100px -40px color-mix(in srgb, var(--glow) 38%, transparent),
+        inset 0 0 100px -68px color-mix(in srgb, var(--aqua) 28%, transparent);
+      opacity: .55;
+      pointer-events: none;
+    }
+
+    .science-get .get__inner { position: relative; z-index: 2; }
+    .science-get .get__h { font-size: clamp(3rem, 7vw, 6.4rem); }
+    .science-get .lede { max-width: 60ch; }
+
+    /* Let the footer feel like the field finally goes quiet. */
+    .science-live .footer {
+      background: linear-gradient(to bottom, transparent, color-mix(in srgb, var(--night-deep) 92%, transparent) 26%);
+    }
+
+    @media (max-width: 980px) {
+      .science-rail { display: none; }
+      .science-readout { left: 22px; }
+      .chapter-grid { grid-template-columns: 1fr; gap: 20px; }
+      .science-chapter--right .chapter__copy,
+      .science-chapter--right .chapter__visual-space { grid-column: 1; }
+      .science-chapter--right .chapter__copy { grid-row: 1; }
+      .science-chapter--right .chapter__visual-space { grid-row: 2; }
+      .chapter__copy { max-width: 700px; }
+      .chapter__visual-space { min-height: 48svh; }
+      .science-chapter--left::before,
+      .science-chapter--right::before {
+        inset: 0;
+        background: linear-gradient(to bottom,
+          color-mix(in srgb, var(--night) 82%, transparent) 0%,
+          color-mix(in srgb, var(--night) 36%, transparent) 52%,
+          color-mix(in srgb, var(--night) 76%, transparent) 100%);
+      }
+    }
+
+    @media (max-width: 720px) {
+      .science-readout { display: none; }
+      .science-hero { min-height: calc(96svh - 64px); }
+      .science-hero .display { font-size: clamp(3rem, 15vw, 4.8rem); }
+      .science-chapter { min-height: auto; padding-block: 92px; }
+      .chapter__copy { padding: 26px 22px; border-radius: 22px; }
+      .chapter__copy .h-section { font-size: clamp(2.25rem, 10vw, 3.2rem); }
+      .chapter__visual-space { min-height: 43svh; }
+      .object-instruments,
+      .deeper-cards { grid-template-columns: 1fr; }
+      .science-instrument { min-height: 220px; }
+      .deeper-card { min-height: 300px; }
+      .reading-path { padding: 24px 16px; }
+      .reading-path li { padding-left: 50px; }
+      .reading-path li:hover,
+      .reading-path li:focus-visible,
+      .reading-path li.is-active { padding-left: 55px; }
+      .science-get { min-height: 82svh; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .field-grain,
+      .science-readout__pulse,
+      .science-hero__cue::after { animation: none !important; }
+      .science-instrument,
+      .deeper-card,
+      .reading-path li { transition: none; }
+    }
+  </style>
 </head>
-<body>
+
+<body class="science-live">
+  <canvas class="living-field" id="living-field" aria-hidden="true"></canvas>
+  <div class="field-vignette" aria-hidden="true"></div>
+  <div class="field-grain" aria-hidden="true"></div>
+
+  <aside class="science-rail" aria-hidden="true">
+    <div class="science-rail__track"><div class="science-rail__fill" id="science-rail-fill"></div></div>
+    <span class="science-rail__item is-active" data-rail="intro">Position</span>
+    <span class="science-rail__item" data-rail="continuity">Layer 1</span>
+    <span class="science-rail__item" data-rail="object">Layer 2</span>
+    <span class="science-rail__item" data-rail="deeper">Layers 3 &amp; 4</span>
+  </aside>
+
+  <div class="science-readout" aria-hidden="true">
+    <span class="science-readout__pulse"></span>
+    <span>Current state</span>
+    <strong id="science-state-label">Living position</strong>
+  </div>
 
   <!-- ===================== NAV ===================== -->
   <header class="nav">
@@ -45,131 +651,141 @@
     </div>
   </header>
 
-  <!-- ===================== INTRO ===================== -->
-  <section class="section" id="top">
-    <div class="breath-glow" aria-hidden="true"></div>
-    <div class="wrap">
-      <div class="sec-head sec-head--center reveal">
-        <p class="eyebrow">The science</p>
-        <h1 class="display">A living position, <br><span class="serif-italic">built from measurement.</span></h1>
-        <p class="lede">
-          Membrane Health locates today's state within a formal definition of health and the history
-          of your own physiology. The measurement begins with authorized signals, carries them through
-          defined relationships, and resolves them into a position that can be followed as it moves
-          through time.
-        </p>
+  <main>
+    <!-- ===================== INTRO ===================== -->
+    <section class="section science-hero" id="top" data-field-state="intro" data-anchor-x="0.50" data-state-label="Living position">
+      <div class="wrap">
+        <div class="sec-head sec-head--center reveal">
+          <p class="eyebrow">The science</p>
+          <h1 class="display">A living position, <br><span class="serif-italic">built from measurement.</span></h1>
+          <p class="lede">
+            Membrane Health locates today's state within a formal definition of health and the history
+            of your own physiology. The measurement begins with authorized signals, carries them through
+            defined relationships, and resolves them into a position that can be followed as it moves
+            through time.
+          </p>
+        </div>
       </div>
-    </div>
-  </section>
+      <div class="science-hero__cue" aria-hidden="true"></div>
+    </section>
 
-  <!-- ===================== LAYER 1 — THE HUMAN IDEA ===================== -->
-  <section class="section section--tight">
-    <div class="wrap">
-      <div class="sec-head sec-head--center reveal">
-        <p class="eyebrow">Layer 1 · The human idea</p>
-        <h2 class="h-section">Health is organized continuity under changing load.</h2>
+    <!-- ===================== LAYER 1 — THE HUMAN IDEA ===================== -->
+    <section class="section science-chapter science-chapter--left" id="human-idea" data-field-state="continuity" data-anchor-x="0.72" data-state-label="Organized continuity">
+      <div class="wrap">
+        <div class="chapter-grid">
+          <div class="chapter__copy reveal">
+            <p class="eyebrow">Layer 1 · The human idea</p>
+            <h2 class="h-section">Health is organized continuity under changing load.</h2>
+            <p class="lede">
+              A living system stays itself by organizing what arrives and preserving enough continuity
+              for adaptation, exchange, and recovery to continue as conditions change.
+            </p>
+            <p class="subtle">
+              A cell holds its shape through a membrane that regulates exchange across a living boundary,
+              and our bodies express the same principle at larger scales of organization. Membrane Health
+              reads how that organization is holding today and how much capacity remains within its
+              current boundary.
+            </p>
+          </div>
+          <div class="chapter__visual-space" aria-hidden="true"></div>
+        </div>
       </div>
-      <div class="wrap wrap--narrow reveal" style="max-width:680px;margin-inline:auto;">
-        <p class="lede">
-          A living system stays itself by organizing what arrives and preserving enough continuity
-          for adaptation, exchange, and recovery to continue as conditions change.
-        </p>
-        <p class="subtle">
-          A cell holds its shape through a membrane that regulates exchange across a living boundary,
-          and our bodies express the same principle at larger scales of organization. Membrane Health
-          reads how that organization is holding today and how much capacity remains within its
-          current boundary.
-        </p>
-      </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- ===================== LAYER 2 — THE MATHEMATICAL OBJECT ===================== -->
-  <section class="section idea" id="object">
-    <div class="breath-glow idea__glow" aria-hidden="true"></div>
-    <div class="wrap">
-      <div class="sec-head sec-head--center reveal">
-        <p class="eyebrow">Layer 2 · The mathematical object</p>
-        <h2 class="h-section">A defined state, with an edge you can measure toward.</h2>
-        <p class="lede">
-          Underneath the daily reading is a formal state space with defined bounds, relationships
-          that unfold through time, and a defined region of health.
-        </p>
-      </div>
+    <!-- ===================== LAYER 2 — THE MATHEMATICAL OBJECT ===================== -->
+    <section class="section science-chapter science-chapter--right object-stage" id="object" data-field-state="object" data-anchor-x="0.30" data-state-label="Defined state space">
+      <div class="wrap">
+        <div class="chapter-grid">
+          <div class="chapter__copy reveal">
+            <p class="eyebrow">Layer 2 · The mathematical object</p>
+            <h2 class="h-section">A defined state, with an edge you can measure toward.</h2>
+            <p class="lede">
+              Underneath the daily reading is a formal state space with defined bounds, relationships
+              that unfold through time, and a defined region of health.
+            </p>
+          </div>
+          <div class="chapter__visual-space" aria-hidden="true"></div>
+        </div>
 
-      <div class="grid grid-2" style="max-width:900px;margin-inline:auto;">
-        <article class="card card--feature reveal">
-          <p class="feature__kicker">State &amp; bounds</p>
-          <h3 class="h-card">Your state has a position. Your position has context.</h3>
-          <p class="subtle">Your reading is a position within that structure, calibrated to the history of your own physiology. Each reading locates today's state within the mathematical structure of health and within the movement of your own physiology through time.</p>
-        </article>
-        <article class="card card--feature reveal">
-          <p class="feature__kicker">Defined quantities</p>
-          <h3 class="h-card">Coherence, recovery, capacity</h3>
-          <p class="subtle">Coherence, stability, recovery, and capacity become defined quantities within the state space, and their relationships give the position its shape and context.</p>
-        </article>
-      </div>
+        <div class="object-instruments">
+          <article class="science-instrument reveal" tabindex="0" data-field-focus="bounds">
+            <p class="feature__kicker">State &amp; bounds</p>
+            <h3 class="h-card">Your state has a position. Your position has context.</h3>
+            <p class="subtle">Your reading is a position within that structure, calibrated to the history of your own physiology. Each reading locates today's state within the mathematical structure of health and within the movement of your own physiology through time.</p>
+          </article>
 
-      <div class="sec-head sec-head--center reveal" style="margin-top:clamp(40px,6vw,64px);">
-        <h3 class="h-section" style="font-size:clamp(1.3rem,3vw,1.8rem);">A reading that can show its work.</h3>
-      </div>
-      <ol class="reveal" style="max-width:640px;margin:20px auto 0;padding-left:0;list-style:none;counter-reset:step;">
-        <li class="subtle" style="padding:10px 0 10px 44px;position:relative;border-bottom:1px solid var(--line);">Reads the Apple Health measurements you authorize.</li>
-        <li class="subtle" style="padding:10px 0 10px 44px;position:relative;border-bottom:1px solid var(--line);">Checks their quality and sufficiency.</li>
-        <li class="subtle" style="padding:10px 0 10px 44px;position:relative;border-bottom:1px solid var(--line);">Calibrates the coordinates to your physiological history.</li>
-        <li class="subtle" style="padding:10px 0 10px 44px;position:relative;border-bottom:1px solid var(--line);">Computes load, reserve, timing, recovery, and cross-system relationships.</li>
-        <li class="subtle" style="padding:10px 0 10px 44px;position:relative;border-bottom:1px solid var(--line);">Locates the resulting state within the defined region.</li>
-        <li class="subtle" style="padding:10px 0 10px 44px;position:relative;">Go, Caution, or Recover — the simplest expression of that position, with the contributing measurements preserved alongside it.</li>
-      </ol>
-      <style>#object ol{counter-reset:step} #object ol li::before{counter-increment:step;content:counter(step,decimal-leading-zero);position:absolute;left:0;top:10px;font-family:var(--serif);color:var(--glow);font-size:0.95rem;}</style>
-    </div>
-  </section>
+          <article class="science-instrument reveal" tabindex="0" data-field-focus="relations">
+            <p class="feature__kicker">Defined quantities</p>
+            <h3 class="h-card">Coherence, recovery, capacity</h3>
+            <p class="subtle">Coherence, stability, recovery, and capacity become defined quantities within the state space, and their relationships give the position its shape and context.</p>
+          </article>
+        </div>
 
-  <!-- ===================== LAYERS 3 & 4 — AT FIELDFLUX ===================== -->
-  <section class="section" id="deeper">
-    <div class="wrap">
-      <div class="sec-head sec-head--center reveal">
-        <p class="eyebrow">Layers 3 &amp; 4 · at Fieldflux Biosystems</p>
-        <h2 class="h-section">The computation, and the proof.</h2>
-        <p class="lede">
-          The definition itself, the machine-checked corpus, and how the proofs can be independently
-          verified live at <strong>Fieldflux&nbsp;Biosystems</strong> — the company behind Membrane Health.
-        </p>
+        <div class="reading-path reveal">
+          <div class="reading-path__title">
+            <h3 class="h-section">A reading that can show its work.</h3>
+          </div>
+          <ol>
+            <li tabindex="0" data-reading-step="0">Reads the Apple Health measurements you authorize.</li>
+            <li tabindex="0" data-reading-step="1">Checks their quality and sufficiency.</li>
+            <li tabindex="0" data-reading-step="2">Calibrates the coordinates to your physiological history.</li>
+            <li tabindex="0" data-reading-step="3">Computes load, reserve, timing, recovery, and cross-system relationships.</li>
+            <li tabindex="0" data-reading-step="4">Locates the resulting state within the defined region.</li>
+            <li tabindex="0" data-reading-step="5">Go, Caution, or Recover — the simplest expression of that position, with the contributing measurements preserved alongside it.</li>
+          </ol>
+        </div>
       </div>
+    </section>
 
-      <div class="grid grid-2" style="max-width:900px;margin-inline:auto;">
-        <article class="card card--feature reveal">
-          <p class="feature__kicker">Layer 3 · The computation</p>
-          <h3 class="h-card">From measurement to position, traceable</h3>
-          <p class="subtle">Deterministic, relational mathematics carries authorized measurements into a defined state. Every result is a defined function of its inputs, every contributing measurement remains attached, and every position can be replayed exactly from the record that produced it.
-            <a href="https://fieldfluxbiosystems.com/platform.html" target="_blank" rel="noopener">The platform &rarr;</a></p>
-        </article>
-        <article class="card card--feature reveal">
-          <p class="feature__kicker">Layer 4 · Proof and evidence</p>
-          <h3 class="h-card">Proof and physiological evidence</h3>
-          <p class="subtle">Formal proof establishes specified properties of the mathematical system, while physiological testing establishes how the resulting measurements behave in people. Together, they give each reading an evidence base, a defined scope, and a growing empirical history.
-            <a href="https://fieldfluxbiosystems.com/science.html" target="_blank" rel="noopener">The science at Fieldflux &rarr;</a></p>
-        </article>
-      </div>
-    </div>
-  </section>
+    <!-- ===================== LAYERS 3 & 4 — AT FIELDFLUX ===================== -->
+    <section class="section science-chapter science-chapter--left deeper-stage" id="deeper" data-field-state="deeper" data-anchor-x="0.70" data-state-label="Computation and proof">
+      <div class="wrap">
+        <div class="chapter-grid">
+          <div class="chapter__copy reveal">
+            <p class="eyebrow">Layers 3 &amp; 4 · at Fieldflux Biosystems</p>
+            <h2 class="h-section">The computation, and the proof.</h2>
+            <p class="lede">
+              The definition itself, the machine-checked corpus, and how the proofs can be independently
+              verified live at <strong>Fieldflux&nbsp;Biosystems</strong> — the company behind Membrane Health.
+            </p>
+          </div>
+          <div class="chapter__visual-space" aria-hidden="true"></div>
+        </div>
 
-  <!-- ===================== CTA ===================== -->
-  <section class="section get" id="get">
-    <div class="breath-glow get__glow" aria-hidden="true"></div>
-    <div class="wrap center get__inner">
-      <p class="eyebrow reveal">Coming soon</p>
-      <h2 class="display get__h reveal">Read your own state.</h2>
-      <p class="lede reveal" style="margin-inline:auto;">Membrane Health opens to everyone on launch day. One whole-system reading from your Apple&nbsp;Watch — go, caution, or recover.</p>
-      <div class="release reveal">
-        <span class="release__pill"><span class="glow-dot"></span>Worldwide release · August&nbsp;10, 2026</span>
+        <div class="deeper-cards">
+          <article class="deeper-card reveal" tabindex="0" data-field-focus="computation">
+            <p class="feature__kicker">Layer 3 · The computation</p>
+            <h3 class="h-card">From measurement to position, traceable</h3>
+            <p class="subtle">Deterministic, relational mathematics carries authorized measurements into a defined state. Every result is a defined function of its inputs, every contributing measurement remains attached, and every position can be replayed exactly from the record that produced it.
+              <a href="https://fieldfluxbiosystems.com/platform.html" target="_blank" rel="noopener">The platform &rarr;</a></p>
+          </article>
+
+          <article class="deeper-card reveal" tabindex="0" data-field-focus="proof">
+            <p class="feature__kicker">Layer 4 · Proof and evidence</p>
+            <h3 class="h-card">Proof and physiological evidence</h3>
+            <p class="subtle">Formal proof establishes specified properties of the mathematical system, while physiological testing establishes how the resulting measurements behave in people. Together, they give each reading an evidence base, a defined scope, and a growing empirical history.
+              <a href="https://fieldfluxbiosystems.com/science.html" target="_blank" rel="noopener">The science at Fieldflux &rarr;</a></p>
+          </article>
+        </div>
       </div>
-      <div class="hero__cta reveal" style="justify-content:center;margin-top:28px;">
-        <a class="btn btn--primary" href="index.html#get">Join the launch</a>
-        <a class="btn btn--ghost" href="index.html#home">See how the reading works</a>
+    </section>
+
+    <!-- ===================== CTA ===================== -->
+    <section class="section get science-get" id="get" data-field-state="get" data-anchor-x="0.50" data-state-label="Read your own state">
+      <div class="wrap center get__inner">
+        <p class="eyebrow reveal">Coming soon</p>
+        <h2 class="display get__h reveal">Read your own state.</h2>
+        <p class="lede reveal" style="margin-inline:auto;">Membrane Health opens to everyone on launch day. One whole-system reading from your Apple&nbsp;Watch — go, caution, or recover.</p>
+        <div class="release reveal">
+          <span class="release__pill"><span class="glow-dot"></span>Worldwide release · August&nbsp;10, 2026</span>
+        </div>
+        <div class="hero__cta reveal" style="justify-content:center;margin-top:28px;">
+          <a class="btn btn--primary" href="index.html#get">Join the launch</a>
+          <a class="btn btn--ghost" href="index.html#home">See how the reading works</a>
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
+  </main>
 
   <!-- ===================== FOOTER ===================== -->
   <footer class="footer">
@@ -187,6 +803,636 @@
       <p class="footer__copyright muted">© 2026 Fieldflux Biosystems, Inc. All rights reserved. Membrane Health™ is a trademark of Fieldflux Biosystems, Inc.</p>
     </div>
   </footer>
+
+  <script>
+    /* ======================================================================
+       LIVING FIELD ENGINE
+       One field persists for the whole page. Scroll changes its regime;
+       hover/focus changes the meaning of the current regime.
+       ====================================================================== */
+    (function () {
+      "use strict";
+
+      var canvas = document.getElementById("living-field");
+      if (!canvas || !canvas.getContext) return;
+
+      var ctx = canvas.getContext("2d", { alpha: true });
+      var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      var dpr = Math.min(window.devicePixelRatio || 1, 2);
+      var w = 0, h = 0;
+      var activeSection = null;
+      var activeState = "intro";
+      var activeFocus = "";
+      var activeStep = -1;
+      var pointerX = 0, pointerY = 0;
+      var scrollTicking = false;
+      var palette = {};
+      var raf = 0;
+
+      var PRESETS = {
+        intro:      { anchorX:.50, anchorY:.52, radius:.205, boundary:.72, coherence:.55, flux:.34, routes:.18, lattice:.06, proof:.00, position:.72, turbulence:.34, closure:.20 },
+        continuity: { anchorX:.72, anchorY:.52, radius:.245, boundary:1.00, coherence:.68, flux:.92, routes:.20, lattice:.02, proof:.00, position:.42, turbulence:.42, closure:.10 },
+        object:     { anchorX:.30, anchorY:.52, radius:.255, boundary:1.00, coherence:.88, flux:.34, routes:.62, lattice:.92, proof:.08, position:1.00, turbulence:.14, closure:.05 },
+        deeper:     { anchorX:.70, anchorY:.51, radius:.235, boundary:.82, coherence:.96, flux:.24, routes:1.00, lattice:.28, proof:.42, position:.88, turbulence:.07, closure:.18 },
+        get:        { anchorX:.50, anchorY:.50, radius:.215, boundary:.94, coherence:1.00, flux:.16, routes:.26, lattice:.05, proof:.10, position:1.00, turbulence:.03, closure:1.00 }
+      };
+
+      var current = Object.assign({}, PRESETS.intro);
+      var target = Object.assign({}, PRESETS.intro);
+
+      var particles = [];
+      var ambient = [];
+      var routeSeeds = [];
+
+      function seeded(i, salt) {
+        var x = Math.sin((i + 1) * 12.9898 + salt * 78.233) * 43758.5453;
+        return x - Math.floor(x);
+      }
+
+      function makeSeeds() {
+        particles.length = 0;
+        ambient.length = 0;
+        routeSeeds.length = 0;
+
+        var pc = w < 760 ? 44 : 82;
+        var ac = w < 760 ? 38 : 70;
+        var rc = w < 760 ? 9 : 14;
+
+        for (var i = 0; i < pc; i++) {
+          particles.push({
+            a: seeded(i, 1) * Math.PI * 2,
+            speed: .34 + seeded(i, 2) * .9,
+            phase: seeded(i, 3) * Math.PI * 2,
+            lane: .54 + seeded(i, 4) * .92,
+            size: .55 + seeded(i, 5) * 1.65,
+            cool: seeded(i, 6) > .72
+          });
+        }
+
+        for (var j = 0; j < ac; j++) {
+          ambient.push({
+            x: seeded(j, 11),
+            y: seeded(j, 12),
+            z: .25 + seeded(j, 13) * .75,
+            size: .35 + seeded(j, 14) * 1.1,
+            phase: seeded(j, 15) * Math.PI * 2
+          });
+        }
+
+        for (var k = 0; k < rc; k++) {
+          routeSeeds.push({
+            edge: seeded(k, 21),
+            bend: (seeded(k, 22) - .5) * .8,
+            phase: seeded(k, 23) * Math.PI * 2,
+            speed: .25 + seeded(k, 24) * .55,
+            cool: seeded(k, 25) > .56
+          });
+        }
+      }
+
+      function readPalette() {
+        var s = getComputedStyle(document.documentElement);
+        palette.night = s.getPropertyValue("--night").trim() || "#0A0A0F";
+        palette.parchment = s.getPropertyValue("--parchment").trim() || "#F3EDE0";
+        palette.muted = s.getPropertyValue("--muted").trim() || "#7E7A72";
+        palette.glow = s.getPropertyValue("--glow").trim() || "#ECC77E";
+        palette.aqua = s.getPropertyValue("--aqua").trim() || "#66E0ED";
+      }
+
+      function resize() {
+        dpr = Math.min(window.devicePixelRatio || 1, 2);
+        w = window.innerWidth;
+        h = window.innerHeight;
+        canvas.width = Math.max(1, Math.floor(w * dpr));
+        canvas.height = Math.max(1, Math.floor(h * dpr));
+        canvas.style.width = w + "px";
+        canvas.style.height = h + "px";
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        makeSeeds();
+        if (reduceMotion) draw(performance.now());
+      }
+
+      function lerp(a, b, n) { return a + (b - a) * n; }
+      function easeCurrent() {
+        var speed = .035;
+        Object.keys(current).forEach(function (key) {
+          current[key] = lerp(current[key], target[key], speed);
+        });
+      }
+
+      function alphaLine(color, alpha, width) {
+        ctx.strokeStyle = color;
+        ctx.globalAlpha = alpha;
+        ctx.lineWidth = width || 1;
+      }
+
+      function dot(x, y, r, color, alpha, blur) {
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = color;
+        if (blur) {
+          ctx.shadowColor = color;
+          ctx.shadowBlur = blur;
+        }
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      function fieldGeometry(t) {
+        var minSide = Math.min(w, h);
+        var parallaxX = reduceMotion ? 0 : pointerX * 13;
+        var parallaxY = reduceMotion ? 0 : pointerY * 9;
+        return {
+          cx: current.anchorX * w + parallaxX,
+          cy: current.anchorY * h + parallaxY,
+          r: current.radius * minSide
+        };
+      }
+
+      function drawAmbient(t) {
+        ctx.save();
+        for (var i = 0; i < ambient.length; i++) {
+          var p = ambient[i];
+          var driftX = reduceMotion ? 0 : Math.sin(t * .000035 * (1 + p.z) + p.phase) * 24 * p.z;
+          var driftY = reduceMotion ? 0 : Math.cos(t * .000028 * (1 + p.z) + p.phase) * 18 * p.z;
+          var x = p.x * w + driftX;
+          var y = p.y * h + driftY;
+          var pulse = .22 + .22 * (Math.sin(t * .00025 + p.phase) * .5 + .5);
+          dot(x, y, p.size * p.z, p.z > .62 ? palette.glow : palette.parchment, pulse * .28, 0);
+        }
+        ctx.restore();
+      }
+
+      function boundaryRadius(a, t, g, scale) {
+        var waveA = Math.sin(a * 3 + t * .00018);
+        var waveB = Math.sin(a * 7 - t * .00011 + 1.7);
+        var wobble = (waveA * .55 + waveB * .25) * current.turbulence;
+        return g.r * scale * (1 + wobble * .055);
+      }
+
+      function drawBoundary(t, g) {
+        if (current.boundary < .01) return;
+
+        ctx.save();
+        var rings = 3;
+        for (var ring = 0; ring < rings; ring++) {
+          var scale = 1 + ring * .055;
+          ctx.beginPath();
+          for (var i = 0; i <= 180; i++) {
+            var a = (i / 180) * Math.PI * 2;
+            var rr = boundaryRadius(a, t + ring * 2200, g, scale);
+            var x = g.cx + Math.cos(a) * rr;
+            var y = g.cy + Math.sin(a) * rr;
+            if (!i) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+          }
+          ctx.closePath();
+          alphaLine(ring === 0 ? palette.glow : palette.aqua, current.boundary * (.25 - ring * .055), ring === 0 ? 1.25 : .7);
+          ctx.shadowColor = ring === 0 ? palette.glow : palette.aqua;
+          ctx.shadowBlur = ring === 0 ? 18 : 8;
+          ctx.stroke();
+        }
+
+        var glow = ctx.createRadialGradient(g.cx, g.cy, g.r * .08, g.cx, g.cy, g.r * 1.2);
+        glow.addColorStop(0, palette.glow);
+        glow.addColorStop(.48, palette.aqua);
+        glow.addColorStop(1, palette.aqua);
+        ctx.fillStyle = glow;
+        ctx.globalAlpha = .018 + current.boundary * .018;
+        ctx.beginPath();
+        ctx.arc(g.cx, g.cy, g.r * 1.12, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      function drawFlux(t, g) {
+        if (current.flux < .01) return;
+        ctx.save();
+        for (var i = 0; i < particles.length; i++) {
+          var p = particles[i];
+          var inward = Math.sin(t * .00028 * p.speed + p.phase);
+          var lane = p.lane + inward * .30 * current.flux;
+          var a = p.a + (reduceMotion ? 0 : t * .000022 * (p.cool ? -1 : 1) * p.speed);
+          var rr = g.r * lane;
+          var x = g.cx + Math.cos(a) * rr;
+          var y = g.cy + Math.sin(a) * rr * .96;
+          var nearBoundary = 1 - Math.min(1, Math.abs(lane - 1) / .35);
+          var alpha = current.flux * (.10 + nearBoundary * .40);
+          var c = p.cool ? palette.aqua : palette.glow;
+          dot(x, y, p.size * (nearBoundary > .55 ? 1.08 : .8), c, alpha, nearBoundary > .65 ? 8 : 0);
+
+          if (nearBoundary > .72) {
+            alphaLine(c, alpha * .18, .55);
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(g.cx + Math.cos(a) * g.r * (lane + .055), g.cy + Math.sin(a) * g.r * (lane + .055) * .96);
+            ctx.stroke();
+          }
+        }
+        ctx.restore();
+      }
+
+      function drawLattice(t, g) {
+        var a = current.lattice;
+        if (a < .01) return;
+        ctx.save();
+
+        for (var ring = 1; ring <= 6; ring++) {
+          alphaLine(ring === 6 ? palette.glow : palette.aqua, a * (ring === 6 ? .13 : .055), ring === 6 ? .9 : .6);
+          ctx.beginPath();
+          ctx.ellipse(g.cx, g.cy, g.r * ring / 6, g.r * .93 * ring / 6, 0, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+
+        for (var spoke = 0; spoke < 12; spoke++) {
+          var ang = spoke / 12 * Math.PI * 2;
+          alphaLine(palette.parchment, a * .04, .55);
+          ctx.beginPath();
+          ctx.moveTo(g.cx, g.cy);
+          ctx.lineTo(g.cx + Math.cos(ang) * g.r, g.cy + Math.sin(ang) * g.r * .93);
+          ctx.stroke();
+        }
+
+        var sweep = reduceMotion ? .6 : (t * .00008) % (Math.PI * 2);
+        alphaLine(palette.aqua, a * .12, .8);
+        ctx.beginPath();
+        ctx.moveTo(g.cx, g.cy);
+        ctx.lineTo(g.cx + Math.cos(sweep) * g.r, g.cy + Math.sin(sweep) * g.r * .93);
+        ctx.stroke();
+
+        ctx.restore();
+      }
+
+      function positionPoint(t, g) {
+        var motion = 1 - current.closure;
+        var ang = .55 + (reduceMotion ? 0 : Math.sin(t * .00009) * .36 * motion);
+        var rr = g.r * (.30 + Math.sin(t * .000065 + 1.2) * .055 * motion);
+        return {
+          x: g.cx + Math.cos(ang) * rr,
+          y: g.cy + Math.sin(ang) * rr * .88,
+          angle: ang,
+          rr: rr
+        };
+      }
+
+      function drawPosition(t, g) {
+        if (current.position < .01) return;
+        var p = positionPoint(t, g);
+        ctx.save();
+
+        // History trail: the current position remains attached to where it was.
+        for (var i = 9; i >= 1; i--) {
+          var tt = t - i * 900;
+          var old = positionPoint(tt, g);
+          dot(old.x, old.y, 1.25, palette.glow, current.position * (.028 + (9 - i) * .008), 0);
+        }
+
+        // Distance to the living edge.
+        var boundaryAngle = p.angle;
+        var edgeR = boundaryRadius(boundaryAngle, t, g, 1);
+        var ex = g.cx + Math.cos(boundaryAngle) * edgeR;
+        var ey = g.cy + Math.sin(boundaryAngle) * edgeR;
+        alphaLine(palette.glow, current.position * .18, .8);
+        ctx.setLineDash([3, 7]);
+        ctx.beginPath();
+        ctx.moveTo(p.x, p.y);
+        ctx.lineTo(ex, ey);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        dot(ex, ey, 2.1, palette.glow, current.position * .62, 8);
+        dot(p.x, p.y, 3.3, palette.glow, current.position * .95, 18);
+        dot(p.x, p.y, 9, palette.glow, current.position * .08, 26);
+
+        ctx.restore();
+      }
+
+      function routeEndpoint(seed, index, g) {
+        var leftSide = index % 2 === 0;
+        var x = leftSide ? -40 : w + 40;
+        var y = h * (.16 + seed.edge * .68);
+        if (activeState === "object") {
+          x = g.cx + Math.cos(seed.edge * Math.PI * 2) * g.r * 1.42;
+          y = g.cy + Math.sin(seed.edge * Math.PI * 2) * g.r * 1.18;
+        }
+        return { x:x, y:y };
+      }
+
+      function bezierPoint(p0, p1, p2, p3, u) {
+        var m = 1 - u;
+        return {
+          x: m*m*m*p0.x + 3*m*m*u*p1.x + 3*m*u*u*p2.x + u*u*u*p3.x,
+          y: m*m*m*p0.y + 3*m*m*u*p1.y + 3*m*u*u*p2.y + u*u*u*p3.y
+        };
+      }
+
+      function drawRoutes(t, g) {
+        if (current.routes < .01) return;
+        var dest = positionPoint(t, g);
+        if (activeState === "continuity") dest = { x:g.cx, y:g.cy };
+        if (activeState === "get") dest = { x:g.cx, y:g.cy };
+
+        ctx.save();
+        for (var i = 0; i < routeSeeds.length; i++) {
+          var s = routeSeeds[i];
+          var start = routeEndpoint(s, i, g);
+          var c1 = { x: lerp(start.x, g.cx, .42), y: start.y + s.bend * h * .18 };
+          var c2 = { x: lerp(start.x, dest.x, .78), y: dest.y - s.bend * h * .12 };
+          var c = s.cool ? palette.aqua : palette.glow;
+          var localAlpha = current.routes * (activeFocus === "computation" ? .24 : .14);
+
+          alphaLine(c, localAlpha, activeFocus === "computation" ? 1.05 : .72);
+          ctx.beginPath();
+          ctx.moveTo(start.x, start.y);
+          ctx.bezierCurveTo(c1.x, c1.y, c2.x, c2.y, dest.x, dest.y);
+          ctx.stroke();
+
+          var u = reduceMotion ? .62 : (t * .00008 * s.speed + s.phase / (Math.PI * 2)) % 1;
+          var bead = bezierPoint(start, c1, c2, dest, u);
+          dot(bead.x, bead.y, activeFocus === "computation" ? 2.1 : 1.45, c, current.routes * .72, activeFocus === "computation" ? 10 : 5);
+        }
+        ctx.restore();
+      }
+
+      function drawStepSequence(t, g) {
+        if (activeState !== "object") return;
+        ctx.save();
+        var count = 6;
+        var baseA = Math.PI * .72;
+        var span = Math.PI * 1.55;
+        for (var i = 0; i < count; i++) {
+          var a = baseA + (i / (count - 1)) * span;
+          var rr = g.r * 1.22;
+          var x = g.cx + Math.cos(a) * rr;
+          var y = g.cy + Math.sin(a) * rr * .92;
+          var lit = activeStep < 0 ? .22 : (i <= activeStep ? .92 : .12);
+          var c = i < 3 ? palette.aqua : palette.glow;
+          dot(x, y, i === activeStep ? 3.3 : 2.1, c, lit * current.lattice, i === activeStep ? 14 : 4);
+
+          if (i < count - 1) {
+            var na = baseA + ((i + 1) / (count - 1)) * span;
+            var nx = g.cx + Math.cos(na) * rr;
+            var ny = g.cy + Math.sin(na) * rr * .92;
+            alphaLine(c, (activeStep < 0 ? .06 : (i < activeStep ? .28 : .05)) * current.lattice, .7);
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(nx, ny);
+            ctx.stroke();
+          }
+        }
+        ctx.restore();
+      }
+
+      function drawProof(t, g) {
+        var a = current.proof;
+        if (activeFocus === "proof") a = Math.max(a, .98);
+        if (a < .01) return;
+
+        ctx.save();
+        var size = g.r * 1.48;
+        var left = g.cx - size / 2;
+        var top = g.cy - size / 2;
+        var cells = 8;
+
+        // A precise witness grid arrives over the living geometry.
+        for (var i = 0; i <= cells; i++) {
+          var f = i / cells;
+          alphaLine(i === cells/2 ? palette.glow : palette.parchment, a * (i === cells/2 ? .12 : .035), i === cells/2 ? .8 : .5);
+          ctx.beginPath();
+          ctx.moveTo(left + size * f, top);
+          ctx.lineTo(left + size * f, top + size);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(left, top + size * f);
+          ctx.lineTo(left + size, top + size * f);
+          ctx.stroke();
+        }
+
+        // paired arcs: independent paths that resolve to the same position
+        for (var k = 0; k < 4; k++) {
+          var phase = k / 4 * Math.PI * 2;
+          alphaLine(k % 2 ? palette.aqua : palette.glow, a * .16, .8);
+          ctx.beginPath();
+          ctx.arc(g.cx, g.cy, g.r * (.36 + k * .12), phase, phase + Math.PI * 1.18);
+          ctx.stroke();
+        }
+
+        // Witness ticks around the boundary.
+        for (var n = 0; n < 24; n++) {
+          var ang = n / 24 * Math.PI * 2;
+          var r1 = g.r * 1.02;
+          var r2 = r1 + (n % 3 === 0 ? 9 : 5);
+          alphaLine(n % 3 === 0 ? palette.glow : palette.parchment, a * (n % 3 === 0 ? .24 : .08), .7);
+          ctx.beginPath();
+          ctx.moveTo(g.cx + Math.cos(ang) * r1, g.cy + Math.sin(ang) * r1);
+          ctx.lineTo(g.cx + Math.cos(ang) * r2, g.cy + Math.sin(ang) * r2);
+          ctx.stroke();
+        }
+
+        ctx.restore();
+      }
+
+      function drawClosure(t, g) {
+        if (current.closure < .02) return;
+        ctx.save();
+        var c = current.closure;
+        var pulse = reduceMotion ? 1 : .93 + Math.sin(t * .00065) * .07;
+        dot(g.cx, g.cy, 2.8 * pulse, palette.glow, .7 * c, 16);
+        alphaLine(palette.glow, .18 * c, 1);
+        ctx.beginPath();
+        ctx.arc(g.cx, g.cy, g.r * (.32 + .02 * pulse), 0, Math.PI * 2);
+        ctx.stroke();
+        alphaLine(palette.aqua, .09 * c, .7);
+        ctx.beginPath();
+        ctx.arc(g.cx, g.cy, g.r * (.54 + .02 * pulse), 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      function draw(t) {
+        ctx.clearRect(0, 0, w, h);
+        easeCurrent();
+        var g = fieldGeometry(t);
+        drawAmbient(t);
+        drawLattice(t, g);
+        drawRoutes(t, g);
+        drawBoundary(t, g);
+        drawFlux(t, g);
+        drawStepSequence(t, g);
+        drawProof(t, g);
+        drawPosition(t, g);
+        drawClosure(t, g);
+        ctx.globalAlpha = 1;
+
+        if (!reduceMotion) raf = requestAnimationFrame(draw);
+      }
+
+      function setTargetFromState(name) {
+        var p = PRESETS[name] || PRESETS.intro;
+        target = Object.assign({}, p);
+        activeState = name;
+        activeFocus = "";
+        activeStep = -1;
+        applyFocus();
+      }
+
+      function applyFocus() {
+        var p = PRESETS[activeState] || PRESETS.intro;
+        target = Object.assign({}, p);
+
+        if (activeSection && activeSection.dataset.anchorX) {
+          target.anchorX = parseFloat(activeSection.dataset.anchorX) || target.anchorX;
+        }
+
+        if (activeFocus === "bounds") {
+          target.boundary = 1;
+          target.lattice = .72;
+          target.routes = .26;
+          target.position = 1;
+          target.turbulence = .06;
+        } else if (activeFocus === "relations") {
+          target.boundary = .82;
+          target.lattice = .68;
+          target.routes = 1;
+          target.flux = .56;
+          target.coherence = 1;
+        } else if (activeFocus === "computation") {
+          target.routes = 1;
+          target.proof = .15;
+          target.flux = .38;
+          target.position = 1;
+        } else if (activeFocus === "proof") {
+          target.routes = .72;
+          target.proof = 1;
+          target.lattice = .76;
+          target.turbulence = .015;
+          target.coherence = 1;
+        }
+
+        if (activeStep >= 0 && activeState === "object") {
+          var progress = activeStep / 5;
+          target.routes = .28 + progress * .72;
+          target.lattice = .55 + progress * .42;
+          target.position = activeStep >= 4 ? 1 : .42 + progress * .38;
+          target.boundary = activeStep >= 4 ? 1 : .72;
+          target.flux = activeStep === 0 ? .75 : .22 + (1 - progress) * .24;
+        }
+
+        if (reduceMotion) {
+          current = Object.assign({}, target);
+          draw(performance.now());
+        }
+      }
+
+      function setActiveSection(section) {
+        if (!section || section === activeSection) return;
+        activeSection = section;
+        setTargetFromState(section.dataset.fieldState || "intro");
+        applyFocus();
+
+        var label = document.getElementById("science-state-label");
+        if (label) label.textContent = section.dataset.stateLabel || "Living position";
+
+        document.querySelectorAll("[data-rail]").forEach(function (item) {
+          item.classList.toggle("is-active", item.getAttribute("data-rail") === activeState);
+        });
+      }
+
+      function syncFromScroll() {
+        scrollTicking = false;
+        var sections = document.querySelectorAll("[data-field-state]");
+        var sampleY = h * .48;
+        var best = null;
+        var bestDistance = Infinity;
+
+        sections.forEach(function (section) {
+          var r = section.getBoundingClientRect();
+          var center = r.top + r.height * .5;
+          var d;
+          if (sampleY >= r.top && sampleY <= r.bottom) d = 0;
+          else d = Math.abs(center - sampleY);
+          if (d < bestDistance) {
+            bestDistance = d;
+            best = section;
+          }
+        });
+
+        setActiveSection(best);
+
+        var maxScroll = Math.max(1, document.documentElement.scrollHeight - h);
+        var progress = Math.max(0, Math.min(1, window.scrollY / maxScroll));
+        var fill = document.getElementById("science-rail-fill");
+        if (fill) fill.style.transform = "scaleY(" + progress.toFixed(4) + ")";
+      }
+
+      function requestScrollSync() {
+        if (scrollTicking) return;
+        scrollTicking = true;
+        requestAnimationFrame(syncFromScroll);
+      }
+
+      document.querySelectorAll("[data-field-focus]").forEach(function (el) {
+        function enter() {
+          activeFocus = el.getAttribute("data-field-focus") || "";
+          applyFocus();
+        }
+        function leave(e) {
+          if (e && e.type === "focusout" && el.contains(e.relatedTarget)) return;
+          activeFocus = "";
+          applyFocus();
+        }
+        el.addEventListener("pointerenter", enter);
+        el.addEventListener("pointerleave", leave);
+        el.addEventListener("focusin", enter);
+        el.addEventListener("focusout", leave);
+      });
+
+      document.querySelectorAll("[data-reading-step]").forEach(function (el) {
+        function enter() {
+          activeStep = parseInt(el.getAttribute("data-reading-step"), 10);
+          document.querySelectorAll("[data-reading-step]").forEach(function (x) {
+            x.classList.toggle("is-active", x === el);
+          });
+          applyFocus();
+        }
+        function leave(e) {
+          if (e && e.type === "focusout" && el.contains(e.relatedTarget)) return;
+          activeStep = -1;
+          document.querySelectorAll("[data-reading-step]").forEach(function (x) { x.classList.remove("is-active"); });
+          applyFocus();
+        }
+        el.addEventListener("pointerenter", enter);
+        el.addEventListener("pointerleave", leave);
+        el.addEventListener("focusin", enter);
+        el.addEventListener("focusout", leave);
+      });
+
+      if (!reduceMotion) {
+        window.addEventListener("pointermove", function (e) {
+          pointerX = (e.clientX / Math.max(1, w) - .5) * 2;
+          pointerY = (e.clientY / Math.max(1, h) - .5) * 2;
+        }, { passive:true });
+      }
+
+      window.addEventListener("scroll", requestScrollSync, { passive:true });
+      window.addEventListener("resize", function () {
+        resize();
+        requestScrollSync();
+      }, { passive:true });
+
+      // Theme changes are handled by membrane.js; the field follows instantly.
+      new MutationObserver(function () {
+        readPalette();
+        if (reduceMotion) draw(performance.now());
+      }).observe(document.documentElement, { attributes:true, attributeFilter:["data-theme"] });
+
+      readPalette();
+      resize();
+      syncFromScroll();
+      if (!reduceMotion) raf = requestAnimationFrame(draw);
+    })();
+  </script>
 
   <script src="assets/js/membrane.js?v=1" defer></script>
   <!-- Cloudflare Web Analytics --><script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "a9e884119528421d9d6197e196f332e5"}'></script><!-- End Cloudflare Web Analytics -->
