@@ -25,7 +25,7 @@
   <link rel="icon" type="image/png" sizes="16x16" href="assets/img/favicon-16.png">
   <link rel="apple-touch-icon" sizes="180x180" href="assets/img/apple-touch-icon.png">
   <link rel="manifest" href="site.webmanifest">
-  <link rel="stylesheet" href="assets/css/membrane.css?v=3">
+  <link rel="stylesheet" href="assets/css/membrane.css?v=8">
 </head>
 <body>
 
@@ -131,267 +131,1143 @@
     </div>
   </section>
 
-  <!-- ===================== THE WEDGE: BASELINE vs DEFINITION ===================== -->
-  <section class="section section--tight" id="wedge">
-    <div class="wrap">
-      <div class="sec-head sec-head--center reveal">
-        <p class="eyebrow">A living position</p>
-        <h2 class="h-section">Your baseline is yours.<br>The definition of health is fixed.</h2>
-        <p class="lede">
-          Your 28-day history calibrates the measurement to you, giving the reading the scale,
-          context, and physiological history that make the position your own. The definition of
-          health supplies the fixed structure within which that position can be located and followed.
-        </p>
-        <p class="subtle" style="max-width:60ch;margin-inline:auto;">
-          As the days accumulate, your history deepens and your position moves while the definition
-          continues to hold.
-        </p>
-      </div>
-    </div>
-  </section>
+  <!-- ===================== A LIVING POSITION ===================== -->
+<section id="wedge"
+  class="lp-world"
+  aria-labelledby="lp-heading"
+>
 
-  <!-- ===================== WHY IT'S DIFFERENT ===================== -->
-  <section class="section" id="different">
-    <div class="wrap">
-      <div class="sec-head sec-head--center reveal">
-        <p class="eyebrow">What it measures</p>
-        <h2 class="h-section">Health is a system remaining itself through change.</h2>
-        <p class="lede">Our bodies remain alive by preserving organization while conditions continually change. Boundary, stability, coherence, and recovery describe different aspects of that organization, and Membrane Health brings them together into a reading of where the system is today.</p>
-      </div>
+  <!--
+    Canvas is atmosphere only.
+    All semantically meaningful geometry remains SVG.
+  -->
+  <canvas
+    class="lp-atmosphere"
+    id="lp-atmosphere"
+    aria-hidden="true"
+  ></canvas>
 
-      <div class="grid grid-2 diffs">
-        <article class="card diff reveal">
-          <p class="feature__kicker">Boundary</p>
-          <h3 class="h-card">Your remaining capacity</h3>
-          <p class="subtle">Boundary describes the living edge within which today's load can still be organized and recovered from. The distance between your current position and that edge is the capacity still available for movement, adaptation, and recovery.</p>
-        </article>
 
-        <article class="card diff reveal">
-          <p class="feature__kicker">Stability</p>
-          <h3 class="h-card">Membrane integrity</h3>
-          <p class="subtle">Stability describes how well the system preserves its organization as conditions change and load moves through it.</p>
-        </article>
+  <div class="lp-shell">
 
-        <article class="card diff reveal">
-          <p class="feature__kicker">Coherence</p>
-          <h3 class="h-card">Whole-system alignment</h3>
-          <p class="subtle">Coherence describes how well physiological processes remain coordinated with one another through time and across the relationships that connect them.</p>
-        </article>
+    <!-- ================================================================
+         LANGUAGE
+         ================================================================ -->
 
-        <article class="card diff reveal">
-          <p class="feature__kicker">Recovery</p>
-          <h3 class="h-card">Recovery direction &amp; ETA</h3>
-          <p class="subtle">Recovery follows the movement by which load becomes restored capacity, showing both the direction of change and the timing of return. <a href="science.html">See the science →</a></p>
-        </article>
-      </div>
-      <p class="plans__note muted center reveal serif-italic">
-        Together, these measurements carry signals into relation, relations into a bounded
-        physiological state, and that state into a living position we can follow through time.
+    <div class="lp-copy">
+
+      <p class="eyebrow">
+        A living position
       </p>
-    </div>
-  </section>
 
-  <!-- ===================== THE MEMBRANE IDEA ===================== -->
-  <section class="section idea" id="idea">
-    <div class="breath-glow idea__glow" aria-hidden="true"></div>
-    <div class="wrap idea__grid">
-      <div class="idea__copy reveal">
-        <p class="eyebrow">Why "membrane"?</p>
-        <h2 class="h-section">Everything alive has an edge.</h2>
-        <p class="lede">
-          A membrane gives a living system shape by holding an interior, meeting its surroundings,
-          and regulating the exchange between them. Through that boundary, relationships can remain
-          stable enough for the system to continue being itself while the world around it changes.
-        </p>
-        <p class="subtle">
-          Our bodies carry this principle at every scale. Load moves through us, conditions change
-          around us, recovery restores room, and living organization continually adjusts while
-          preserving its continuity.
-        </p>
-        <p class="subtle">
-          Membrane Health reads today's state within that living boundary and follows how your
-          position changes through time. The distance to the edge becomes a measure of capacity:
-          the room available to move, adapt, recover, and continue being yourself under changing load.
-        </p>
-        <p class="idea__sign serif-italic">— the light you find by going in.</p>
+      <h2
+        class="h-section"
+        id="lp-heading"
+      >
+        Your baseline is yours.<br>The definition of health is fixed.
+      </h2>
+
+      <p class="lp-copy__lede">
+        Your 28-day history calibrates the measurement to you, giving the
+        reading the scale, context, and physiological history that make
+        the position your own. The definition of health supplies the
+        fixed structure within which that position can be located and followed.
+      </p>
+
+      <p class="lp-incantation">
+        As the days accumulate, your history deepens and your position
+        moves while the definition continues to hold.
+      </p>
+
+    </div>
+
+
+    <!-- ================================================================
+         THE LIVING FIELD
+         ================================================================ -->
+
+    <div class="lp-stage">
+
+      <div class="lp-field-wrap">
+
+        <figure
+          role="img"
+          aria-labelledby="lp-title lp-desc"
+        >
+
+          <svg
+            id="lp-field"
+            viewBox="0 0 620 620"
+          >
+
+            <title id="lp-title">
+              A living position moving through an accumulating 28-day history.
+            </title>
+
+            <desc id="lp-desc">
+              A fixed reference structure remains stable while an active
+              membrane responds gradually and the current position moves
+              independently. Earlier positions and earlier membrane states
+              remain faintly visible as history.
+            </desc>
+
+          </svg>
+
+        </figure>
+
       </div>
 
-      <!-- A simple picture of the whole idea: you, inside your edge, with room to spare -->
-      <figure class="idea__fig reveal" aria-label="A diagram: a dot labelled 'you today' sits inside a ring labelled 'your edge', with the gap between them labelled 'room left'.">
-        <svg class="mfig" viewBox="0 0 360 360" role="img">
-          <defs>
-            <radialGradient id="mInterior" cx="50%" cy="50%" r="50%">
-              <stop offset="0%"  stop-color="#ECC77E" stop-opacity="0.02"/>
-              <stop offset="70%" stop-color="#ECC77E" stop-opacity="0.06"/>
-              <stop offset="100%" stop-color="#ECC77E" stop-opacity="0.16"/>
-            </radialGradient>
-          </defs>
-          <!-- interior + edge -->
-          <circle class="mfig-interior" cx="180" cy="180" r="150" fill="url(#mInterior)"/>
-          <circle class="mfig-edge" cx="180" cy="180" r="150"/>
-          <!-- room-left line: from you outward to the nearest edge -->
-          <line class="mfig-room" x1="140" y1="210" x2="60" y2="270"/>
-          <!-- you -->
-          <circle class="mfig-you" cx="140" cy="210" r="7"/>
-          <!-- labels -->
-          <text class="mfig-lbl mfig-lbl-edge" x="180" y="20" text-anchor="middle">your edge</text>
-          <text class="mfig-lbl" x="150" y="234" text-anchor="start">you today</text>
-          <text class="mfig-lbl" x="86" y="252" text-anchor="end">room&nbsp;left</text>
-        </svg>
-      </figure>
-    </div>
-  </section>
 
-  <!-- ===================== TIMING ===================== -->
-  <section class="section timing" id="timing">
-    <div class="breath-glow timing__glow" aria-hidden="true"></div>
-    <div class="wrap timing__inner reveal">
-      <p class="eyebrow">Timing is everything</p>
-      <h2 class="h-section">It's what our bodies are doing — and when.</h2>
+      <p class="lp-depth" aria-hidden="true">
+        The present is seen through what came before it.
+      </p>
+
+
+      <!-- ================================================================
+           TIME
+           ================================================================ -->
+
+      <div class="lp-controls">
+
+        <div class="lp-controls__top">
+
+          <p
+            class="lp-moment"
+            id="lp-moment"
+            aria-live="polite"
+          >
+            Today
+          </p>
+
+          <p class="lp-control-note">
+            move through the month
+          </p>
+
+        </div>
+
+
+        <input
+          class="lp-range"
+          id="lp-range"
+          type="range"
+          min="1"
+          max="28"
+          step="1"
+          value="28"
+          aria-label="Move through an illustrative 28-day physiological history"
+        >
+
+
+        <div
+          class="lp-scale"
+          aria-hidden="true"
+        >
+          <span>28 days ago</span>
+          <span>today</span>
+        </div>
+
+
+        <div class="lp-controls__actions">
+
+          <button
+            class="lp-replay"
+            id="lp-replay"
+            type="button"
+          >
+            Replay the month →
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+  <!-- ===================== WHAT IT MEASURES ===================== -->
+<section id="different"
+  class="wm"
+  aria-labelledby="wm-heading"
+>
+
+  <canvas
+    class="wm__canvas"
+    id="wm-canvas"
+    aria-hidden="true"
+  ></canvas>
+
+  <div
+    class="wm__veil"
+    aria-hidden="true"
+  ></div>
+
+
+  <div class="wm__inner">
+
+
+    <!-- ================================================================
+         COPY — UNCHANGED
+         ================================================================ -->
+
+    <div class="wm__head">
+
+      <p class="eyebrow">What it measures</p>
+
+      <h2
+        class="h-section"
+        id="wm-heading"
+      >
+        Health is a system remaining itself through change.
+      </h2>
+
       <p class="lede">
-        Timing gives physiological movement its order and gives recovery its sequence. It shapes
-        when effort can be absorbed, when capacity is returning, and where a passing state belongs
-        within the larger movement of the day.
+        Our bodies remain alive by preserving organization while conditions continually change.
+        Boundary, stability, coherence, and recovery describe different aspects of that
+        organization, and Membrane Health brings them together into a reading of where the
+        system is today.
       </p>
+
+    </div>
+
+
+    <div class="wm__body">
+
+
+      <!-- ================================================================
+           ASPECTS — COPY UNCHANGED
+           ================================================================ -->
+
+      <div
+        class="wm__aspects"
+        role="group"
+        aria-label="Choose an aspect to see in the field"
+      >
+
+        <button
+          class="wm-aspect"
+          type="button"
+          data-aspect="boundary"
+          aria-pressed="true"
+        >
+          <span class="wm-aspect__kicker">
+            Boundary
+          </span>
+
+          <span class="wm-aspect__name">
+            Your remaining capacity
+          </span>
+
+          <span class="wm-aspect__desc">
+            The living edge within which today's load can still be
+            organized and recovered from — and the distance still available to you.
+          </span>
+        </button>
+
+
+        <button
+          class="wm-aspect"
+          type="button"
+          data-aspect="stability"
+          aria-pressed="false"
+        >
+          <span class="wm-aspect__kicker">
+            Stability
+          </span>
+
+          <span class="wm-aspect__name">
+            Membrane integrity
+          </span>
+
+          <span class="wm-aspect__desc">
+            How well the system preserves its organization as
+            conditions change and load moves through it.
+          </span>
+        </button>
+
+
+        <button
+          class="wm-aspect"
+          type="button"
+          data-aspect="coherence"
+          aria-pressed="false"
+        >
+          <span class="wm-aspect__kicker">
+            Coherence
+          </span>
+
+          <span class="wm-aspect__name">
+            Whole-system alignment
+          </span>
+
+          <span class="wm-aspect__desc">
+            How well physiological processes remain coordinated with
+            one another through time and across the relationships that connect them.
+          </span>
+        </button>
+
+
+        <button
+          class="wm-aspect"
+          type="button"
+          data-aspect="recovery"
+          aria-pressed="false"
+        >
+          <span class="wm-aspect__kicker">
+            Recovery
+          </span>
+
+          <span class="wm-aspect__name">
+            Recovery direction &amp; ETA
+          </span>
+
+          <span class="wm-aspect__desc">
+            The movement by which load becomes restored capacity —
+            both the direction of change and the timing of return.
+          </span>
+        </button>
+
+      </div>
+
+
+      <!-- ================================================================
+           ONE LIVING FIELD
+           ================================================================ -->
+
+      <div class="wm__visual">
+
+        <figure
+          role="img"
+          aria-labelledby="wm-title wm-desc"
+        >
+
+          <svg
+            id="wm-field"
+            viewBox="0 0 680 680"
+          >
+
+            <title id="wm-title">
+              One field, read four ways.
+            </title>
+
+            <desc id="wm-desc">
+              A single physiological field. Boundary shows the room between the
+              current position and its edge; stability shows a disturbance being absorbed;
+              coherence shows parts moving in phase or drifting apart; recovery shows the path
+              back and the edge reopening behind it.
+            </desc>
+
+          </svg>
+
+        </figure>
+
+        <p
+          class="wm-note"
+          id="wm-note"
+          aria-live="polite"
+        ></p>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+  <!-- ===================== WHY MEMBRANE ===================== -->
+<section
+  class="idea-exp"
+  id="idea"
+  aria-labelledby="idea-exp-heading"
+>
+
+  <!-- Atmospheric / exchange layer -->
+  <canvas
+    class="idea-exp__canvas"
+    id="idea-exp-canvas"
+    aria-hidden="true"
+  ></canvas>
+
+
+  <div class="idea-exp__shell">
+
+
+    <!-- ================================================================
+         COPY — EXACT EXISTING SITE COPY
+         ================================================================ -->
+
+    <div class="idea-exp__copy">
+
+      <p class="eyebrow">
+        Why "membrane"?
+      </p>
+
+
+      <h2
+        class="h-section"
+        id="idea-exp-heading"
+      >
+        Everything alive has an edge.
+      </h2>
+
+
+      <p class="lede">
+        A membrane gives a living system shape by holding an interior, meeting its surroundings,
+        and regulating the exchange between them. Through that boundary, relationships can remain
+        stable enough for the system to continue being itself while the world around it changes.
+      </p>
+
+
       <p class="subtle">
-        Our bodies are made of rhythms that continually meet, separate, and return to relation.
-        Membrane reads those rhythms alongside your current state, following the order in which
-        signals arrive, the direction recovery is moving, the windows in which effort can land
-        well, and the phase of the cycle you are moving through.
+        Our bodies carry this principle at every scale. Load moves through us, conditions change
+        around us, recovery restores room, and living organization continually adjusts while
+        preserving its continuity.
       </p>
-      <p class="subtle serif-italic">
-        In this way, timing gives a living position its movement.
+
+
+      <p class="subtle">
+        Membrane Health reads today's state within that living boundary and follows how your
+        position changes through time. The distance to the edge becomes a measure of capacity:
+        the room available to move, adapt, recover, and continue being yourself under changing load.
       </p>
+
+
+      <p class="idea-exp__sign serif-italic">
+        — the light you find by going in.
+      </p>
+
     </div>
-  </section>
 
-  <!-- ===================== WITNESSING THROUGH TIME ===================== -->
-  <section class="section section--tight" id="through-time">
-    <div class="wrap">
-      <div class="sec-head sec-head--center reveal">
-        <p class="eyebrow">Your history</p>
-        <h2 class="h-section">Some things become visible through time.</h2>
-        <p class="lede serif-italic">
-          A moment carries information, while a sequence begins to reveal structure and a history
-          allows movement to take shape.
-        </p>
-        <p class="subtle" style="max-width:64ch;margin-inline:auto;">
-          Membrane keeps each reading in relation to what came before it and what followed,
-          including how the system responded, how load changed, and how recovery unfolded. As those
-          moments accumulate, temporary excursions gain context, recurring patterns acquire shape,
-          and direction becomes increasingly visible.
-        </p>
+
+    <!-- ================================================================
+         EXPERIENCE
+         ================================================================ -->
+
+    <div class="idea-exp__visual">
+
+      <div class="idea-exp__stage">
+
+        <figure
+          role="img"
+          aria-labelledby="we-title we-desc"
+        >
+
+          <svg
+            id="we-field"
+            viewBox="0 0 700 700"
+          >
+
+            <title id="we-title">
+              A living boundary connecting an interior with its surroundings.
+            </title>
+
+
+            <desc id="we-desc">
+              The view begins outside a living system, approaches its luminous
+              boundary, and then crosses into an organized interior. Streams
+              pass through a regulated exchange region while the system retains
+              a continuous identity.
+            </desc>
+
+          </svg>
+
+        </figure>
+
       </div>
-      <p class="plans__note muted center reveal serif-italic">
-        Your history becomes a map of physiological relation through time.
-      </p>
+
+
+      <!-- ==============================================================
+           CROSS THE EDGE
+           ============================================================== -->
+
+      <div class="idea-exp__crossing">
+
+        <p
+          class="idea-exp__moment"
+          id="we-moment"
+          aria-live="polite"
+        >
+          The surroundings
+        </p>
+
+
+        <input
+          class="idea-exp__range"
+          id="we-range"
+          type="range"
+          min="0"
+          max="100"
+          step="1"
+          value="0"
+          aria-label="Move from the surroundings, across the membrane, and into the interior"
+        >
+
+
+        <div
+          class="idea-exp__scale"
+          aria-hidden="true"
+        >
+          <span>surroundings</span>
+          <span>edge</span>
+          <span>interior</span>
+        </div>
+
+
+        <div class="idea-exp__actions">
+
+          <button
+            class="idea-exp__replay"
+            id="we-replay"
+            type="button"
+          >
+            Cross the edge →
+          </button>
+
+        </div>
+
+      </div>
+
     </div>
-  </section>
 
-  <!-- ===================== THE SCIENCE / MEASURED ===================== -->
-  <section class="section science" id="science">
-    <div class="wrap">
-      <div class="sec-head sec-head--center reveal">
-        <p class="eyebrow">What's under the hood</p>
-        <h2 class="h-section">A state grounded in measurement.</h2>
-        <p class="lede">
-          Membrane Health begins with authorized measurements and carries them through explicit
-          mathematics that has been machine-checked for the properties it claims<sup class="fn">*</sup>.
-          Those measurements enter defined relationships, those relationships form structure, and
-          that structure resolves into a physiological state whose position can be followed through time.
-        </p>
-        <p class="lede serif-italic">
-          The definition gives that position its structure, your physiology gives it scale, and
-          your history gives it context.
-        </p>
-        <p class="subtle" style="max-width:64ch;margin:16px auto 0;">
-          <em>Formal verification</em> establishes the integrity of the mathematics, while
-          <em>physiological validation</em> establishes how the resulting measurements behave in
-          people. Human testing continues as the measurement develops and its empirical history grows.
-        </p>
-      </div>
+  </div>
 
-      <div class="grid grid-3 sci">
-        <article class="card card--feature reveal">
-          <p class="feature__kicker">Real signals</p>
-          <h3 class="h-card">Measured directly</h3>
-          <p class="subtle">Membrane Health brings together measurements your Apple&nbsp;Watch already records through Apple&nbsp;Health, including heart-rate variability, resting heart rate, recovery, VO₂ max, sleep stages, breathing rate, wrist temperature, blood oxygen, and movement.</p>
-          <p class="subtle">Each signal keeps its own meaning while entering relationship with the others across autonomic, circadian, metabolic, and mechanical physiology. Your 28-day history gives those relationships a personal scale, allowing them to contribute to today's position within a formal definition of health.</p>
-          <div class="sci__chips">
-            <span class="chip">Autonomic</span>
-            <span class="chip">Circadian</span>
-            <span class="chip">Metabolic</span>
-            <span class="chip">Mechanical</span>
-          </div>
-        </article>
-        <article class="card card--feature reveal">
-          <p class="feature__kicker">Explicit math</p>
-          <h3 class="h-card">A reading you can trace</h3>
-          <p class="subtle">Named and inspectable formulas carry your measurements into relationships such as recovery energy, tolerance bands, timing, reserve, capacity, and distance to boundary.</p>
-          <p class="subtle">Because the path remains attached to the reading, the position can always be followed back through the relationships and measurements that formed it.</p>
-        </article>
-        <article class="card card--feature reveal">
-          <p class="feature__kicker">Formally proven</p>
-          <h3 class="h-card">Machine-checked in Lean</h3>
-          <p class="subtle">The formal core is carried end to end in proof. More than <span data-attest="theorems-plain">15,000</span> theorems and lemmas establish the properties the mathematics claims, with the proof corpus open to inspection and independent verification.</p>
-          <p class="subtle">Within that formal system, one of those results states that as strain is transformed into recovery, the health state rises. The proof belongs to the mathematics, and the physiological measurement gives that mathematics a place to meet the living body.</p>
-        </article>
-      </div>
+</section>
 
-      <div class="sci-stats reveal">
-        <div class="sci-stat"><span class="sci-stat__n" data-attest="lines">560K+</span><span class="sci-stat__l">lines of machine-checked proof</span></div>
-        <div class="sci-stat"><span class="sci-stat__n" data-attest="theorems">15,000+</span><span class="sci-stat__l">theorems &amp; lemmas</span></div>
-        <div class="sci-stat"><span class="sci-stat__n">20</span><span class="sci-stat__l">signals read</span></div>
-        <div class="sci-stat"><span class="sci-stat__n">100%</span><span class="sci-stat__l">traceable readings</span></div>
-      </div>
-      <p class="sci-more reveal" style="text-align:center; max-width:60ch; margin:26px auto 0; font-size:0.98rem; color:var(--parchment-dim);">
-        Want to go deeper? The whole picture — from the human idea to the mathematics to the proof —
-        <a href="science.html" style="color:var(--glow); font-weight:600; white-space:nowrap;">The science of Membrane&nbsp;Health&nbsp;&rarr;</a>
+
+
+  <!-- ===================== WHAT'S UNDER THE HOOD ===================== -->
+<section
+  class="section science uh"
+  id="science"
+  aria-labelledby="uh-heading"
+>
+
+  <canvas
+    class="uh__canvas"
+    id="uh-canvas"
+    aria-hidden="true"
+  ></canvas>
+
+
+  <div class="uh__shell">
+
+
+    <!-- ================================================================
+         EXISTING HEADER COPY — UNCHANGED
+         ================================================================ -->
+
+    <div class="uh__head">
+
+      <p class="eyebrow">
+        What's under the hood
       </p>
-      <p class="sci-footnote reveal"><span class="fn">*</span> <em>Formally proven</em> is not a statement of physiological truth or a disease diagnosis. What it does mean: our formal mathematical ontology of health stays stable, structured, auditable, and fully transparent — which is exactly what makes it reliable.</p>
+
+
+      <h2
+        class="h-section"
+        id="uh-heading"
+      >
+        A state grounded in measurement.
+      </h2>
+
+
+      <p class="lede">
+        Membrane Health begins with authorized measurements and carries them through explicit
+        mathematics that has been machine-checked for the properties it claims<sup class="fn">*</sup>.
+        Those measurements enter defined relationships, those relationships form structure, and
+        that structure resolves into a physiological state whose position can be followed through time.
+      </p>
+
+
+      <p class="lede serif-italic">
+        The definition gives that position its structure, your physiology gives it scale, and
+        your history gives it context.
+      </p>
+
+
+      <p
+        class="subtle"
+        style="max-width:64ch;margin:16px auto 0;"
+      >
+        <em>Formal verification</em> establishes the integrity of the mathematics, while
+        <em>physiological validation</em> establishes how the resulting measurements behave in
+        people. Human testing continues as the measurement develops and its empirical history grows.
+      </p>
+
     </div>
-  </section>
+
+
+    <!-- ================================================================
+         EXPERIENCE
+         ================================================================ -->
+
+    <div class="uh__experience">
+
+
+      <div class="uh__stage">
+
+        <svg
+          id="uh-field"
+          viewBox="0 0 1000 625"
+          role="img"
+          aria-labelledby="uh-v-title uh-v-desc"
+        >
+
+          <title id="uh-v-title">
+            A reading traced from measurements through relationships and structure into a living position.
+          </title>
+
+
+          <desc id="uh-v-desc">
+            Independent measurement streams enter four physiological families.
+            Their relationships become organized into a bounded structure that
+            resolves into one current physiological position. A quiet geometric
+            scaffold remains present behind each transformation to represent the
+            machine-checked formal structure.
+          </desc>
+
+        </svg>
+
+      </div>
+
+
+      <!-- ==============================================================
+           TRACE
+           ============================================================== -->
+
+      <div class="uh__trace">
+
+        <div class="uh__trace-top">
+
+          <p
+            class="uh__trace-state"
+            id="uh-trace-state"
+            aria-live="polite"
+          >
+            A living position
+          </p>
+
+
+          <p class="uh__trace-hint">
+            trace the reading in either direction
+          </p>
+
+        </div>
+
+
+        <input
+          class="uh-range"
+          id="uh-range"
+          type="range"
+          min="0"
+          max="100"
+          step="1"
+          value="100"
+          aria-label="Trace a reading from measured signals through relations and structure into a physiological position"
+        >
+
+
+        <div
+          class="uh__trace-scale"
+          aria-hidden="true"
+        >
+          <span>signals</span>
+          <span>relations</span>
+          <span>structure</span>
+          <span>position</span>
+        </div>
+
+
+        <div class="uh__trace-actions">
+
+          <button
+            class="uh__play"
+            id="uh-play"
+            type="button"
+          >
+            Trace from the signals →
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- ================================================================
+         EXISTING TECHNICAL CARDS — COPY UNCHANGED
+         ================================================================ -->
+
+    <div class="grid grid-3 sci uh__cards">
+
+
+      <article
+        class="card card--feature"
+        data-depth-card="signals"
+        data-active="false"
+        tabindex="0"
+      >
+
+        <p class="feature__kicker">
+          Real signals
+        </p>
+
+
+        <h3 class="h-card">
+          Measured directly
+        </h3>
+
+
+        <p class="subtle">
+          Membrane Health brings together measurements your Apple&nbsp;Watch already records through Apple&nbsp;Health, including heart-rate variability, resting heart rate, recovery, VO₂ max, sleep stages, breathing rate, wrist temperature, blood oxygen, and movement.
+        </p>
+
+
+        <p class="subtle">
+          Each signal keeps its own meaning while entering relationship with the others across autonomic, circadian, metabolic, and mechanical physiology. Your 28-day history gives those relationships a personal scale, allowing them to contribute to today's position within a formal definition of health.
+        </p>
+
+
+        <div class="sci__chips">
+
+          <span class="chip">
+            Autonomic
+          </span>
+
+          <span class="chip">
+            Circadian
+          </span>
+
+          <span class="chip">
+            Metabolic
+          </span>
+
+          <span class="chip">
+            Mechanical
+          </span>
+
+        </div>
+
+      </article>
+
+
+      <article
+        class="card card--feature"
+        data-depth-card="math"
+        data-active="false"
+        tabindex="0"
+      >
+
+        <p class="feature__kicker">
+          Explicit math
+        </p>
+
+
+        <h3 class="h-card">
+          A reading you can trace
+        </h3>
+
+
+        <p class="subtle">
+          Named and inspectable formulas carry your measurements into relationships such as recovery energy, tolerance bands, timing, reserve, capacity, and distance to boundary.
+        </p>
+
+
+        <p class="subtle">
+          Because the path remains attached to the reading, the position can always be followed back through the relationships and measurements that formed it.
+        </p>
+
+      </article>
+
+
+      <article
+        class="card card--feature"
+        data-depth-card="proof"
+        data-active="false"
+        tabindex="0"
+      >
+
+        <p class="feature__kicker">
+          Formally proven
+        </p>
+
+
+        <h3 class="h-card">
+          Machine-checked in Lean
+        </h3>
+
+
+        <p class="subtle">
+          The formal core is carried end to end in proof. More than <span data-attest="theorems-plain">15,000</span> theorems and lemmas establish the properties the mathematics claims, with the proof corpus open to inspection and independent verification.
+        </p>
+
+
+        <p class="subtle">
+          Within that formal system, one of those results states that as strain is transformed into recovery, the health state rises. The proof belongs to the mathematics, and the physiological measurement gives that mathematics a place to meet the living body.
+        </p>
+
+      </article>
+
+    </div>
+
+
+    <!-- ================================================================
+         EXISTING STATS — UNCHANGED
+         ================================================================ -->
+
+    <div class="sci-stats uh__stats">
+
+      <div class="sci-stat">
+        <span
+          class="sci-stat__n"
+          data-attest="lines"
+        >
+          560K+
+        </span>
+
+        <span class="sci-stat__l">
+          lines of machine-checked proof
+        </span>
+      </div>
+
+
+      <div class="sci-stat">
+        <span
+          class="sci-stat__n"
+          data-attest="theorems"
+        >
+          15,000+
+        </span>
+
+        <span class="sci-stat__l">
+          theorems &amp; lemmas
+        </span>
+      </div>
+
+
+      <div class="sci-stat">
+        <span class="sci-stat__n">
+          20
+        </span>
+
+        <span class="sci-stat__l">
+          signals read
+        </span>
+      </div>
+
+
+      <div class="sci-stat">
+        <span class="sci-stat__n">
+          100%
+        </span>
+
+        <span class="sci-stat__l">
+          traceable readings
+        </span>
+      </div>
+
+    </div>
+
+
+    <!-- ================================================================
+         EXISTING SCIENCE LINK — UNCHANGED
+         ================================================================ -->
+
+    <p
+      class="sci-more"
+      style="text-align:center; max-width:60ch; margin:26px auto 0; font-size:0.98rem; color:var(--parchment-dim);"
+    >
+      Want to go deeper? The whole picture — from the human idea to the mathematics to the proof —
+      <a
+        href="science.html"
+        style="color:var(--glow); font-weight:600; white-space:nowrap;"
+      >
+        The science of Membrane&nbsp;Health&nbsp;&rarr;
+      </a>
+    </p>
+
+
+    <!-- ================================================================
+         EXISTING FOOTNOTE — UNCHANGED
+         ================================================================ -->
+
+    <p class="sci-footnote">
+      <span class="fn">*</span> <em>Formally proven</em> is not a statement of physiological truth or a disease diagnosis. What it does mean: our formal mathematical ontology of health stays stable, structured, auditable, and fully transparent — which is exactly what makes it reliable.
+    </p>
+
+
+  </div>
+
+</section>
+
 
   <!-- ===================== THE FIVE MODES ===================== -->
-  <section class="section section--tight modes-sec" id="modes">
-    <div class="wrap">
-      <div class="sec-head sec-head--center reveal">
-        <p class="eyebrow">The five modes</p>
-        <h2 class="h-section">Your position tells you where you are.<br>Your mode describes how the system is holding there.</h2>
-        <p class="lede">Each reading resolves the whole system into one of five modes, allowing the position to carry not only a location but a recognizable physiological posture.</p>
-      </div>
-      <div class="mode-spectrum reveal">
-        <div class="mode-spec">
-          <span class="mode__dot" style="--m: var(--glow-soft)"></span>
-          <h3 class="mode__name">Sleep</h3>
-          <p class="subtle">Deep overnight restoration.</p>
-        </div>
-        <div class="mode-spec">
-          <span class="mode__dot" style="--m: var(--status-ease)"></span>
-          <h3 class="mode__name">Stress</h3>
-          <p class="subtle">Elevated demand and active adaptation.</p>
-        </div>
-        <div class="mode-spec">
-          <span class="mode__dot" style="--m: var(--status-go)"></span>
-          <h3 class="mode__name">Recovery</h3>
-          <p class="subtle">Reserves rebuilding as capacity returns.</p>
-        </div>
-        <div class="mode-spec mode--earned">
-          <span class="mode__dot" style="--m: var(--aqua)"></span>
-          <h3 class="mode__name">Flow</h3>
-          <p class="subtle">Organization coordinated and sustainable.</p>
-        </div>
-        <div class="mode-spec mode--earned mode--peak">
-          <span class="mode__dot" style="--m: var(--glow)"></span>
-          <h3 class="mode__name">Nova <span class="mode__tag">peak</span></h3>
-          <p class="subtle">Deep reserve, clean relationships, surplus capacity.</p>
-        </div>
-      </div>
-      <p class="plans__note muted center reveal">
-        Flow and Nova emerge from the organization of the whole system, and their meaning comes from the relationships that make those states possible.
+<section
+  class="section section--tight modes-sec fm5"
+  id="modes"
+  aria-labelledby="fm5-heading"
+>
+
+  <div
+    class="fm5__aurora"
+    aria-hidden="true"
+  ></div>
+
+
+  <canvas
+    class="fm5__world"
+    id="fm5-world"
+    aria-hidden="true"
+  ></canvas>
+
+
+  <div class="fm5__shell">
+
+
+    <!-- ================================================================
+         EXISTING COPY — UNCHANGED
+         ================================================================ -->
+
+    <div class="fm5__head">
+
+      <p class="eyebrow">
+        The five modes
       </p>
+
+
+      <h2
+        class="h-section"
+        id="fm5-heading"
+      >
+        Your position tells you where you are.<br>Your mode describes how the system is holding there.
+      </h2>
+
+
+      <p class="lede">
+        Each reading resolves the whole system into one of five modes, allowing the position to carry not only a location but a recognizable physiological posture.
+      </p>
+
     </div>
-  </section>
+
+
+    <div class="fm5__experience">
+
+
+      <div class="fm5__stage">
+
+
+        <canvas
+          class="fm5__phenomena"
+          id="fm5-phenomena"
+          aria-hidden="true"
+        ></canvas>
+
+
+        <svg
+          id="fm5-field"
+          viewBox="0 0 1100 650"
+          role="img"
+          aria-labelledby="fm5-title fm5-desc"
+        >
+
+          <title id="fm5-title">
+            One living system expressed through five physiological modes.
+          </title>
+
+
+          <desc id="fm5-desc">
+            Each mode reorganizes the same living field. Sleep turns inward
+            toward restoration. Stress recruits the system toward demand while
+            protecting recovery. Recovery releases accumulated strain and
+            rebuilds reserve. Flow synchronizes movement into coordinated
+            transport. Nova expands high-performance capacity while preserving
+            stability and recovery constraints.
+          </desc>
+
+        </svg>
+
+
+      </div>
+
+
+      <!-- ================================================================
+           EXISTING MODE COPY — UNCHANGED
+           ================================================================ -->
+
+      <div
+        class="fm5__modes"
+        role="group"
+        aria-label="Explore the five modes"
+      >
+
+
+        <button
+          class="fm5-mode"
+          type="button"
+          data-mode="sleep"
+          aria-pressed="false"
+          style="--mode-color:var(--glow-soft)"
+        >
+
+          <span class="fm5-mode__top">
+
+            <span
+              class="mode__dot"
+              aria-hidden="true"
+            ></span>
+
+            <span class="mode__name">
+              Sleep
+            </span>
+
+          </span>
+
+          <span class="subtle">
+            Deep overnight restoration.
+          </span>
+
+        </button>
+
+
+        <button
+          class="fm5-mode"
+          type="button"
+          data-mode="stress"
+          aria-pressed="false"
+          style="--mode-color:var(--status-ease)"
+        >
+
+          <span class="fm5-mode__top">
+
+            <span
+              class="mode__dot"
+              aria-hidden="true"
+            ></span>
+
+            <span class="mode__name">
+              Stress
+            </span>
+
+          </span>
+
+          <span class="subtle">
+            Elevated demand and active adaptation.
+          </span>
+
+        </button>
+
+
+        <button
+          class="fm5-mode"
+          type="button"
+          data-mode="recovery"
+          aria-pressed="true"
+          style="--mode-color:var(--status-go)"
+        >
+
+          <span class="fm5-mode__top">
+
+            <span
+              class="mode__dot"
+              aria-hidden="true"
+            ></span>
+
+            <span class="mode__name">
+              Recovery
+            </span>
+
+          </span>
+
+          <span class="subtle">
+            Reserves rebuilding as capacity returns.
+          </span>
+
+        </button>
+
+
+        <button
+          class="fm5-mode"
+          type="button"
+          data-mode="flow"
+          aria-pressed="false"
+          style="--mode-color:var(--aqua)"
+        >
+
+          <span class="fm5-mode__top">
+
+            <span
+              class="mode__dot"
+              aria-hidden="true"
+            ></span>
+
+            <span class="mode__name">
+              Flow
+            </span>
+
+          </span>
+
+          <span class="subtle">
+            Organization coordinated and sustainable.
+          </span>
+
+        </button>
+
+
+        <button
+          class="fm5-mode"
+          type="button"
+          data-mode="nova"
+          aria-pressed="false"
+          style="--mode-color:var(--glow)"
+        >
+
+          <span class="fm5-mode__top">
+
+            <span
+              class="mode__dot"
+              aria-hidden="true"
+            ></span>
+
+            <span class="mode__name">
+              Nova
+              <span class="mode__tag">
+                peak
+              </span>
+            </span>
+
+          </span>
+
+          <span class="subtle">
+            Deep reserve, clean relationships, surplus capacity.
+          </span>
+
+        </button>
+
+
+      </div>
+
+    </div>
+
+
+    <!-- ================================================================
+         EXISTING COPY — UNCHANGED
+         ================================================================ -->
+
+    <p class="plans__note muted center fm5__note">
+      Flow and Nova emerge from the organization of the whole system, and their meaning comes from the relationships that make those states possible.
+    </p>
+
+
+  </div>
+
+</section>
+
 
   <!-- ===================== HOW IT WORKS ===================== -->
   <section class="section section--tight" id="how">
@@ -747,6 +1623,11 @@
   </div>
 
   <script src="assets/js/membrane.js?v=1" defer></script>
+  <script src="assets/js/living-position.js?v=2" defer></script>
+  <script src="assets/js/what-it-measures.js?v=1" defer></script>
+  <script src="assets/js/why-membrane.js?v=2" defer></script>
+  <script src="assets/js/whats-under-the-hood.js?v=1" defer></script>
+  <script src="assets/js/five-modes.js?v=1" defer></script>
   <!-- Cloudflare Web Analytics --><script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "a9e884119528421d9d6197e196f332e5"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>

@@ -809,3 +809,4531 @@ img { max-width: 100%; display: block; }
 .footer__legal { font-size: 0.78rem; max-width: 60ch; line-height: 1.6; margin: 6px 0 0; }
 .footer__company { font-size: 0.9rem; }
 .footer__copyright { font-size: 0.72rem; max-width: 62ch; line-height: 1.6; }
+
+/* ==========================================================================
+   The Living Field — one recurring visual object across the page.
+   Colour comes only from existing palette tokens, so the light mirror follows.
+   ========================================================================== */
+:root {
+  --field-structure: var(--glow);
+  --field-current:   var(--aqua);
+  --field-core:      var(--aqua-deep);
+  --field-history:   color-mix(in srgb, var(--aqua) 48%, transparent);
+  --field-reference: color-mix(in srgb, var(--parchment) 13%, transparent);
+  --field-contour:   color-mix(in srgb, var(--glow) 62%, transparent);
+}
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* ---- the figure ---------------------------------------------------------- */
+.living-field-wrap { margin: 0; position: relative; }
+.living-field { display: block; width: 100%; height: auto; overflow: visible; }
+
+.lf-ref { fill: none; stroke: var(--field-reference); stroke-width: 1; }
+.lf-ref--outer { stroke-dasharray: 2 8; opacity: 0.6; }
+.lf-ref--inner { opacity: 0.35; }
+
+/* Deep interior, lit from within */
+.lf-fill { stroke: none; }
+
+/* Two stacked rims: a wide soft bloom and a bright hairline core */
+.lf-bloom {
+  fill: none; stroke: var(--field-structure); stroke-width: 9;
+  filter: blur(7px); opacity: 0.2;
+}
+.lf-membrane {
+  fill: none;
+  stroke: var(--field-structure);
+  stroke-width: 1.6;
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--glow) 85%, transparent));
+  opacity: calc(0.72 + var(--lf-energy, 0.5) * 0.28);
+}
+
+.lf-contour { fill: none; stroke: var(--field-contour); stroke-width: 0.7; }
+.lf-thread  { fill: none; stroke: var(--field-current); stroke-width: 0.8; }
+.lf-stream  { fill: none; stroke: var(--field-structure); stroke-width: 1.1; stroke-dasharray: 1 6; stroke-linecap: round; }
+
+.lf-trail {
+  fill: none; stroke: var(--field-history); stroke-width: 1.4;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+.lf-dot { fill: var(--field-current); }
+.lf-headroom { stroke: var(--field-current); stroke-width: 1; stroke-dasharray: 3 4; opacity: 0; }
+
+/* The current position: bloom, ring, body, white core */
+.lf-halo { fill: var(--field-current); opacity: 0.2; filter: blur(6px); }
+.lf-ring { fill: none; stroke: var(--field-current); stroke-width: 1.2; }
+.lf-pos {
+  fill: var(--field-current);
+  filter: drop-shadow(0 0 9px var(--field-current));
+}
+.lf-core { fill: var(--parchment); }
+
+/* ---- controls ------------------------------------------------------------ */
+.field-controls { display: none; margin: 18px auto 0; max-width: 460px; }
+.lf-ready + .field-controls,
+.field-controls.is-ready { display: block; }
+
+.field-controls__labels {
+  display: flex; justify-content: space-between; gap: 12px;
+  font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--parchment-dim); margin-bottom: 8px;
+}
+.field-controls__now { color: var(--aqua); }
+
+.field-range {
+  -webkit-appearance: none; appearance: none; width: 100%; background: transparent;
+  height: 32px; cursor: pointer; display: block;
+}
+.field-range::-webkit-slider-runnable-track {
+  height: 2px; border-radius: 2px;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--glow) 55%, transparent), color-mix(in srgb, var(--aqua) 65%, transparent));
+}
+.field-range::-moz-range-track {
+  height: 2px; border-radius: 2px;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--glow) 55%, transparent), color-mix(in srgb, var(--aqua) 65%, transparent));
+}
+.field-range::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 22px; height: 22px; margin-top: -10px; border-radius: 50%;
+  background: var(--night); border: 2px solid var(--aqua);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--aqua) 55%, transparent);
+}
+.field-range::-moz-range-thumb {
+  width: 18px; height: 18px; border-radius: 50%;
+  background: var(--night); border: 2px solid var(--aqua);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--aqua) 55%, transparent);
+}
+.field-range:focus-visible { outline: 2px solid var(--glow); outline-offset: 6px; border-radius: 4px; }
+
+/* ---- copy | visual split ------------------------------------------------- */
+.field-split {
+  display: grid; grid-template-columns: 1fr 1fr; gap: clamp(28px, 5vw, 64px);
+  align-items: center; max-width: 1040px; margin-inline: auto;
+}
+.field-split__visual { max-width: 460px; width: 100%; margin-inline: auto; }
+
+/* ---- aspect selectors (What it measures) --------------------------------- */
+.diff { position: relative; }
+.diff__btn {
+  appearance: none; background: none; border: 0; padding: 0; margin: 10px 0 0;
+  font: inherit; font-size: 0.82rem; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--parchment-dim); cursor: pointer; display: none;
+}
+.lf-live .diff__btn { display: inline-flex; align-items: center; gap: 7px; }
+.diff__btn::before {
+  content: ""; width: 7px; height: 7px; border-radius: 50%;
+  border: 1px solid currentColor; transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+.diff__btn[aria-pressed="true"] { color: var(--aqua); }
+.diff__btn[aria-pressed="true"]::before {
+  background: var(--aqua); box-shadow: 0 0 9px color-mix(in srgb, var(--aqua) 70%, transparent);
+}
+.diff__btn:focus-visible { outline: 2px solid var(--glow); outline-offset: 4px; border-radius: 3px; }
+
+/* ---- the time story: one scene across timing + history -------------------- */
+.time-story__visual { max-width: 420px; margin-inline: auto; }
+@media (min-width: 900px) {
+  .time-story { display: grid; grid-template-columns: 1fr 0.85fr; gap: clamp(32px, 5vw, 72px); align-items: start; }
+  .time-story__visual { position: sticky; top: 96px; margin: 0; }
+}
+.time-story__stage {
+  text-align: center; margin-top: 14px; font-size: 0.8rem;
+  letter-spacing: 0.12em; text-transform: uppercase; color: var(--aqua);
+}
+
+/* ---- mode selector ------------------------------------------------------- */
+.mode-picker {
+  display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;
+  margin: 0 auto 28px; max-width: 760px;
+}
+.mode-btn {
+  appearance: none; font: inherit; cursor: pointer;
+  padding: 9px 18px; border-radius: 999px;
+  background: transparent; color: var(--parchment-dim);
+  border: 1px solid var(--line); transition: color 0.3s ease, border-color 0.3s ease, background 0.3s ease;
+}
+.mode-btn:hover { color: var(--parchment); }
+.mode-btn[aria-pressed="true"] {
+  color: var(--night); background: var(--glow); border-color: var(--glow);
+}
+.mode-btn:focus-visible { outline: 2px solid var(--aqua); outline-offset: 3px; }
+.mode-field { max-width: 440px; margin: 0 auto; }
+.mode-readout { text-align: center; max-width: 46ch; margin: 22px auto 0; }
+
+@media (max-width: 720px) {
+  .field-split { grid-template-columns: 1fr; }
+  .mode-picker { flex-wrap: nowrap; overflow-x: auto; justify-content: flex-start; padding-bottom: 6px; }
+  .mode-btn { flex: 0 0 auto; }
+  .lf-stream, .lf-contour:nth-child(n+3) { display: none; }   /* decoration goes before geometry */
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lf-membrane, .lf-trail, .lf-pos, .lf-halo { transition: none !important; }
+}
+
+/* The static spectrum is the no-JS fallback; the live field replaces it. */
+.lf-live .mode-spectrum { display: none; }
+.mode-cards { display: grid; }
+.mode-picker, .mode-field, .mode-readout { display: none; }
+.lf-live .mode-picker { display: flex; }
+.lf-live .mode-field, .lf-live .mode-readout { display: block; }
+
+/* ---- Particle texture, drawn not pasted ---------------------------------- */
+.lf-rays {
+  fill: none; stroke-width: 1.15; stroke-linecap: round;
+  stroke-dasharray: 0.5 4.5;
+}
+.lf-beads {
+  fill: none; stroke-width: 2.6; stroke-linecap: round;
+  stroke-dasharray: 0.5 5; opacity: 0.75;
+}
+
+/* ---- Five mode cards (composition from the reference artwork) ------------- */
+.mode-cards { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; max-width: 1060px; margin: clamp(28px,4vw,44px) auto 0; }
+.mode-card {
+  appearance: none; font: inherit; cursor: pointer; text-align: center;
+  display: flex; flex-direction: column; gap: 12px; padding: 18px 12px 20px;
+  background: linear-gradient(to bottom, var(--surface-top), var(--surface-bottom));
+  border: 1px solid var(--line); border-radius: 18px; color: var(--parchment-dim);
+  transition: border-color .35s ease, transform .35s ease, box-shadow .35s ease;
+}
+.mode-card:hover { transform: translateY(-3px); }
+.mode-card[aria-pressed="true"] { border-color: color-mix(in srgb, var(--glow) 55%, transparent); box-shadow: 0 18px 60px -32px var(--glow); }
+.mode-card:focus-visible { outline: 2px solid var(--aqua); outline-offset: 3px; }
+.mode-card__name { font-family: var(--serif); font-size: 1.18rem; color: var(--aqua); }
+.mode-card__name--stress, .mode-card__name--nova { color: var(--glow); }
+.mode-card__plate { width: 100%; height: auto; border-radius: 10px; display: block; }
+:root[data-theme="light"] .mode-card__plate { filter: invert(1) hue-rotate(180deg) saturate(0.85); }
+.mode-card__desc { font-size: 0.86rem; line-height: 1.5; }
+@media (max-width: 860px) {
+  .mode-cards { grid-template-columns: repeat(5, 62vw); overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 8px; }
+  .mode-card { scroll-snap-align: center; }
+}
+
+/* ---- Reference compositions: wordless sequences from the artwork ---------- */
+.ref-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: clamp(10px, 1.6vw, 22px); max-width: 1040px; margin: clamp(28px,4vw,52px) auto clamp(32px,5vw,60px); align-items: end; }
+.ref-strip--wide { max-width: 1100px; }
+.ref-step { margin: 0; }
+.ref-step img { width: 100%; height: auto; border-radius: 12px; display: block; }
+:root[data-theme="light"] .ref-step img,
+:root[data-theme="light"] .ref-wide img { filter: invert(1) hue-rotate(180deg) saturate(0.85); }
+.ref-step figcaption { margin-top: 10px; text-align: center; font-size: 0.78rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--glow); }
+.ref-wide { margin: clamp(28px,4vw,52px) auto; max-width: 1040px; }
+.ref-wide img { width: 100%; height: auto; border-radius: 14px; display: block; }
+.ref-wide__cap { margin-top: 12px; text-align: center; font-size: 0.8rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--glow); }
+@media (max-width: 720px) {
+  .ref-strip { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  .ref-step figcaption { font-size: 0.7rem; letter-spacing: 0.1em; }
+}
+/* Panels that show the field before a position has resolved */
+[data-hide-pos] .lf-pos, [data-hide-pos] .lf-core,
+[data-hide-pos] .lf-ring, [data-hide-pos] .lf-halo,
+[data-hide-pos] .lf-trail, [data-hide-pos] .lf-dots { display: none; }
+.ref-step .living-field-wrap { width: 100%; }
+.mode-card .living-field-wrap { width: 100%; }
+/* Signal scatter and the relations that form between the points */
+.lf-node { fill: var(--field-current); opacity: 0; }
+.lf-node--warm { fill: var(--field-structure); }
+.lf-links { fill: none; stroke: var(--field-reference); stroke-width: 0.6; opacity: 0; }
+[data-show="nodes"] .lf-node { opacity: 0.85; }
+[data-show="links"] .lf-node { opacity: 0.9; }
+[data-show="links"] .lf-links { opacity: 0.55; }
+/* Before a state forms, the envelope isn't there yet */
+[data-show="nodes"] .lf-membrane, [data-show="nodes"] .lf-bloom, [data-show="nodes"] .lf-beads,
+[data-show="nodes"] .lf-rays, [data-show="nodes"] .lf-contours, [data-show="nodes"] .lf-fill,
+[data-show="nodes"] .lf-ref, [data-show="nodes"] .lf-threads,
+[data-show="links"] .lf-membrane, [data-show="links"] .lf-bloom, [data-show="links"] .lf-beads,
+[data-show="links"] .lf-rays, [data-show="links"] .lf-fill { display: none; }
+[data-show="links"] .lf-contours { opacity: 0.35; }
+
+/* Dimension spokes and load arriving from outside */
+.lf-spokes { fill: none; stroke: var(--field-reference); stroke-width: 0.7; stroke-dasharray: 1 4; }
+.lf-arrows { fill: none; stroke: var(--field-structure); stroke-width: 1.3; stroke-dasharray: 2 5; stroke-linecap: round; opacity: 0; }
+.lf-headroom { fill: var(--field-current); stroke: none; opacity: 0; filter: blur(8px); }
+
+/* ---- A living position: making the picture legible ----------------------- */
+.lf-axis {
+  font-family: var(--body); font-size: 12px; letter-spacing: .1em;
+  text-transform: uppercase; fill: var(--parchment-dim); opacity: .6;
+}
+.lf-you {
+  font-family: var(--body); font-size: 13px; fill: var(--parchment);
+  letter-spacing: .02em;
+}
+.lf-you-line { stroke: var(--field-current); stroke-width: 1; opacity: .5; }
+[data-hide-pos] .lf-you, [data-hide-pos] .lf-you-line { display: none; }
+/* only the headline field names itself — the small ones stay quiet */
+.ref-step .lf-axis, .ref-step .lf-you, .ref-step .lf-you-line,
+.mode-card .lf-axis, .mode-card .lf-you, .mode-card .lf-you-line { display: none; }
+
+.field-hint { font-size: .92rem; opacity: .8; margin-top: 18px; max-width: 46ch; }
+
+.field-readout { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+.field-readout__status {
+  font-family: var(--body); font-weight: 500; font-size: .82rem;
+  letter-spacing: .08em; text-transform: uppercase;
+  padding: 5px 13px; border-radius: 999px;
+  color: var(--night); background: var(--status-go);
+  transition: background-color .45s ease;
+}
+.field-readout__status[data-status="caution"] { background: var(--status-ease); }
+.field-readout__status[data-status="recover"] { background: var(--status-recover); color: var(--parchment); }
+.field-readout__day { font-size: .9rem; color: var(--parchment-dim); }
+.field-readout__note { margin: 0 0 18px; font-size: .95rem; color: var(--parchment); min-height: 2.8em; }
+
+
+
+/* ==== A living position (experiential) ==== */
+/* ============================================================================
+   A LIVING POSITION
+   Experiential reference implementation.
+
+   This is no longer a diagram of the idea.
+
+   It is a small visual world whose behavior carries the idea:
+
+     the definition holds
+     the active membrane responds
+     the position moves
+     every day leaves a trace
+     history accumulates as structure
+     available room appears relationally
+
+   Canvas = atmosphere / flow / residual field
+   SVG    = meaningful geometry / history / current position
+   HTML   = language / controls / accessibility
+
+   No diagnostic status is generated here.
+   ============================================================================ */
+
+:root {
+  --lp-gold: var(--glow);
+  --lp-aqua: var(--aqua);
+  --lp-paper: var(--parchment);
+  --lp-dim: var(--parchment-dim);
+  --lp-night: var(--night);
+}
+
+/* --------------------------------------------------------------------------
+   SECTION / WORLD
+   -------------------------------------------------------------------------- */
+
+.lp-world {
+  position: relative;
+  min-height: 100svh;
+  overflow: hidden;
+  isolation: isolate;
+
+  background:
+    radial-gradient(
+      circle at 72% 43%,
+      color-mix(in srgb, var(--aqua-deep) 10%, transparent),
+      transparent 32%
+    ),
+    radial-gradient(
+      circle at 66% 49%,
+      color-mix(in srgb, var(--glow) 7%, transparent),
+      transparent 48%
+    ),
+    linear-gradient(
+      145deg,
+      var(--night-deep),
+      var(--night) 56%,
+      color-mix(in srgb, var(--night) 95%, var(--indigo))
+    );
+}
+
+.lp-world::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -4;
+  pointer-events: none;
+  opacity: .2;
+
+  background-image:
+    radial-gradient(
+      circle at center,
+      color-mix(in srgb, var(--parchment) 18%, transparent) 0 0.6px,
+      transparent .8px
+    );
+
+  background-size: 8px 8px;
+  mask-image:
+    radial-gradient(
+      ellipse at 70% 48%,
+      black,
+      transparent 74%
+    );
+}
+
+.lp-world::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  pointer-events: none;
+
+  background:
+    linear-gradient(
+      to right,
+      color-mix(in srgb, var(--night) 96%, transparent) 0%,
+      color-mix(in srgb, var(--night) 68%, transparent) 37%,
+      transparent 62%
+    );
+}
+
+.lp-atmosphere {
+  position: absolute;
+  inset: 0;
+  z-index: -3;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.lp-shell {
+  position: relative;
+  z-index: 10;
+
+  width: 100%;
+  min-height: 100svh;
+  max-width: 1440px;
+  margin-inline: auto;
+  padding:
+    clamp(84px, 11vh, 124px)
+    var(--gutter)
+    clamp(48px, 8vh, 84px);
+
+  display: grid;
+  grid-template-columns:
+    minmax(300px, .78fr)
+    minmax(500px, 1.22fr);
+
+  gap: clamp(36px, 6vw, 100px);
+  align-items: center;
+}
+
+/* --------------------------------------------------------------------------
+   COPY
+   -------------------------------------------------------------------------- */
+
+.lp-copy {
+  position: relative;
+  z-index: 20;
+  max-width: 580px;
+}
+
+.lp-copy .eyebrow {
+  margin-bottom: 22px;
+}
+
+.lp-copy .h-section {
+  font-size: clamp(2.2rem, 4.7vw, 4.35rem);
+  line-height: 1.03;
+  max-width: 11ch;
+}
+
+.lp-copy__lede {
+  max-width: 49ch;
+  margin-top: 30px;
+
+  color: var(--parchment-dim);
+  font-size: clamp(1.02rem, 1.4vw, 1.17rem);
+  line-height: 1.72;
+}
+
+.lp-incantation {
+  margin-top: clamp(30px, 4vw, 46px);
+
+  font-family: var(--serif);
+  font-size: clamp(1.1rem, 1.9vw, 1.34rem);
+  line-height: 1.55;
+  color: var(--glow-soft);
+}
+
+.lp-incantation span {
+  display: block;
+}
+
+.lp-incantation span + span {
+  margin-top: 2px;
+}
+
+.lp-incantation__last {
+  margin-top: 9px !important;
+  color: var(--parchment);
+}
+
+/* --------------------------------------------------------------------------
+   VISUAL STAGE
+   -------------------------------------------------------------------------- */
+
+.lp-stage {
+  position: relative;
+  width: min(680px, 100%);
+  margin-inline: auto;
+}
+
+.lp-stage::before {
+  content: "";
+  position: absolute;
+
+  width: 74%;
+  aspect-ratio: 1;
+  left: 15%;
+  top: 11%;
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle,
+      color-mix(in srgb, var(--aqua) 10%, transparent),
+      transparent 68%
+    );
+
+  filter: blur(24px);
+  opacity: .65;
+  pointer-events: none;
+}
+
+.lp-field-wrap {
+  position: relative;
+  aspect-ratio: 1;
+  width: 100%;
+}
+
+.lp-field-wrap svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* --------------------------------------------------------------------------
+   SVG — FIXED STRUCTURE
+   -------------------------------------------------------------------------- */
+
+.lp-fixed {
+  fill: none;
+  stroke: color-mix(in srgb, var(--parchment) 18%, transparent);
+  stroke-width: 1;
+  stroke-dasharray: 2 10;
+}
+
+.lp-fixed--outer {
+  opacity: .48;
+}
+
+.lp-fixed--inner {
+  opacity: .22;
+}
+
+.lp-fixed-glow {
+  fill: none;
+  stroke: color-mix(in srgb, var(--parchment) 7%, transparent);
+  stroke-width: 9;
+  filter: blur(10px);
+}
+
+/* --------------------------------------------------------------------------
+   HISTORY — membranes that existed before now
+   -------------------------------------------------------------------------- */
+
+.lp-ghost {
+  fill: none;
+  stroke: var(--aqua);
+  stroke-width: .85;
+  opacity: .06;
+}
+
+.lp-ghost--warm {
+  stroke: var(--glow);
+}
+
+.lp-history-thread {
+  fill: none;
+  stroke:
+    color-mix(
+      in srgb,
+      var(--aqua) 44%,
+      transparent
+    );
+
+  stroke-width: 1.3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.lp-history-dot {
+  fill: var(--aqua);
+}
+
+/* --------------------------------------------------------------------------
+   ACTIVE MEMBRANE
+   -------------------------------------------------------------------------- */
+
+.lp-active-fill {
+  stroke: none;
+}
+
+.lp-active-bloom {
+  fill: none;
+  stroke-width: 15;
+  opacity: .14;
+  filter: blur(11px);
+}
+
+.lp-active-edge {
+  fill: none;
+  stroke-width: 1.7;
+
+  filter:
+    drop-shadow(
+      0 0 8px
+      color-mix(in srgb, var(--glow) 42%, transparent)
+    );
+}
+
+.lp-active-beads {
+  fill: none;
+  stroke-width: 2.4;
+  stroke-dasharray: .4 5;
+  stroke-linecap: round;
+  opacity: .55;
+}
+
+.lp-contour {
+  fill: none;
+  stroke-width: .72;
+  opacity: .13;
+}
+
+/* --------------------------------------------------------------------------
+   RELATIONAL SPACE
+   -------------------------------------------------------------------------- */
+
+.lp-room {
+  fill: var(--aqua);
+  opacity: .075;
+  filter: blur(8px);
+}
+
+.lp-reach {
+  stroke: var(--aqua);
+  stroke-width: 1;
+  stroke-dasharray: 3 6;
+  opacity: .42;
+}
+
+/* --------------------------------------------------------------------------
+   CURRENT POSITION
+
+   Not just a dot — a concentration within the field.
+   -------------------------------------------------------------------------- */
+
+.lp-position-wake {
+  fill: none;
+  stroke: var(--aqua);
+  stroke-width: .9;
+  opacity: .23;
+}
+
+.lp-position-halo {
+  fill: var(--aqua);
+  filter: blur(11px);
+}
+
+.lp-position-ring {
+  fill: none;
+  stroke: var(--aqua);
+  stroke-width: 1;
+}
+
+.lp-position {
+  fill: var(--aqua);
+
+  filter:
+    drop-shadow(0 0 8px var(--aqua))
+    drop-shadow(0 0 17px color-mix(in srgb, var(--aqua) 38%, transparent));
+}
+
+.lp-position-core {
+  fill: var(--parchment);
+}
+
+/* --------------------------------------------------------------------------
+   LABELS
+   -------------------------------------------------------------------------- */
+
+.lp-mark {
+  font-family: var(--body);
+  font-size: 10px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  fill: var(--parchment-dim);
+}
+
+.lp-mark--aqua {
+  fill: var(--aqua);
+}
+
+.lp-mark--gold {
+  fill: var(--glow);
+}
+
+.lp-mark-line {
+  fill: none;
+  stroke: color-mix(in srgb, var(--aqua) 42%, transparent);
+  stroke-width: .9;
+}
+
+/* --------------------------------------------------------------------------
+   CONTROLS
+   -------------------------------------------------------------------------- */
+
+.lp-controls {
+  position: relative;
+  z-index: 20;
+
+  width: min(560px, 88%);
+  margin: clamp(-12px, -1vw, 0px) auto 0;
+}
+
+.lp-controls__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 18px;
+}
+
+.lp-moment {
+  margin: 0;
+
+  color: var(--parchment);
+  font-family: var(--serif);
+  font-size: 1rem;
+}
+
+.lp-control-note {
+  margin: 0;
+  color: var(--muted);
+  font-size: .72rem;
+  letter-spacing: .05em;
+}
+
+.lp-range {
+  -webkit-appearance: none;
+  appearance: none;
+
+  display: block;
+  width: 100%;
+  height: 36px;
+  margin: 4px 0 0;
+
+  background: transparent;
+  cursor: pointer;
+}
+
+.lp-range::-webkit-slider-runnable-track {
+  height: 1px;
+
+  background:
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--glow) 34%, transparent),
+      color-mix(in srgb, var(--aqua) 68%, transparent)
+    );
+}
+
+.lp-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+
+  width: 19px;
+  height: 19px;
+  margin-top: -9px;
+
+  border-radius: 50%;
+
+  background: var(--night);
+
+  border:
+    1.5px solid
+    var(--aqua);
+
+  box-shadow:
+    0 0 0 5px
+    color-mix(in srgb, var(--aqua) 5%, transparent),
+    0 0 16px
+    color-mix(in srgb, var(--aqua) 46%, transparent);
+}
+
+.lp-range::-moz-range-track {
+  height: 1px;
+  border: 0;
+
+  background:
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--glow) 34%, transparent),
+      color-mix(in srgb, var(--aqua) 68%, transparent)
+    );
+}
+
+.lp-range::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+
+  border-radius: 50%;
+  border: 1.5px solid var(--aqua);
+
+  background: var(--night);
+
+  box-shadow:
+    0 0 16px
+    color-mix(in srgb, var(--aqua) 46%, transparent);
+}
+
+.lp-range:focus-visible {
+  outline: 2px solid var(--glow);
+  outline-offset: 5px;
+}
+
+.lp-scale {
+  display: flex;
+  justify-content: space-between;
+
+  margin-top: -4px;
+
+  color: var(--muted);
+  font-size: .68rem;
+  letter-spacing: .11em;
+  text-transform: uppercase;
+}
+
+.lp-controls__actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+.lp-replay {
+  appearance: none;
+
+  border: 0;
+  padding: 6px 0;
+
+  background: transparent;
+  color: var(--parchment-dim);
+
+  font-family: var(--body);
+  font-size: .74rem;
+  letter-spacing: .06em;
+
+  cursor: pointer;
+}
+
+.lp-replay:hover {
+  color: var(--glow);
+}
+
+.lp-replay:focus-visible {
+  outline: 2px solid var(--glow);
+  outline-offset: 4px;
+}
+
+/* --------------------------------------------------------------------------
+   DEPTH CAPTION
+   -------------------------------------------------------------------------- */
+
+.lp-depth {
+  position: absolute;
+  z-index: 30;
+
+  right: 3%;
+  top: 15%;
+
+  max-width: 18ch;
+
+  color: var(--parchment-dim);
+  font-size: .72rem;
+  line-height: 1.5;
+
+  opacity: .62;
+}
+
+.lp-depth::before {
+  content: "";
+  display: block;
+  width: 18px;
+  height: 1px;
+  margin-bottom: 9px;
+
+  background: var(--aqua);
+  opacity: .5;
+}
+
+/* --------------------------------------------------------------------------
+   RESPONSIVE
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 980px) {
+  .lp-world::after {
+    display: none;
+  }
+
+  .lp-shell {
+    grid-template-columns: 1fr;
+    gap: 28px;
+
+    padding-top: clamp(84px, 12vh, 118px);
+  }
+
+  .lp-copy {
+    text-align: center;
+    max-width: 720px;
+    margin-inline: auto;
+  }
+
+  .lp-copy .h-section {
+    max-width: 15ch;
+    margin-inline: auto;
+  }
+
+  .lp-copy__lede {
+    margin-inline: auto;
+  }
+
+  .lp-incantation {
+    margin-inline: auto;
+  }
+
+  .lp-stage {
+    max-width: 650px;
+  }
+
+  .lp-depth {
+    right: 5%;
+  }
+}
+
+@media (max-width: 600px) {
+  .lp-world {
+    min-height: auto;
+  }
+
+  .lp-shell {
+    min-height: auto;
+    padding-bottom: 52px;
+  }
+
+  .lp-stage {
+    width: 108%;
+    margin-left: -4%;
+  }
+
+  .lp-depth {
+    display: none;
+  }
+
+  .lp-controls {
+    width: 88%;
+  }
+
+  .lp-control-note {
+    display: none;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   REDUCED MOTION
+   -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-atmosphere {
+    display: none;
+  }
+
+  .lp-active-bloom,
+  .lp-position-halo,
+  .lp-position {
+    filter: none;
+  }
+}
+
+/* ==== What it measures (experiential) ==== */
+/* ============================================================================
+   WHAT IT MEASURES — EXPERIENTIAL
+   ============================================================================
+   One living field, four ways of revealing what is already there.
+
+   HTML   = language / interaction
+   SVG    = meaningful geometry
+   Canvas = atmosphere / motion / distributed relation
+
+   No diagnostic status is inferred here.
+   ============================================================================ */
+
+.wm {
+  position: relative;
+  min-height: 100svh;
+  overflow: hidden;
+  isolation: isolate;
+
+  background:
+    radial-gradient(
+      circle at 68% 50%,
+      color-mix(in srgb, var(--aqua-deep) 9%, transparent),
+      transparent 32%
+    ),
+    radial-gradient(
+      circle at 62% 52%,
+      color-mix(in srgb, var(--glow) 6%, transparent),
+      transparent 52%
+    ),
+    linear-gradient(
+      145deg,
+      var(--night-deep),
+      var(--night) 58%,
+      color-mix(in srgb, var(--night) 94%, var(--indigo))
+    );
+}
+
+.wm::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -6;
+  pointer-events: none;
+
+  background-image:
+    radial-gradient(
+      circle at center,
+      color-mix(in srgb, var(--parchment) 14%, transparent) 0 0.55px,
+      transparent .75px
+    );
+
+  background-size: 9px 9px;
+  opacity: .18;
+
+  mask-image:
+    radial-gradient(
+      ellipse at 68% 52%,
+      black,
+      transparent 76%
+    );
+}
+
+.wm__canvas {
+  position: absolute;
+  inset: 0;
+  z-index: -4;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.wm__veil {
+  position: absolute;
+  inset: 0;
+  z-index: -3;
+  pointer-events: none;
+
+  background:
+    radial-gradient(
+      circle at 72% 48%,
+      transparent 0 28%,
+      color-mix(in srgb, var(--aqua) 2%, transparent) 52%,
+      transparent 74%
+    );
+
+  opacity: .8;
+}
+
+.wm__inner {
+  position: relative;
+  z-index: 4;
+
+  width: 100%;
+  max-width: 1440px;
+  min-height: 100svh;
+  margin-inline: auto;
+
+  padding:
+    clamp(76px, 9vh, 112px)
+    var(--gutter)
+    clamp(52px, 7vh, 84px);
+
+  display: grid;
+  grid-template-rows: auto 1fr;
+}
+
+
+/* ============================================================================
+   HEAD
+   ============================================================================ */
+
+.wm__head {
+  position: relative;
+  z-index: 8;
+
+  max-width: 770px;
+  margin-inline: auto;
+  text-align: center;
+}
+
+.wm__head .lede {
+  margin: 22px auto 0;
+  max-width: 62ch;
+}
+
+
+/* ============================================================================
+   BODY
+   ============================================================================ */
+
+.wm__body {
+  position: relative;
+  z-index: 7;
+
+  display: grid;
+  grid-template-columns:
+    minmax(300px, .72fr)
+    minmax(560px, 1.28fr);
+
+  gap: clamp(26px, 4vw, 68px);
+  align-items: center;
+
+  width: 100%;
+  margin-top: clamp(34px, 5vh, 58px);
+}
+
+
+/* ============================================================================
+   ASPECT RAIL
+   ============================================================================ */
+
+.wm__aspects {
+  position: relative;
+  z-index: 12;
+
+  display: grid;
+  gap: 8px;
+}
+
+.wm-aspect {
+  appearance: none;
+  position: relative;
+
+  width: 100%;
+  min-height: 102px;
+
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+
+  display: grid;
+  align-content: center;
+  gap: 5px;
+
+  padding:
+    17px
+    20px
+    17px
+    30px;
+
+  border:
+    1px solid
+    color-mix(
+      in srgb,
+      var(--line) 86%,
+      transparent
+    );
+
+  border-radius: 16px;
+
+  background:
+    linear-gradient(
+      115deg,
+      color-mix(in srgb, var(--surface-top) 90%, transparent),
+      color-mix(in srgb, var(--surface-bottom) 82%, transparent)
+    );
+
+  color: var(--parchment-dim);
+
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+
+  overflow: hidden;
+
+  transition:
+    transform .35s ease,
+    border-color .35s ease,
+    background .35s ease;
+}
+
+.wm-aspect::before {
+  content: "";
+  position: absolute;
+
+  left: 0;
+  top: 16px;
+  bottom: 16px;
+
+  width: 2px;
+  border-radius: 99px;
+
+  background: transparent;
+
+  transition:
+    background-color .35s ease,
+    box-shadow .35s ease;
+}
+
+.wm-aspect::after {
+  content: "";
+  position: absolute;
+
+  width: 150px;
+  height: 150px;
+
+  right: -85px;
+  top: 50%;
+
+  transform: translateY(-50%);
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle,
+      color-mix(in srgb, var(--glow) 10%, transparent),
+      transparent 67%
+    );
+
+  opacity: 0;
+
+  transition: opacity .35s ease;
+}
+
+.wm-aspect:hover {
+  transform: translateX(3px);
+}
+
+.wm-aspect[aria-pressed="true"] {
+  border-color:
+    color-mix(
+      in srgb,
+      var(--glow) 34%,
+      var(--line)
+    );
+
+  background:
+    linear-gradient(
+      115deg,
+      color-mix(in srgb, var(--surface-top) 92%, var(--glow) 8%),
+      color-mix(in srgb, var(--surface-bottom) 86%, var(--aqua) 4%)
+    );
+}
+
+.wm-aspect[aria-pressed="true"]::before {
+  background: var(--glow);
+
+  box-shadow:
+    0 0 12px
+    color-mix(
+      in srgb,
+      var(--glow) 55%,
+      transparent
+    );
+}
+
+.wm-aspect[aria-pressed="true"]::after {
+  opacity: .7;
+}
+
+.wm-aspect:focus-visible {
+  outline: 2px solid var(--aqua);
+  outline-offset: 3px;
+}
+
+.wm-aspect__kicker {
+  position: relative;
+  z-index: 2;
+
+  font-size: 10.5px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--glow);
+  opacity: .75;
+}
+
+.wm-aspect__name {
+  position: relative;
+  z-index: 2;
+
+  font-family: var(--serif);
+  font-size: 1.16rem;
+  color: var(--parchment);
+}
+
+.wm-aspect__desc {
+  position: relative;
+  z-index: 2;
+
+  max-width: 42ch;
+  font-size: .92rem;
+  line-height: 1.55;
+}
+
+.wm-aspect[aria-pressed="true"]
+.wm-aspect__desc {
+  color: var(--parchment);
+}
+
+
+/* ============================================================================
+   VISUAL STAGE
+   ============================================================================ */
+
+.wm__visual {
+  position: relative;
+
+  width: 100%;
+  max-width: 720px;
+
+  margin-inline: auto;
+}
+
+.wm__visual::before {
+  content: "";
+  position: absolute;
+
+  width: 76%;
+  aspect-ratio: 1;
+
+  left: 12%;
+  top: 10%;
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle,
+      color-mix(in srgb, var(--aqua) 9%, transparent),
+      color-mix(in srgb, var(--glow) 3%, transparent) 42%,
+      transparent 72%
+    );
+
+  filter: blur(25px);
+  pointer-events: none;
+}
+
+.wm figure {
+  position: relative;
+  margin: 0;
+}
+
+.wm svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+
+/* ============================================================================
+   FIXED STRUCTURE
+   ============================================================================ */
+
+.wm-ref {
+  fill: none;
+
+  stroke:
+    color-mix(
+      in srgb,
+      var(--parchment) 15%,
+      transparent
+    );
+
+  stroke-width: 1;
+  stroke-dasharray: 2 9;
+}
+
+.wm-ref--outer {
+  opacity: .56;
+}
+
+.wm-ref--inner {
+  opacity: .26;
+}
+
+.wm-ref-bloom {
+  fill: none;
+
+  stroke:
+    color-mix(
+      in srgb,
+      var(--parchment) 7%,
+      transparent
+    );
+
+  stroke-width: 13;
+  filter: blur(12px);
+}
+
+
+/* ============================================================================
+   ACTIVE FIELD
+   ============================================================================ */
+
+.wm-fill {
+  stroke: none;
+}
+
+.wm-contour {
+  fill: none;
+  stroke-width: .72;
+}
+
+.wm-field-bloom {
+  fill: none;
+  stroke-width: 15;
+  opacity: .12;
+  filter: blur(11px);
+}
+
+.wm-edge {
+  fill: none;
+  stroke-width: 1.7;
+
+  filter:
+    drop-shadow(
+      0 0 7px
+      color-mix(
+        in srgb,
+        var(--glow) 48%,
+        transparent
+      )
+    );
+}
+
+.wm-beads {
+  fill: none;
+  stroke-width: 2.5;
+  stroke-dasharray: .45 5.2;
+  stroke-linecap: round;
+  opacity: .5;
+}
+
+
+/* ============================================================================
+   POSITION
+   ============================================================================ */
+
+.wm-position-halo {
+  fill: var(--aqua);
+  filter: blur(11px);
+}
+
+.wm-position-ring {
+  fill: none;
+  stroke: var(--aqua);
+  stroke-width: 1;
+}
+
+.wm-position {
+  fill: var(--aqua);
+
+  filter:
+    drop-shadow(0 0 9px var(--aqua))
+    drop-shadow(
+      0 0 18px
+      color-mix(in srgb, var(--aqua) 35%, transparent)
+    );
+}
+
+.wm-position-core {
+  fill: var(--parchment);
+}
+
+
+/* ============================================================================
+   BOUNDARY PHENOMENON
+   ============================================================================ */
+
+.wm-room {
+  fill: var(--aqua);
+  opacity: 0;
+  filter: blur(9px);
+}
+
+.wm-reach {
+  stroke: var(--aqua);
+  stroke-width: 1;
+  stroke-dasharray: 3 6;
+  opacity: 0;
+}
+
+.wm-capacity-ray {
+  stroke: var(--aqua);
+  stroke-width: .65;
+  opacity: 0;
+}
+
+
+/* ============================================================================
+   STABILITY PHENOMENON
+   ============================================================================ */
+
+.wm-wave {
+  fill: none;
+  stroke: var(--glow);
+  stroke-width: 1;
+  opacity: 0;
+}
+
+.wm-wave--aqua {
+  stroke: var(--aqua);
+}
+
+.wm-impact-path {
+  fill: none;
+
+  stroke:
+    color-mix(
+      in srgb,
+      var(--glow) 58%,
+      transparent
+    );
+
+  stroke-width: 1;
+  stroke-dasharray: 3 6;
+  opacity: 0;
+}
+
+.wm-anchor {
+  fill: none;
+  stroke: var(--glow);
+  stroke-width: 1;
+  opacity: 0;
+}
+
+
+/* ============================================================================
+   COHERENCE PHENOMENON
+   ============================================================================ */
+
+.wm-phase-path {
+  fill: none;
+  stroke: var(--aqua);
+  stroke-width: .82;
+  opacity: 0;
+}
+
+.wm-phase-node {
+  fill: var(--aqua);
+  opacity: 0;
+
+  filter:
+    drop-shadow(
+      0 0 5px
+      color-mix(
+        in srgb,
+        var(--aqua) 55%,
+        transparent
+      )
+    );
+}
+
+.wm-phase-echo {
+  fill: none;
+  stroke: var(--aqua);
+  stroke-width: .65;
+  opacity: 0;
+}
+
+
+/* ============================================================================
+   RECOVERY PHENOMENON
+   ============================================================================ */
+
+.wm-recovery-trail {
+  fill: none;
+
+  stroke:
+    color-mix(
+      in srgb,
+      var(--aqua) 52%,
+      transparent
+    );
+
+  stroke-width: 1.45;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0;
+}
+
+.wm-recovery-dot {
+  fill: var(--aqua);
+  opacity: 0;
+}
+
+.wm-recovery-ghost {
+  fill: none;
+  stroke: var(--glow);
+  stroke-width: .85;
+  opacity: 0;
+}
+
+.wm-recovery-space {
+  fill: var(--aqua);
+  filter: blur(12px);
+  opacity: 0;
+}
+
+
+/* ============================================================================
+   NOTE
+   ============================================================================ */
+
+.wm-note {
+  position: relative;
+
+  max-width: 48ch;
+  min-height: 3.2em;
+
+  margin: 16px auto 0;
+
+  text-align: center;
+
+  font-family: var(--serif);
+  font-size: 1rem;
+  line-height: 1.56;
+
+  color: var(--glow-soft);
+}
+
+
+/* ============================================================================
+   RESPONSIVE
+   ============================================================================ */
+
+@media (max-width: 980px) {
+
+  .wm__inner {
+    min-height: auto;
+  }
+
+  .wm__body {
+    grid-template-columns: 1fr;
+  }
+
+  .wm__visual {
+    order: 1;
+    max-width: 660px;
+  }
+
+  .wm__aspects {
+    order: 2;
+
+    grid-template-columns:
+      repeat(2, 1fr);
+
+    max-width: 820px;
+    width: 100%;
+
+    margin-inline: auto;
+  }
+}
+
+@media (max-width: 660px) {
+
+  .wm {
+    min-height: auto;
+  }
+
+  .wm__inner {
+    padding-bottom: 58px;
+  }
+
+  .wm__aspects {
+    grid-template-columns: 1fr;
+  }
+
+  .wm-aspect {
+    min-height: auto;
+  }
+
+  .wm__visual {
+    width: 108%;
+    margin-left: -4%;
+  }
+}
+
+
+/* ============================================================================
+   REDUCED MOTION
+   ============================================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .wm__canvas {
+    display: none;
+  }
+
+  .wm-field-bloom,
+  .wm-edge,
+  .wm-position,
+  .wm-position-halo,
+  .wm-phase-node {
+    filter: none;
+  }
+
+  .wm-aspect {
+    transition: none;
+  }
+}
+
+
+/* ==== Why membrane (experiential) ==== */
+/* ============================================================================
+   WHY MEMBRANE?
+   ============================================================================
+   The visitor does not inspect a membrane from the outside.
+
+   The visitor approaches it, encounters it, crosses it, and discovers that
+   the apparently simple edge contains an interior world of regulated exchange.
+
+   Three spatial states exist continuously on one slider:
+
+     SURROUNDINGS  →  EDGE  →  INTERIOR
+
+   The transition is continuous rather than three swapped illustrations.
+
+   Canvas:
+     - atmosphere
+     - flows
+     - exchange traffic
+     - depth
+     - field response
+
+   SVG:
+     - meaningful membrane geometry
+     - boundary layers
+     - interior structure
+     - exchange gate
+     - luminous topology
+
+   HTML:
+     - existing site copy
+     - controls
+     - accessibility
+
+   This is conceptual / experiential, not a physiological simulation.
+   ============================================================================ */
+
+
+/* ============================================================================
+   WORLD
+   ============================================================================ */
+
+.idea-exp {
+  position: relative;
+  min-height: 100svh;
+  overflow: hidden;
+  isolation: isolate;
+
+  background:
+    radial-gradient(
+      circle at 78% 44%,
+      color-mix(in srgb, var(--aqua-deep) 9%, transparent),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 72% 55%,
+      color-mix(in srgb, var(--glow) 6%, transparent),
+      transparent 48%
+    ),
+    linear-gradient(
+      142deg,
+      var(--night-deep),
+      var(--night) 57%,
+      color-mix(in srgb, var(--night) 94%, var(--indigo))
+    );
+}
+
+
+/* faint material grain */
+.idea-exp::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -6;
+  pointer-events: none;
+
+  background-image:
+    radial-gradient(
+      circle,
+      color-mix(in srgb, var(--parchment) 15%, transparent) 0 .55px,
+      transparent .8px
+    );
+
+  background-size: 9px 9px;
+  opacity: .17;
+
+  mask-image:
+    radial-gradient(
+      ellipse at 75% 50%,
+      black,
+      transparent 78%
+    );
+}
+
+
+/* copy-side protection */
+.idea-exp::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+
+  background:
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--night) 98%, transparent) 0%,
+      color-mix(in srgb, var(--night) 90%, transparent) 27%,
+      color-mix(in srgb, var(--night) 42%, transparent) 47%,
+      transparent 65%
+    );
+}
+
+
+.idea-exp__canvas {
+  position: absolute;
+  inset: 0;
+  z-index: -4;
+
+  width: 100%;
+  height: 100%;
+
+  pointer-events: none;
+}
+
+
+.idea-exp__shell {
+  position: relative;
+  z-index: 10;
+
+  width: 100%;
+  max-width: 1500px;
+  min-height: 100svh;
+
+  margin-inline: auto;
+
+  padding:
+    clamp(78px, 10vh, 118px)
+    var(--gutter)
+    clamp(58px, 8vh, 92px);
+
+  display: grid;
+
+  grid-template-columns:
+    minmax(320px, .78fr)
+    minmax(540px, 1.22fr);
+
+  gap: clamp(34px, 5.5vw, 88px);
+
+  align-items: center;
+}
+
+
+/* ============================================================================
+   COPY
+   ============================================================================ */
+
+.idea-exp__copy {
+  position: relative;
+  z-index: 20;
+
+  max-width: 590px;
+}
+
+
+.idea-exp__copy .lede {
+  margin-top: 24px;
+}
+
+
+.idea-exp__copy .subtle {
+  margin-top: 18px;
+  font-size: 1.01rem;
+}
+
+
+.idea-exp__sign {
+  margin-top: 28px;
+
+  font-size: 1.1rem;
+  color: var(--glow-soft);
+}
+
+
+/* ============================================================================
+   VISUAL
+   ============================================================================ */
+
+.idea-exp__visual {
+  position: relative;
+
+  width: min(760px, 100%);
+  margin-inline: auto;
+}
+
+
+.idea-exp__stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+}
+
+
+.idea-exp__stage::before {
+  content: "";
+  position: absolute;
+
+  width: 74%;
+  aspect-ratio: 1;
+
+  left: 16%;
+  top: 12%;
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle,
+      color-mix(in srgb, var(--aqua) 7%, transparent),
+      color-mix(in srgb, var(--glow) 3%, transparent) 44%,
+      transparent 72%
+    );
+
+  filter: blur(30px);
+
+  opacity: .7;
+
+  pointer-events: none;
+}
+
+
+.idea-exp svg {
+  display: block;
+
+  width: 100%;
+  height: 100%;
+
+  overflow: visible;
+}
+
+
+/* ============================================================================
+   OUTER / FIXED REFERENCE
+   ============================================================================ */
+
+.we-reference {
+  fill: none;
+
+  stroke:
+    color-mix(
+      in srgb,
+      var(--parchment) 11%,
+      transparent
+    );
+
+  stroke-width: 1;
+  stroke-dasharray: 2 10;
+}
+
+
+.we-reference-glow {
+  fill: none;
+
+  stroke:
+    color-mix(
+      in srgb,
+      var(--parchment) 5%,
+      transparent
+    );
+
+  stroke-width: 15;
+
+  filter: blur(13px);
+}
+
+
+/* ============================================================================
+   MEMBRANE BODY
+   ============================================================================ */
+
+.we-membrane-fill {
+  stroke: none;
+}
+
+
+.we-shell-bloom {
+  fill: none;
+
+  stroke: var(--glow);
+  stroke-width: 24;
+
+  filter: blur(16px);
+
+  opacity: .12;
+}
+
+
+.we-shell-deep {
+  fill: none;
+
+  stroke:
+    color-mix(
+      in srgb,
+      var(--aqua) 32%,
+      var(--glow)
+    );
+
+  stroke-width: 9;
+
+  opacity: .20;
+}
+
+
+.we-shell-mid {
+  fill: none;
+
+  stroke:
+    color-mix(
+      in srgb,
+      var(--glow) 62%,
+      var(--aqua)
+    );
+
+  stroke-width: 3.2;
+
+  opacity: .62;
+}
+
+
+.we-shell-edge {
+  fill: none;
+
+  stroke: url(#we-edge-gradient);
+
+  stroke-width: 1.45;
+
+  filter:
+    drop-shadow(
+      0 0 7px
+      color-mix(
+        in srgb,
+        var(--glow) 52%,
+        transparent
+      )
+    );
+}
+
+
+.we-shell-beads {
+  fill: none;
+
+  stroke: url(#we-edge-gradient);
+
+  stroke-width: 2.4;
+  stroke-dasharray: .4 5.5;
+  stroke-linecap: round;
+
+  opacity: .55;
+}
+
+
+/* ============================================================================
+   INTERIOR
+   ============================================================================ */
+
+.we-contour {
+  fill: none;
+  stroke-width: .7;
+}
+
+
+.we-thread {
+  fill: none;
+  stroke: var(--aqua);
+  stroke-width: .75;
+  opacity: .15;
+}
+
+
+.we-interior-node {
+  fill: var(--aqua);
+
+  filter:
+    drop-shadow(
+      0 0 6px
+      color-mix(
+        in srgb,
+        var(--aqua) 48%,
+        transparent
+      )
+    );
+}
+
+
+.we-interior-node--warm {
+  fill: var(--glow);
+}
+
+
+/* ============================================================================
+   GATE / EXCHANGE
+   ============================================================================ */
+
+.we-gate-halo {
+  fill: var(--glow);
+
+  filter: blur(14px);
+
+  opacity: .15;
+}
+
+
+.we-gate-ring {
+  fill: none;
+
+  stroke: var(--glow);
+  stroke-width: 1.1;
+
+  opacity: .72;
+}
+
+
+.we-gate-core {
+  fill: var(--parchment);
+
+  filter:
+    drop-shadow(
+      0 0 8px
+      var(--glow)
+    );
+}
+
+
+.we-gate-wave {
+  fill: none;
+
+  stroke: var(--glow);
+
+  stroke-width: .75;
+
+  opacity: .12;
+}
+
+
+/* ============================================================================
+   LABELS
+   ============================================================================ */
+
+.we-label {
+  font-family: var(--body);
+
+  font-size: 10.5px;
+
+  letter-spacing: .16em;
+  text-transform: uppercase;
+
+  fill: var(--parchment-dim);
+
+  opacity: .58;
+}
+
+
+.we-label--gold {
+  fill: var(--glow);
+}
+
+
+.we-label--aqua {
+  fill: var(--aqua);
+}
+
+
+.we-label-line {
+  stroke:
+    color-mix(
+      in srgb,
+      var(--parchment) 30%,
+      transparent
+    );
+
+  stroke-width: .8;
+}
+
+
+/* ============================================================================
+   CROSSING CONTROL
+   ============================================================================ */
+
+.idea-exp__crossing {
+  position: relative;
+  z-index: 30;
+
+  width: min(580px, 88%);
+
+  margin:
+    clamp(-4px, -1vw, 0px)
+    auto
+    0;
+}
+
+
+.idea-exp__moment {
+  min-height: 26px;
+
+  margin: 0 0 3px;
+
+  text-align: center;
+
+  font-family: var(--serif);
+
+  font-size: 1rem;
+
+  color: var(--glow-soft);
+}
+
+
+.idea-exp__range {
+  -webkit-appearance: none;
+  appearance: none;
+
+  display: block;
+
+  width: 100%;
+  height: 38px;
+
+  margin: 0;
+
+  background: transparent;
+
+  cursor: pointer;
+}
+
+
+.idea-exp__range::-webkit-slider-runnable-track {
+  height: 1px;
+
+  background:
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--parchment) 22%, transparent),
+      var(--glow) 50%,
+      color-mix(in srgb, var(--aqua) 70%, transparent)
+    );
+}
+
+
+.idea-exp__range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+
+  width: 21px;
+  height: 21px;
+
+  margin-top: -10px;
+
+  border-radius: 50%;
+
+  background: var(--night);
+
+  border: 1.5px solid var(--glow);
+
+  box-shadow:
+    0 0 0 5px
+    color-mix(in srgb, var(--glow) 5%, transparent),
+
+    0 0 18px
+    color-mix(in srgb, var(--glow) 48%, transparent);
+}
+
+
+.idea-exp__range::-moz-range-track {
+  height: 1px;
+  border: 0;
+
+  background:
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--parchment) 22%, transparent),
+      var(--glow) 50%,
+      color-mix(in srgb, var(--aqua) 70%, transparent)
+    );
+}
+
+
+.idea-exp__range::-moz-range-thumb {
+  width: 19px;
+  height: 19px;
+
+  border-radius: 50%;
+
+  background: var(--night);
+
+  border: 1.5px solid var(--glow);
+
+  box-shadow:
+    0 0 18px
+    color-mix(in srgb, var(--glow) 48%, transparent);
+}
+
+
+.idea-exp__range:focus-visible {
+  outline: 2px solid var(--aqua);
+  outline-offset: 5px;
+}
+
+
+.idea-exp__scale {
+  display: grid;
+
+  grid-template-columns:
+    1fr 1fr 1fr;
+
+  margin-top: -4px;
+
+  font-size: .67rem;
+
+  letter-spacing: .13em;
+  text-transform: uppercase;
+
+  color: var(--muted);
+}
+
+
+.idea-exp__scale span:nth-child(1) {
+  text-align: left;
+}
+
+
+.idea-exp__scale span:nth-child(2) {
+  text-align: center;
+  color: var(--glow);
+}
+
+
+.idea-exp__scale span:nth-child(3) {
+  text-align: right;
+  color: var(--aqua);
+}
+
+
+.idea-exp__actions {
+  display: flex;
+  justify-content: flex-end;
+
+  margin-top: 10px;
+}
+
+
+.idea-exp__replay {
+  appearance: none;
+
+  border: 0;
+
+  padding: 6px 0;
+
+  background: transparent;
+
+  color: var(--parchment-dim);
+
+  font-family: var(--body);
+
+  font-size: .74rem;
+
+  letter-spacing: .06em;
+
+  cursor: pointer;
+}
+
+
+.idea-exp__replay:hover {
+  color: var(--glow);
+}
+
+
+.idea-exp__replay:focus-visible {
+  outline: 2px solid var(--glow);
+  outline-offset: 4px;
+}
+
+
+/* ============================================================================
+   RESPONSIVE
+   ============================================================================ */
+
+@media (max-width: 980px) {
+
+  .idea-exp::after {
+    display: none;
+  }
+
+
+  .idea-exp__shell {
+    grid-template-columns: 1fr;
+
+    min-height: auto;
+
+    gap: 32px;
+  }
+
+
+  .idea-exp__copy {
+    max-width: 760px;
+
+    margin-inline: auto;
+
+    text-align: center;
+  }
+
+
+  .idea-exp__copy .lede,
+  .idea-exp__copy .subtle {
+    margin-inline: auto;
+  }
+
+
+  .idea-exp__visual {
+    max-width: 700px;
+  }
+}
+
+
+@media (max-width: 600px) {
+
+  .idea-exp {
+    min-height: auto;
+  }
+
+
+  .idea-exp__shell {
+    padding-bottom: 54px;
+  }
+
+
+  .idea-exp__visual {
+    width: 110%;
+
+    margin-left: -5%;
+  }
+
+
+  .idea-exp__crossing {
+    width: 86%;
+  }
+}
+
+
+/* ============================================================================
+   REDUCED MOTION
+   ============================================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .idea-exp__canvas {
+    display: none;
+  }
+
+
+  .we-shell-bloom,
+  .we-shell-edge,
+  .we-gate-halo,
+  .we-gate-core,
+  .we-interior-node {
+    filter: none;
+  }
+}
+/* ==== What's under the hood (experiential) ==== */
+/* ============================================================================
+   WHAT'S UNDER THE HOOD
+   ============================================================================
+   A reading opens itself.
+
+   The visitor does not see a flowchart.
+
+   They begin with one resolved living position and can move backward through
+   the depth that produced it:
+
+       SIGNALS
+          ↓
+       RELATIONS
+          ↓
+       STRUCTURE
+          ↓
+       POSITION
+
+   Behind the whole transformation is a quiet formal scaffold that never becomes
+   the "result"; it constrains and verifies the lawful transformations.
+
+   Canvas:
+     - incoming signal atmosphere
+     - flowing relation streams
+     - particles / depth / kinetic field
+
+   SVG:
+     - measurement streams
+     - four physiological families
+     - relational weave
+     - bounded state
+     - current position
+     - formal scaffold / certificate geometry
+
+   HTML:
+     - existing copy
+     - accessible depth control
+     - existing technical cards and attestation stats
+
+   No equations are exposed in the primary experience.
+   ============================================================================ */
+
+
+/* ============================================================================
+   WORLD
+   ============================================================================ */
+
+.uh {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+
+  min-height: 100svh;
+
+  background:
+    radial-gradient(
+      circle at 50% 44%,
+      color-mix(in srgb, var(--aqua-deep) 10%, transparent),
+      transparent 31%
+    ),
+    radial-gradient(
+      circle at 55% 47%,
+      color-mix(in srgb, var(--glow) 6%, transparent),
+      transparent 52%
+    ),
+    linear-gradient(
+      155deg,
+      var(--night-deep),
+      var(--night) 55%,
+      color-mix(in srgb, var(--night) 95%, var(--indigo))
+    );
+}
+
+
+/* faint technical grain without "sci-fi grid" */
+.uh::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -7;
+
+  pointer-events: none;
+
+  background-image:
+    radial-gradient(
+      circle,
+      color-mix(in srgb, var(--parchment) 13%, transparent) 0 .52px,
+      transparent .76px
+    );
+
+  background-size: 9px 9px;
+  opacity: .15;
+
+  mask-image:
+    radial-gradient(
+      ellipse at center,
+      black,
+      transparent 78%
+    );
+}
+
+
+.uh__canvas {
+  position: absolute;
+  inset: 0;
+  z-index: -5;
+
+  width: 100%;
+  height: 100%;
+
+  pointer-events: none;
+}
+
+
+.uh__shell {
+  position: relative;
+  z-index: 5;
+
+  width: 100%;
+  max-width: 1480px;
+
+  margin-inline: auto;
+
+  padding:
+    clamp(78px, 10vh, 118px)
+    var(--gutter)
+    clamp(72px, 9vh, 110px);
+}
+
+
+/* ============================================================================
+   HEADER — EXISTING COPY
+   ============================================================================ */
+
+.uh__head {
+  position: relative;
+  z-index: 20;
+
+  max-width: 840px;
+
+  margin-inline: auto;
+
+  text-align: center;
+}
+
+
+.uh__head .lede {
+  margin:
+    22px
+    auto
+    0;
+
+  max-width: 66ch;
+}
+
+
+.uh__head .lede + .lede {
+  margin-top: 18px;
+}
+
+
+.uh__head .subtle {
+  max-width: 64ch;
+
+  margin:
+    16px
+    auto
+    0;
+}
+
+
+/* ============================================================================
+   MAIN EXPERIENCE
+   ============================================================================ */
+
+.uh__experience {
+  position: relative;
+
+  width: min(1040px, 100%);
+
+  margin:
+    clamp(42px, 6vw, 72px)
+    auto
+    0;
+}
+
+
+/*
+   The "window" is deliberately large.
+   This is where the site stops looking like cards-with-a-diagram.
+*/
+.uh__stage {
+  position: relative;
+
+  width: 100%;
+  aspect-ratio: 16 / 10;
+
+  min-height: 500px;
+
+  overflow: hidden;
+
+  border:
+    1px solid
+    color-mix(
+      in srgb,
+      var(--line) 90%,
+      transparent
+    );
+
+  border-radius: clamp(24px, 3vw, 38px);
+
+  background:
+    radial-gradient(
+      circle at 50% 48%,
+      color-mix(in srgb, var(--aqua-deep) 7%, transparent),
+      transparent 43%
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--surface-top) 48%, transparent),
+      color-mix(in srgb, var(--surface-bottom) 25%, transparent)
+    );
+
+  box-shadow:
+    0 40px 100px -60px
+    color-mix(
+      in srgb,
+      var(--aqua) 30%,
+      transparent
+    );
+
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+
+.uh__stage::before {
+  content: "";
+  position: absolute;
+
+  inset: 0;
+
+  pointer-events: none;
+
+  background:
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--night) 26%, transparent),
+      transparent 18%,
+      transparent 82%,
+      color-mix(in srgb, var(--night) 28%, transparent)
+    );
+}
+
+
+.uh__stage svg {
+  display: block;
+
+  width: 100%;
+  height: 100%;
+
+  overflow: visible;
+}
+
+
+/* ============================================================================
+   FORMAL SCAFFOLD
+   ============================================================================ */
+
+/*
+   This exists at every depth.
+
+   It is intentionally architectural rather than textual:
+   the visitor perceives that there is a persistent checked structure beneath
+   the transformation without seeing fake source code or equations.
+*/
+
+.uh-proof-orbit {
+  fill: none;
+
+  stroke:
+    color-mix(
+      in srgb,
+      var(--glow) 24%,
+      transparent
+    );
+
+  stroke-width: .8;
+
+  stroke-dasharray: 1 7;
+
+  opacity: .18;
+}
+
+
+.uh-proof-ray {
+  stroke:
+    color-mix(
+      in srgb,
+      var(--glow) 23%,
+      transparent
+    );
+
+  stroke-width: .7;
+
+  opacity: .12;
+}
+
+
+.uh-proof-node {
+  fill: var(--glow);
+
+  opacity: .15;
+}
+
+
+.uh-proof-seal {
+  fill: none;
+
+  stroke: var(--glow);
+
+  stroke-width: 1;
+
+  opacity: .25;
+}
+
+
+.uh-proof-pulse {
+  fill: none;
+
+  stroke: var(--glow);
+
+  stroke-width: .7;
+
+  opacity: .13;
+}
+
+
+/* ============================================================================
+   SIGNAL WORLD
+   ============================================================================ */
+
+.uh-signal-path {
+  fill: none;
+
+  stroke-width: 1.05;
+
+  stroke-linecap: round;
+
+  opacity: 0;
+}
+
+
+.uh-signal-path--a {
+  stroke: var(--aqua);
+}
+
+
+.uh-signal-path--b {
+  stroke: var(--glow);
+}
+
+
+.uh-signal-node {
+  fill: var(--aqua);
+
+  opacity: 0;
+}
+
+
+.uh-signal-node--warm {
+  fill: var(--glow);
+}
+
+
+.uh-signal-label {
+  font-family: var(--body);
+
+  font-size: 10px;
+
+  letter-spacing: .13em;
+  text-transform: uppercase;
+
+  fill: var(--parchment-dim);
+
+  opacity: 0;
+}
+
+
+/* ============================================================================
+   FOUR PHYSIOLOGICAL FAMILIES
+   ============================================================================ */
+
+.uh-family {
+  fill: none;
+
+  stroke-width: 1.15;
+
+  opacity: 0;
+}
+
+
+.uh-family--autonomic {
+  stroke: var(--aqua);
+}
+
+
+.uh-family--circadian {
+  stroke: var(--glow-soft);
+}
+
+
+.uh-family--metabolic {
+  stroke: var(--glow);
+}
+
+
+.uh-family--mechanical {
+  stroke:
+    color-mix(
+      in srgb,
+      var(--aqua) 64%,
+      var(--parchment)
+    );
+}
+
+
+.uh-family-node {
+  fill: var(--parchment);
+
+  opacity: 0;
+}
+
+
+.uh-family-label {
+  font-family: var(--body);
+
+  font-size: 10px;
+
+  letter-spacing: .14em;
+  text-transform: uppercase;
+
+  fill: var(--parchment-dim);
+
+  opacity: 0;
+}
+
+
+/* ============================================================================
+   RELATIONAL WEAVE
+   ============================================================================ */
+
+.uh-relation {
+  fill: none;
+
+  stroke: var(--aqua);
+
+  stroke-width: .8;
+
+  opacity: 0;
+}
+
+
+.uh-relation--warm {
+  stroke: var(--glow);
+}
+
+
+.uh-relation-node {
+  fill: var(--aqua);
+
+  opacity: 0;
+}
+
+
+.uh-relation-halo {
+  fill: none;
+
+  stroke: var(--aqua);
+
+  stroke-width: .65;
+
+  opacity: 0;
+}
+
+
+/* ============================================================================
+   STRUCTURE
+   ============================================================================ */
+
+.uh-structure-ring {
+  fill: none;
+
+  stroke-width: .85;
+
+  opacity: 0;
+}
+
+
+.uh-structure-axis {
+  fill: none;
+
+  stroke:
+    color-mix(
+      in srgb,
+      var(--parchment) 20%,
+      transparent
+    );
+
+  stroke-width: .7;
+
+  opacity: 0;
+}
+
+
+.uh-structure-thread {
+  fill: none;
+
+  stroke: var(--aqua);
+
+  stroke-width: .8;
+
+  opacity: 0;
+}
+
+
+.uh-structure-thread--warm {
+  stroke: var(--glow);
+}
+
+
+/* ============================================================================
+   STATE / POSITION
+   ============================================================================ */
+
+.uh-field-fill {
+  stroke: none;
+
+  opacity: 0;
+}
+
+
+.uh-field-contour {
+  fill: none;
+
+  stroke-width: .7;
+
+  opacity: 0;
+}
+
+
+.uh-field-bloom {
+  fill: none;
+
+  stroke: var(--glow);
+
+  stroke-width: 14;
+
+  filter: blur(11px);
+
+  opacity: 0;
+}
+
+
+.uh-field-edge {
+  fill: none;
+
+  stroke: url(#uh-edge-gradient);
+
+  stroke-width: 1.6;
+
+  opacity: 0;
+
+  filter:
+    drop-shadow(
+      0 0 7px
+      color-mix(
+        in srgb,
+        var(--glow) 45%,
+        transparent
+      )
+    );
+}
+
+
+.uh-field-beads {
+  fill: none;
+
+  stroke: url(#uh-edge-gradient);
+
+  stroke-width: 2.4;
+
+  stroke-dasharray: .4 5;
+
+  stroke-linecap: round;
+
+  opacity: 0;
+}
+
+
+.uh-position-halo {
+  fill: var(--aqua);
+
+  filter: blur(13px);
+
+  opacity: 0;
+}
+
+
+.uh-position-ring {
+  fill: none;
+
+  stroke: var(--aqua);
+
+  stroke-width: 1;
+
+  opacity: 0;
+}
+
+
+.uh-position {
+  fill: var(--aqua);
+
+  opacity: 0;
+
+  filter:
+    drop-shadow(0 0 9px var(--aqua))
+    drop-shadow(
+      0 0 18px
+      color-mix(in srgb, var(--aqua) 40%, transparent)
+    );
+}
+
+
+.uh-position-core {
+  fill: var(--parchment);
+
+  opacity: 0;
+}
+
+
+/* ============================================================================
+   DEPTH LABEL
+   ============================================================================ */
+
+.uh-depth-label {
+  font-family: var(--serif);
+
+  font-size: 20px;
+
+  fill: var(--glow-soft);
+
+  opacity: .9;
+}
+
+
+.uh-depth-sub {
+  font-family: var(--body);
+
+  font-size: 10px;
+
+  letter-spacing: .15em;
+  text-transform: uppercase;
+
+  fill: var(--parchment-dim);
+
+  opacity: .55;
+}
+
+
+/* ============================================================================
+   TRACE CONTROL
+   ============================================================================ */
+
+.uh__trace {
+  position: relative;
+  z-index: 20;
+
+  width: min(760px, 88%);
+
+  margin:
+    22px
+    auto
+    0;
+}
+
+
+.uh__trace-top {
+  display: flex;
+
+  justify-content: space-between;
+  align-items: baseline;
+
+  gap: 20px;
+}
+
+
+.uh__trace-state {
+  margin: 0;
+
+  font-family: var(--serif);
+
+  color: var(--glow-soft);
+
+  font-size: 1rem;
+}
+
+
+.uh__trace-hint {
+  margin: 0;
+
+  color: var(--muted);
+
+  font-size: .72rem;
+
+  letter-spacing: .05em;
+}
+
+
+.uh-range {
+  -webkit-appearance: none;
+  appearance: none;
+
+  display: block;
+
+  width: 100%;
+  height: 38px;
+
+  margin: 2px 0 0;
+
+  background: transparent;
+
+  cursor: pointer;
+}
+
+
+.uh-range::-webkit-slider-runnable-track {
+  height: 1px;
+
+  background:
+    linear-gradient(
+      90deg,
+      var(--aqua),
+      color-mix(in srgb, var(--aqua) 62%, var(--glow)),
+      var(--glow)
+    );
+}
+
+
+.uh-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+
+  width: 21px;
+  height: 21px;
+
+  margin-top: -10px;
+
+  border-radius: 50%;
+
+  background: var(--night);
+
+  border: 1.5px solid var(--glow);
+
+  box-shadow:
+    0 0 0 5px
+    color-mix(in srgb, var(--glow) 5%, transparent),
+
+    0 0 17px
+    color-mix(in srgb, var(--glow) 48%, transparent);
+}
+
+
+.uh-range::-moz-range-track {
+  height: 1px;
+
+  border: 0;
+
+  background:
+    linear-gradient(
+      90deg,
+      var(--aqua),
+      color-mix(in srgb, var(--aqua) 62%, var(--glow)),
+      var(--glow)
+    );
+}
+
+
+.uh-range::-moz-range-thumb {
+  width: 19px;
+  height: 19px;
+
+  border-radius: 50%;
+
+  background: var(--night);
+
+  border: 1.5px solid var(--glow);
+
+  box-shadow:
+    0 0 17px
+    color-mix(in srgb, var(--glow) 48%, transparent);
+}
+
+
+.uh-range:focus-visible {
+  outline: 2px solid var(--aqua);
+
+  outline-offset: 5px;
+}
+
+
+.uh__trace-scale {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, 1fr);
+
+  margin-top: -3px;
+
+  color: var(--muted);
+
+  font-size: .66rem;
+
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+
+.uh__trace-scale span:nth-child(1) {
+  text-align: left;
+  color: var(--aqua);
+}
+
+
+.uh__trace-scale span:nth-child(2),
+.uh__trace-scale span:nth-child(3) {
+  text-align: center;
+}
+
+
+.uh__trace-scale span:nth-child(4) {
+  text-align: right;
+  color: var(--glow);
+}
+
+
+.uh__trace-actions {
+  display: flex;
+
+  justify-content: flex-end;
+
+  margin-top: 10px;
+}
+
+
+.uh__play {
+  appearance: none;
+
+  border: 0;
+
+  padding: 6px 0;
+
+  background: transparent;
+
+  color: var(--parchment-dim);
+
+  font-family: var(--body);
+
+  font-size: .74rem;
+
+  letter-spacing: .06em;
+
+  cursor: pointer;
+}
+
+
+.uh__play:hover {
+  color: var(--glow);
+}
+
+
+.uh__play:focus-visible {
+  outline: 2px solid var(--glow);
+
+  outline-offset: 4px;
+}
+
+
+/* ============================================================================
+   THREE EXISTING TECHNICAL CARDS
+   ============================================================================ */
+
+.uh__cards {
+  margin-top: clamp(54px, 7vw, 86px);
+}
+
+
+.uh__cards .card {
+  position: relative;
+  overflow: hidden;
+
+  transition:
+    transform .35s ease,
+    border-color .35s ease,
+    box-shadow .35s ease;
+}
+
+
+.uh__cards .card:hover {
+  transform: translateY(-4px);
+
+  border-color:
+    color-mix(
+      in srgb,
+      var(--glow) 30%,
+      var(--line)
+    );
+}
+
+
+.uh__cards .card[data-depth-card] {
+  cursor: pointer;
+}
+
+
+.uh__cards .card[data-active="true"] {
+  border-color:
+    color-mix(
+      in srgb,
+      var(--glow) 42%,
+      var(--line)
+    );
+
+  box-shadow:
+    0 20px 60px -42px
+    color-mix(
+      in srgb,
+      var(--glow) 55%,
+      transparent
+    );
+}
+
+
+.uh__cards .card[data-active="true"]::after {
+  content: "";
+
+  position: absolute;
+
+  width: 180px;
+  height: 180px;
+
+  right: -95px;
+  top: -75px;
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle,
+      color-mix(in srgb, var(--glow) 10%, transparent),
+      transparent 68%
+    );
+}
+
+
+.uh__cards .sci__chips {
+  position: relative;
+  z-index: 2;
+}
+
+
+/* ============================================================================
+   EXISTING STATS
+   ============================================================================ */
+
+.uh__stats {
+  margin-top: clamp(44px, 6vw, 68px);
+}
+
+
+/* ============================================================================
+   RESPONSIVE
+   ============================================================================ */
+
+@media (max-width: 900px) {
+
+  .uh__stage {
+    aspect-ratio: 1 / 1;
+
+    min-height: 560px;
+  }
+
+
+  .uh__trace {
+    width: 92%;
+  }
+}
+
+
+@media (max-width: 620px) {
+
+  .uh {
+    min-height: auto;
+  }
+
+
+  .uh__stage {
+    min-height: 470px;
+
+    border-radius: 24px;
+  }
+
+
+  .uh__trace-scale {
+    font-size: .58rem;
+  }
+
+
+  .uh__trace-hint {
+    display: none;
+  }
+}
+
+
+/* ============================================================================
+   REDUCED MOTION
+   ============================================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .uh__canvas {
+    display: none;
+  }
+
+
+  .uh-field-bloom,
+  .uh-field-edge,
+  .uh-position,
+  .uh-position-halo {
+    filter: none;
+  }
+}
+/* ==== The five modes (experiential) ==== */
+/* ============================================================================
+   THE FIVE MODES
+   ONE SYSTEM — FIVE PHYSICS
+   ============================================================================
+
+   The envelope is generated from nine hidden physiological dimensions:
+
+     heart
+     sleep
+     activity
+     recovery
+     stability
+     thermal
+     metabolic
+     stress
+     overall
+
+   Mode-conditioned tolerance changes the shape of that envelope.
+
+   The visitor never sees those thresholds or formulas.
+
+   What they experience is their consequence.
+
+   Each mode also has a distinct EVENT:
+
+   SLEEP
+     exterior demand glides around the system
+     internal circulation deepens
+     repair waves travel inward
+     one circadian/sleep corridor remains sharply governed
+
+   STRESS
+     directional demand strikes
+     the system recruits toward it
+     heart/stress corridors expand to absorb expected demand
+     sleep/recovery regions tighten and become protected reserves
+
+   RECOVERY
+     retained strain is visible at first
+     load drains outward
+     reserve wells refill
+     position returns before the boundary finishes settling
+     room reappears
+
+   FLOW
+     independent trajectories begin disordered
+     phase-lock sweeps across the field
+     turbulence collapses
+     long clean transport routes appear
+     position enters the current
+
+   NOVA
+     high-throughput corridors open
+     distant regions become simultaneously connected
+     energy travels outward and returns
+     recovery + stability remain visibly guarded
+     expansion occurs without loss of structure
+   ============================================================================ */
+
+
+.fm5 {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+
+  min-height: 100svh;
+
+  background:
+    radial-gradient(
+      circle at 50% 48%,
+      color-mix(in srgb, var(--aqua-deep) 8%, transparent),
+      transparent 31%
+    ),
+    radial-gradient(
+      circle at 50% 52%,
+      color-mix(in srgb, var(--glow) 5%, transparent),
+      transparent 54%
+    ),
+    linear-gradient(
+      150deg,
+      var(--night-deep),
+      var(--night) 58%,
+      color-mix(in srgb, var(--night) 94%, var(--indigo))
+    );
+}
+
+
+.fm5::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -9;
+
+  pointer-events: none;
+
+  background-image:
+    radial-gradient(
+      circle,
+      color-mix(in srgb, var(--parchment) 14%, transparent) 0 .5px,
+      transparent .75px
+    );
+
+  background-size: 9px 9px;
+  opacity: .13;
+
+  mask-image:
+    radial-gradient(
+      ellipse at center,
+      black,
+      transparent 84%
+    );
+}
+
+
+.fm5__world {
+  position: absolute;
+  inset: 0;
+  z-index: -7;
+
+  width: 100%;
+  height: 100%;
+
+  pointer-events: none;
+}
+
+
+.fm5__aurora {
+  position: absolute;
+  inset: -18%;
+  z-index: -8;
+
+  pointer-events: none;
+
+  filter: blur(52px);
+
+  opacity: .74;
+
+  background:
+    radial-gradient(
+      ellipse at 50% 50%,
+      color-mix(in srgb, var(--status-go) 7%, transparent),
+      transparent 43%
+    );
+
+  transform:
+    scale(var(--fm5-scale, 1))
+    translate(
+      var(--fm5-x, 0),
+      var(--fm5-y, 0)
+    );
+
+  transition:
+    background 1.6s ease,
+    transform 1.8s ease;
+}
+
+
+.fm5__shell {
+  position: relative;
+  z-index: 5;
+
+  width: 100%;
+  max-width: 1500px;
+
+  margin-inline: auto;
+
+  padding:
+    clamp(72px, 9vh, 110px)
+    var(--gutter)
+    clamp(58px, 8vh, 90px);
+}
+
+
+/* ============================================================================
+   EXISTING COPY
+   ============================================================================ */
+
+.fm5__head {
+  max-width: 900px;
+
+  margin-inline: auto;
+
+  text-align: center;
+}
+
+
+.fm5__head .lede {
+  max-width: 64ch;
+
+  margin:
+    22px
+    auto
+    0;
+}
+
+
+/* ============================================================================
+   STAGE
+   ============================================================================ */
+
+.fm5__experience {
+  width: min(1180px, 100%);
+
+  margin:
+    clamp(42px, 5vw, 68px)
+    auto
+    0;
+}
+
+
+.fm5__stage {
+  position: relative;
+
+  width: 100%;
+
+  aspect-ratio: 16 / 9;
+
+  min-height: 650px;
+
+  overflow: hidden;
+
+  border:
+    1px solid
+    color-mix(
+      in srgb,
+      var(--line) 88%,
+      transparent
+    );
+
+  border-radius:
+    clamp(
+      30px,
+      3vw,
+      46px
+    );
+
+  background:
+    radial-gradient(
+      ellipse at center,
+      color-mix(in srgb, var(--aqua-deep) 5%, transparent),
+      transparent 47%
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--surface-top) 46%, transparent),
+      color-mix(in srgb, var(--surface-bottom) 20%, transparent)
+    );
+
+  box-shadow:
+    0 52px 140px -84px
+    color-mix(
+      in srgb,
+      var(--aqua) 48%,
+      transparent
+    );
+
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+
+.fm5__stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+
+  pointer-events: none;
+
+  background:
+    radial-gradient(
+      ellipse at center,
+      transparent 0 50%,
+      color-mix(in srgb, var(--night) 7%, transparent) 70%,
+      color-mix(in srgb, var(--night) 24%, transparent)
+    );
+}
+
+
+.fm5__phenomena {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+
+  width: 100%;
+  height: 100%;
+
+  pointer-events: none;
+}
+
+
+.fm5__stage svg {
+  position: relative;
+  z-index: 3;
+
+  display: block;
+
+  width: 100%;
+  height: 100%;
+}
+
+
+/* ============================================================================
+   FIXED IDENTITY
+   ============================================================================ */
+
+.fm5-identity {
+  fill: none;
+
+  stroke:
+    color-mix(
+      in srgb,
+      var(--parchment) 11%,
+      transparent
+    );
+
+  stroke-width: 1;
+  stroke-dasharray: 2 10;
+
+  opacity: .48;
+}
+
+
+.fm5-identity-inner {
+  fill: none;
+
+  stroke:
+    color-mix(
+      in srgb,
+      var(--parchment) 7%, transparent
+    );
+
+  stroke-width: .8;
+  stroke-dasharray: 1 12;
+
+  opacity: .25;
+}
+
+
+/* ============================================================================
+   NINE-DIRECTION TOLERANCE ENVELOPE
+   ============================================================================ */
+
+.fm5-fill {
+  stroke: none;
+}
+
+
+.fm5-boundary-bloom {
+  fill: none;
+
+  stroke-width: 18;
+
+  filter: blur(14px);
+
+  opacity: .14;
+}
+
+
+.fm5-boundary-deep {
+  fill: none;
+
+  stroke-width: 8;
+
+  opacity: .17;
+}
+
+
+.fm5-boundary {
+  fill: none;
+
+  stroke-width: 1.7;
+
+  filter:
+    drop-shadow(
+      0 0 8px
+      color-mix(
+        in srgb,
+        var(--aqua) 48%,
+        transparent
+      )
+    );
+}
+
+
+.fm5-boundary-beads {
+  fill: none;
+
+  stroke-width: 2.5;
+
+  stroke-dasharray: .4 5.5;
+
+  stroke-linecap: round;
+
+  opacity: .52;
+}
+
+
+/*
+   These nine sectors remain unlabeled.
+
+   Their changing reach gives the envelope real anisotropy without turning
+   the public experience into a technical diagram.
+*/
+.fm5-sector {
+  fill: none;
+
+  stroke:
+    color-mix(
+      in srgb,
+      var(--parchment) 11%,
+      transparent
+    );
+
+  stroke-width: .65;
+
+  opacity: .11;
+}
+
+
+.fm5-sector-cap {
+  fill: var(--aqua);
+
+  opacity: .08;
+}
+
+
+/* ============================================================================
+   INTERIOR
+   ============================================================================ */
+
+.fm5-contour {
+  fill: none;
+  stroke-width: .7;
+}
+
+
+.fm5-thread {
+  fill: none;
+  stroke-width: .78;
+}
+
+
+.fm5-node {
+  filter:
+    drop-shadow(
+      0 0 5px
+      color-mix(
+        in srgb,
+        var(--aqua) 44%,
+        transparent
+      )
+    );
+}
+
+
+/* ============================================================================
+   POSITION / HISTORY
+   ============================================================================ */
+
+.fm5-history {
+  fill: none;
+
+  stroke:
+    color-mix(
+      in srgb,
+      var(--aqua) 44%,
+      transparent
+    );
+
+  stroke-width: 1.2;
+
+  stroke-linecap: round;
+}
+
+
+.fm5-history-dot {
+  fill: var(--aqua);
+}
+
+
+.fm5-position-halo {
+  filter: blur(14px);
+}
+
+
+.fm5-position-ring {
+  fill: none;
+  stroke-width: .9;
+}
+
+
+.fm5-position {
+  filter:
+    drop-shadow(0 0 10px var(--aqua))
+    drop-shadow(
+      0 0 20px
+      color-mix(
+        in srgb,
+        var(--aqua) 40%,
+        transparent
+      )
+    );
+}
+
+
+.fm5-position-core {
+  fill: var(--parchment);
+}
+
+
+/* ============================================================================
+   GUARDED REGIONS
+
+   These become important in Stress, Sleep, Recovery, and Nova.
+
+   They communicate:
+      "the system may be open elsewhere while this relationship is being
+       watched more closely."
+   ============================================================================ */
+
+.fm5-guard {
+  fill: none;
+
+  stroke-width: 1;
+
+  opacity: 0;
+}
+
+
+.fm5-guard-bloom {
+  fill: none;
+
+  stroke-width: 8;
+
+  filter: blur(7px);
+
+  opacity: 0;
+}
+
+
+/* ============================================================================
+   SLEEP
+   ============================================================================ */
+
+.fm5-sleep-ring {
+  fill: none;
+
+  stroke:
+    color-mix(
+      in srgb,
+      var(--glow-soft) 72%,
+      var(--aqua)
+    );
+
+  stroke-width: .75;
+}
+
+
+.fm5-sleep-route {
+  fill: none;
+
+  stroke: var(--glow-soft);
+
+  stroke-width: .85;
+}
+
+
+.fm5-sleep-gate {
+  fill: var(--glow-soft);
+
+  filter:
+    drop-shadow(
+      0 0 7px
+      var(--glow-soft)
+    );
+}
+
+
+/* ============================================================================
+   STRESS
+   ============================================================================ */
+
+.fm5-pressure {
+  fill: none;
+
+  stroke: var(--status-ease);
+
+  stroke-width: 1;
+}
+
+
+.fm5-demand {
+  fill: none;
+
+  stroke:
+    color-mix(
+      in srgb,
+      var(--status-ease) 68%,
+      var(--glow)
+    );
+
+  stroke-width: .9;
+}
+
+
+.fm5-hot {
+  fill: var(--status-ease);
+
+  filter:
+    drop-shadow(
+      0 0 8px
+      var(--status-ease)
+    );
+}
+
+
+/* ============================================================================
+   RECOVERY
+   ============================================================================ */
+
+.fm5-strain-ghost {
+  fill: none;
+
+  stroke: var(--status-ease);
+
+  stroke-width: .8;
+}
+
+
+.fm5-release {
+  fill: none;
+
+  stroke: var(--aqua);
+
+  stroke-width: 1.1;
+}
+
+
+.fm5-reserve {
+  fill: var(--aqua);
+
+  filter: blur(15px);
+}
+
+
+/* ============================================================================
+   FLOW
+   ============================================================================ */
+
+.fm5-flow-path {
+  fill: none;
+
+  stroke: var(--aqua);
+
+  stroke-width: .9;
+}
+
+
+.fm5-flow-pulse {
+  fill: var(--aqua);
+
+  filter:
+    drop-shadow(
+      0 0 6px
+      var(--aqua)
+    );
+}
+
+
+/* ============================================================================
+   NOVA
+   ============================================================================ */
+
+.fm5-nova-link {
+  fill: none;
+
+  stroke:
+    color-mix(
+      in srgb,
+      var(--glow) 72%,
+      var(--aqua)
+    );
+
+  stroke-width: .75;
+}
+
+
+.fm5-nova-node {
+  fill: var(--glow);
+
+  filter:
+    drop-shadow(
+      0 0 7px
+      var(--glow)
+    );
+}
+
+
+.fm5-nova-return {
+  fill: none;
+
+  stroke: var(--glow);
+
+  stroke-width: .8;
+}
+
+
+/* ============================================================================
+   MODE TITLE
+   ============================================================================ */
+
+.fm5-mode-name {
+  font-family: var(--serif);
+
+  font-size: 37px;
+  font-weight: 300;
+
+  fill: var(--parchment);
+
+  opacity: .91;
+}
+
+
+.fm5-mode-desc {
+  font-family: var(--body);
+
+  font-size: 10px;
+
+  letter-spacing: .16em;
+  text-transform: uppercase;
+
+  fill: var(--parchment-dim);
+
+  opacity: .55;
+}
+
+
+/* ============================================================================
+   MODE BUTTONS — EXACT COPY
+   ============================================================================ */
+
+.fm5__modes {
+  display: grid;
+
+  grid-template-columns:
+    repeat(5, 1fr);
+
+  gap: 10px;
+
+  width: min(1090px, 97%);
+
+  margin:
+    18px
+    auto
+    0;
+}
+
+
+.fm5-mode {
+  appearance: none;
+
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  min-height: 118px;
+
+  padding: 17px;
+
+  border:
+    1px solid
+    var(--line);
+
+  border-radius: 15px;
+
+  background:
+    linear-gradient(
+      to bottom,
+      color-mix(
+        in srgb,
+        var(--surface-top) 74%,
+        transparent
+      ),
+      color-mix(
+        in srgb,
+        var(--surface-bottom) 64%,
+        transparent
+      )
+    );
+
+  text-align: left;
+
+  color: var(--parchment-dim);
+
+  cursor: pointer;
+
+  overflow: hidden;
+
+  backdrop-filter: blur(12px);
+
+  transition:
+    transform .35s ease,
+    border-color .35s ease,
+    background .35s ease,
+    box-shadow .35s ease;
+}
+
+
+.fm5-mode::before {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+  bottom: 0;
+
+  width: 100%;
+  height: 2px;
+
+  background:
+    var(--mode-color);
+
+  transform:
+    scaleX(0);
+
+  transform-origin:
+    left center;
+
+  box-shadow:
+    0 0 12px
+    var(--mode-color);
+
+  transition:
+    transform .45s ease;
+}
+
+
+.fm5-mode:hover {
+  transform:
+    translateY(-3px);
+}
+
+
+.fm5-mode[aria-pressed="true"] {
+  border-color:
+    color-mix(
+      in srgb,
+      var(--mode-color) 48%,
+      var(--line)
+    );
+
+  background:
+    linear-gradient(
+      to bottom,
+      color-mix(
+        in srgb,
+        var(--surface-top) 87%,
+        var(--mode-color) 13%
+      ),
+      var(--surface-bottom)
+    );
+
+  box-shadow:
+    0 22px 54px -42px
+    var(--mode-color);
+}
+
+
+.fm5-mode[aria-pressed="true"]::before {
+  transform:
+    scaleX(1);
+}
+
+
+.fm5-mode:focus-visible {
+  outline:
+    2px solid
+    var(--aqua);
+
+  outline-offset: 3px;
+}
+
+
+.fm5-mode__top {
+  display: flex;
+  align-items: center;
+
+  gap: 9px;
+
+  margin-bottom: 8px;
+}
+
+
+.fm5-mode .mode__dot {
+  flex: none;
+
+  width: 9px;
+  height: 9px;
+
+  margin: 0;
+
+  border-radius: 50%;
+
+  background:
+    var(--mode-color);
+
+  box-shadow:
+    0 0 12px
+    var(--mode-color);
+}
+
+
+.fm5-mode .mode__name {
+  margin: 0;
+
+  font-size: 1.13rem;
+}
+
+
+.fm5-mode .subtle {
+  margin: 0;
+
+  font-size: .85rem;
+  line-height: 1.45;
+}
+
+
+.fm5-mode .mode__tag {
+  font-size: .52rem;
+}
+
+
+.fm5__note {
+  max-width: 730px;
+
+  margin:
+    32px
+    auto
+    0;
+}
+
+
+/* ============================================================================
+   RESPONSIVE
+   ============================================================================ */
+
+@media (max-width: 940px) {
+
+  .fm5__stage {
+    aspect-ratio: 1 / 1;
+
+    min-height: 670px;
+  }
+
+
+  .fm5__modes {
+    grid-template-columns:
+      repeat(
+        5,
+        minmax(165px, 1fr)
+      );
+
+    width: 100%;
+
+    overflow-x: auto;
+
+    padding-bottom: 12px;
+
+    scroll-snap-type:
+      x proximity;
+  }
+
+
+  .fm5-mode {
+    scroll-snap-align: center;
+  }
+}
+
+
+@media (max-width: 620px) {
+
+  .fm5 {
+    min-height: auto;
+  }
+
+
+  .fm5__stage {
+    width: 110%;
+
+    min-height: 510px;
+
+    margin-left: -5%;
+
+    border-radius: 24px;
+  }
+
+
+  .fm5__modes {
+    grid-template-columns:
+      repeat(
+        5,
+        minmax(155px, 1fr)
+      );
+  }
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+
+  .fm5__world,
+  .fm5__phenomena {
+    display: none;
+  }
+
+
+  .fm5-boundary-bloom,
+  .fm5-boundary,
+  .fm5-node,
+  .fm5-position,
+  .fm5-position-halo,
+  .fm5-hot,
+  .fm5-flow-pulse,
+  .fm5-nova-node {
+    filter: none;
+  }
+}
