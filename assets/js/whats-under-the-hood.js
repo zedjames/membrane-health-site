@@ -16,14 +16,19 @@
     {name:"movement",family:3},{name:"active load",family:3},{name:"resting load",family:3},{name:"activity",family:3},{name:"motion",family:3}
   ];
   var FAMILIES=["Autonomic","Circadian","Metabolic","Mechanical"];
-  var OPERATORS=["timing","reserve","capacity","recovery","tolerance","distance"];
+  var L3=["Phase","Coherence","Timing","Recovery","Laminarity","Entrainment","Drift"];
   var REPRESENTATIVE=[0,1,5,3,7,11,10,15];
-  var OP_BY_FAMILY=[[0,1,3],[0,2,5],[1,2,4],[2,4,5]];
+  var L3_BY_FAMILY=[
+    [0,1,3,5,6],
+    [0,1,2,5,6],
+    [1,3,4,6],
+    [0,1,2,4,6]
+  ];
   var PHASE_NAMES=["Measurements","Relationships","Structure","Position"];
   var PHASE_COPY=[
     "The reading begins with measured signals. Each remains identifiable before interpretation begins.",
     "Signals keep their own meaning while the mathematics reads how they move together through time.",
-    "Those relationships are constrained into a bounded formal structure rather than collapsed into an arbitrary score.",
+    "Those relationships resolve through the Layer 3 biomarker families into a bounded formal structure rather than collapsing into an arbitrary score.",
     "The structure resolves into one current position — with the path back to the measurements still attached."
   ];
 
@@ -42,7 +47,6 @@
         <div class="uh2__phasebar" role="group" aria-label="Trace the reading through its four stages">
           ${PHASE_NAMES.map(function(n,i){return `<button class="uh2-phase" type="button" data-phase="${i}" aria-pressed="${i===3}"><span>0${i+1}</span><strong>${n}</strong></button>`;}).join("")}
         </div>
-
         <div class="uh2__stage">
           <canvas class="uh2__canvas" aria-hidden="true"></canvas>
           <div class="uh2__stage-copy">
@@ -50,10 +54,9 @@
             <h3 id="uh2-phase-name">Position</h3>
             <p id="uh2-phase-copy">${PHASE_COPY[3]}</p>
           </div>
-          <div class="uh2__lineage" aria-live="polite"><span>Tracing</span><strong id="uh2-lineage">HRV → Autonomic → timing / reserve / recovery → current position</strong></div>
+          <div class="uh2__lineage" aria-live="polite"><span>Tracing</span><strong id="uh2-lineage">HRV → Autonomic → Phase / Coherence / Recovery / Entrainment / Drift → current position</strong></div>
           <div class="uh2__motion" aria-live="polite"><span class="uh2__motion-dot"></span><span id="uh2-motion">position resolved · provenance retained</span></div>
         </div>
-
         <div class="uh2__trace">
           <div class="uh2__trace-head"><span>Open the reading</span><span>follow it in either direction</span></div>
           <input id="uh2-range" class="uh2__range" type="range" min="0" max="3" step="0.01" value="3" aria-label="Trace the reading from measurements through relationships and structure into the final position">
@@ -78,8 +81,8 @@
         </article>
         <article class="uh2-evidence" data-evidence="math">
           <p class="feature__kicker">Explicit math</p><h3 class="h-card">A reading you can trace</h3>
-          <p class="subtle">Named and inspectable formulas carry your measurements into relationships such as recovery energy, tolerance bands, timing, reserve, capacity, and distance to boundary.</p>
-          <p class="subtle">Because the path remains attached to the reading, the position can always be followed back through the relationships and measurements that formed it.</p>
+          <p class="subtle">Named and inspectable formulas carry the measured relationships into the Layer 3 biomarker families — Phase, Coherence, Timing, Recovery, Laminarity, Entrainment, and Drift — before the bounded state is resolved.</p>
+          <p class="subtle">Because the path remains attached to the reading, the position can always be followed back through the biomarker families, relationships, and measurements that formed it.</p>
         </article>
         <article class="uh2-evidence" data-evidence="proof">
           <p class="feature__kicker">Formally proven</p><h3 class="h-card">Machine-checked in Lean</h3>
@@ -117,24 +120,43 @@
   function curve(a,b,bend,c,alpha,w){var dx=b.x-a.x,dy=b.y-a.y,L=Math.hypot(dx,dy)||1,nx=-dy/L,ny=dx/L,c1={x:lerp(a.x,b.x,.33)+nx*bend,y:lerp(a.y,b.y,.33)+ny*bend},c2={x:lerp(a.x,b.x,.67)+nx*bend,y:lerp(a.y,b.y,.67)+ny*bend};ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.bezierCurveTo(c1.x,c1.y,c2.x,c2.y,b.x,b.y);ctx.strokeStyle=rgba(c,alpha);ctx.lineWidth=w||1;ctx.stroke();return[c1,c2];}
   function pulseCurve(a,b,bend,u,c,alpha,r){var cs=curve(a,b,bend,c,alpha*.18,.6),c1=cs[0],c2=cs[1],v=1-u,uu=u*u,vv=v*v,p={x:vv*v*a.x+3*vv*u*c1.x+3*v*uu*c2.x+uu*u*b.x,y:vv*v*a.y+3*vv*u*c1.y+3*v*uu*c2.y+uu*u*b.y};glow(p.x,p.y,(r||1.5)*6,c,alpha*.12);dot(p.x,p.y,r||1.5,c,alpha);}
 
-  function geom(){var famX=W*.31,relX=W*.50,structX=W*.70,stateX=W*.84,centerY=H*.50,R=Math.min(W,H)*.19;var famYs=[H*.22,H*.405,H*.595,H*.78];var ops=OPERATORS.map(function(_,i){var a=-Math.PI/2+i/6*Math.PI*2;return{x:structX+Math.cos(a)*R*.78,y:centerY+Math.sin(a)*R*.60};});return{famX:famX,relX:relX,structX:structX,stateX:stateX,centerY:centerY,R:R,famYs:famYs,ops:ops};}
+  function geom(){
+    var famX=W*.31,relX=W*.50,structX=W*.70,stateX=W*.86,centerY=H*.50,R=Math.min(W,H)*.205;
+    var famYs=[H*.22,H*.405,H*.595,H*.78];
+    var biomarkers=L3.map(function(_,i){var a=-Math.PI/2+i/L3.length*Math.PI*2;return{x:structX+Math.cos(a)*R*.62,y:centerY+Math.sin(a)*R*.48,a:a};});
+    return{famX:famX,relX:relX,structX:structX,stateX:stateX,centerY:centerY,R:R,famYs:famYs,biomarkers:biomarkers};
+  }
   function sourcePoint(i){var col=i<10?0:1,row=i%10;return{x:W*(.055+col*.075),y:H*(.12+row/9*.76)};}
   function familyPoint(i){var g=geom();return{x:g.famX,y:g.famYs[i]};}
-  function selectedPath(){var sig=SIGNALS[selected],fam=sig.family,ops=OP_BY_FAMILY[fam];return{fam:fam,ops:ops};}
+  function selectedPath(){var sig=SIGNALS[selected],fam=sig.family,l3=L3_BY_FAMILY[fam];return{fam:fam,l3:l3};}
 
   function drawBackground(){var focus=smooth(phase/3);for(var i=0;i<9;i++){var x=W*(.08+i*.11);line({x:x,y:H*.10},{x:x,y:H*.90},i%2?pal.aqua:pal.glow,.012*(1-focus*.5),.5,[2,16]);}line({x:W*.04,y:H*.50},{x:W*.94,y:H*.50},pal.glow,.025,.6,[3,13]);}
   function drawSources(){var show=1-.18*smooth((phase-.4)/1.2);SIGNALS.forEach(function(s,i){var p=sourcePoint(i),f=familyPoint(s.family),isSel=i===selected,c=isSel?pal.glow:(i%5===0?pal.aqua:pal.soft),alpha=(isSel?.92:.16)*show;var wob=Math.sin(clock*.0012*sources[i].speed+sources[i].phase)*6*sources[i].amp;dot(p.x,p.y+wob,isSel?3.4:1.5,c,alpha);if(isSel)glow(p.x,p.y+wob,25,c,.08);curve({x:p.x+5,y:p.y+wob},f,(s.family-1.5)*11+(i%3-1)*6,c,isSel?.38:.035,isSel?1.3:.65);var u=(clock*.00012*sources[i].speed+i*.071)%1;pulseCurve({x:p.x+5,y:p.y+wob},f,(s.family-1.5)*11+(i%3-1)*6,u,c,isSel?.75:.16,isSel?2:1);if(i<8||isSel){ctx.font=(isSel?"500 ":"400 ")+"10px ui-sans-serif,system-ui";ctx.fillStyle=rgba(c,isSel?.88:.28);ctx.textAlign="left";ctx.fillText(s.name,p.x+9,p.y+wob-7);}});}
   function drawFamilies(){var sel=selectedPath(),relStrength=smooth((phase-.45)/.8);FAMILIES.forEach(function(name,i){var p=familyPoint(i),isSel=i===sel.fam,c=i%2?pal.aqua:pal.glow,r=16+(isSel?6:0)+Math.sin(clock*.0007+i)*2;glow(p.x,p.y,r*2,c,.025+.04*relStrength*(isSel?1.5:1));ctx.beginPath();ctx.arc(p.x,p.y,r,0,Math.PI*2);ctx.strokeStyle=rgba(c,(isSel?.48:.12)*(.45+.55*relStrength));ctx.lineWidth=isSel?1.5:.9;ctx.stroke();dot(p.x,p.y,2.3,c,isSel?.9:.4);ctx.font=(isSel?"500 ":"400 ")+"11px ui-sans-serif,system-ui";ctx.fillStyle=rgba(c,isSel?.88:.42);ctx.textAlign="center";ctx.fillText(name,p.x,p.y+r+18);for(var q=0;q<5;q++){var a=clock*.00025+i*.7+q*1.256,rr=r*(.35+.12*q);dot(p.x+Math.cos(a)*rr,p.y+Math.sin(a)*rr,q===0?1.6:.85,c,.18+.18*relStrength);}});}
-  function drawRelations(){var strength=smooth((phase-.65)/.85),sel=selectedPath(),pairs=[[0,1],[0,2],[0,3],[1,2],[1,3],[2,3]];pairs.forEach(function(pr,i){var a=familyPoint(pr[0]),b=familyPoint(pr[1]),selectedRel=pr.indexOf(sel.fam)>=0,c=i%3===0?pal.aqua:pal.glow,bend=(i%2?1:-1)*(22+i*3);curve(a,b,bend,c,(selectedRel?.15:.035)*strength,selectedRel?1.1:.7);if(strength>.25)pulseCurve(a,b,bend,(clock*.00008+i*.14)%1,c,(selectedRel?.65:.20)*strength,selectedRel?1.7:1);});var g=geom();OP_BY_FAMILY.forEach(function(ops,fam){ops.forEach(function(op,j){var a=familyPoint(fam),b=g.ops[op],isSel=fam===sel.fam&&sel.ops.indexOf(op)>=0,c=op%2?pal.aqua:pal.glow;curve(a,b,(fam-1.5)*10+(j-1)*8,c,(isSel?.22:.028)*strength,isSel?1.25:.6);if(isSel&&strength>.3)pulseCurve(a,b,(fam-1.5)*10+(j-1)*8,(clock*.00010+j*.19)%1,c,.72*strength,1.8);});});}
-  function drawOperators(){var g=geom(),strength=smooth((phase-1.15)/.9),sel=selectedPath();g.ops.forEach(function(p,i){var isSel=sel.ops.indexOf(i)>=0,c=i%2?pal.aqua:pal.glow,r=8+(isSel?3:0);glow(p.x,p.y,r*2,c,.02*strength*(isSel?2:1));ctx.beginPath();ctx.arc(p.x,p.y,r,0,Math.PI*2);ctx.strokeStyle=rgba(c,(isSel?.42:.10)*strength);ctx.lineWidth=isSel?1.35:.8;ctx.stroke();dot(p.x,p.y,1.7,c,(isSel?.8:.3)*strength);ctx.font=(isSel?"500 ":"400 ")+"9px ui-sans-serif,system-ui";ctx.fillStyle=rgba(c,(isSel?.84:.30)*strength);ctx.textAlign="center";ctx.fillText(OPERATORS[i],p.x,p.y+r+13);});}
-  function drawStructure(){var g=geom(),strength=smooth((phase-1.55)/.85),sel=selectedPath(),cx=g.structX,cy=g.centerY,R=g.R;ctx.beginPath();for(var i=0;i<=120;i++){var a=i/120*Math.PI*2,rr=R*(1+.025*Math.sin(a*3+clock*.00025)+.014*Math.sin(a*7-clock*.00016));var x=cx+Math.cos(a)*rr,y=cy+Math.sin(a)*rr*.78;if(i)ctx.lineTo(x,y);else ctx.moveTo(x,y);}ctx.closePath();ctx.strokeStyle=rgba(pal.glow,.26*strength);ctx.lineWidth=1.3;ctx.stroke();for(var r=1;r<=4;r++){ctx.beginPath();ctx.ellipse(cx,cy,R*(.34+r*.13),R*(.25+r*.10),0,0,Math.PI*2);ctx.strokeStyle=rgba(r%2?pal.aqua:pal.glow,(.018+.022*r)*strength);ctx.lineWidth=.7;ctx.stroke();}g.ops.forEach(function(p,i){var to={x:cx+Math.cos(-Math.PI/2+i/6*Math.PI*2)*R*.40,y:cy+Math.sin(-Math.PI/2+i/6*Math.PI*2)*R*.31},isSel=sel.ops.indexOf(i)>=0,c=i%2?pal.aqua:pal.glow;curve(p,to,(i%2?1:-1)*8,c,(isSel?.28:.045)*strength,isSel?1.15:.65);if(isSel)pulseCurve(p,to,(i%2?1:-1)*8,(clock*.00011+i*.12)%1,c,.72*strength,1.6);});if(strength>.35){for(var n=0;n<18;n++){var a=n/18*Math.PI*2+clock*.00004,rr=R*(.18+.26*((n*31)%97)/97),x=cx+Math.cos(a)*rr,y=cy+Math.sin(a)*rr*.75;dot(x,y,n%5===0?1.8:.8,n%4===0?pal.aqua:pal.glow,.12*strength);}}}
-  function drawPosition(){var g=geom(),strength=smooth((phase-2.25)/.75),cx=g.structX,cy=g.centerY,R=g.R,pos={x:cx+R*.18,y:cy-R*.08};glow(pos.x,pos.y,56,pal.glow,.11*strength);ctx.beginPath();ctx.arc(pos.x,pos.y,13,0,Math.PI*2);ctx.strokeStyle=rgba(pal.glow,.42*strength);ctx.lineWidth=1.25;ctx.stroke();dot(pos.x,pos.y,4.2,pal.glow,.92*strength);if(strength>.02){var state={x:g.stateX,y:g.centerY};curve(pos,state,-22,pal.glow,.22*strength,1.2);pulseCurve(pos,state,-22,(clock*.00009)%1,pal.glow,.72*strength,1.8);glow(state.x,state.y,48,pal.glow,.08*strength);ctx.beginPath();ctx.arc(state.x,state.y,10,0,Math.PI*2);ctx.strokeStyle=rgba(pal.glow,.38*strength);ctx.lineWidth=1.2;ctx.stroke();dot(state.x,state.y,3.5,pal.glow,.9*strength);ctx.font="500 10px ui-sans-serif,system-ui";ctx.fillStyle=rgba(pal.glow,.72*strength);ctx.textAlign="center";ctx.fillText("current position",state.x,state.y+28);}}
+  function drawRelations(){
+    var strength=smooth((phase-.65)/.85),sel=selectedPath(),pairs=[[0,1],[0,2],[0,3],[1,2],[1,3],[2,3]],g=geom();
+    pairs.forEach(function(pr,i){var a=familyPoint(pr[0]),b=familyPoint(pr[1]),selectedRel=pr.indexOf(sel.fam)>=0,c=i%3===0?pal.aqua:pal.glow,bend=(i%2?1:-1)*(22+i*3);curve(a,b,bend,c,(selectedRel?.15:.035)*strength,selectedRel?1.1:.7);if(strength>.25)pulseCurve(a,b,bend,(clock*.00008+i*.14)%1,c,(selectedRel?.65:.20)*strength,selectedRel?1.7:1);});
+    L3_BY_FAMILY.forEach(function(families,fam){families.forEach(function(l3,j){var a=familyPoint(fam),b=g.biomarkers[l3],isSel=fam===sel.fam&&sel.l3.indexOf(l3)>=0,c=l3%2?pal.aqua:pal.glow;curve(a,b,(fam-1.5)*10+(j-(families.length-1)/2)*5,c,(isSel?.21:.022)*strength,isSel?1.2:.55);if(isSel&&strength>.3)pulseCurve(a,b,(fam-1.5)*10+(j-(families.length-1)/2)*5,(clock*.00010+j*.14)%1,c,.68*strength,1.7);});});
+  }
+  function drawStructure(){
+    var g=geom(),strength=smooth((phase-1.35)/.95),sel=selectedPath(),cx=g.structX,cy=g.centerY,R=g.R;
+    ctx.beginPath();for(var i=0;i<=140;i++){var a=i/140*Math.PI*2,rr=R*(1+.025*Math.sin(a*3+clock*.00025)+.014*Math.sin(a*7-clock*.00016));var x=cx+Math.cos(a)*rr,y=cy+Math.sin(a)*rr*.78;if(i)ctx.lineTo(x,y);else ctx.moveTo(x,y);}ctx.closePath();ctx.strokeStyle=rgba(pal.glow,.26*strength);ctx.lineWidth=1.3;ctx.stroke();
+    for(var r=1;r<=3;r++){ctx.beginPath();ctx.ellipse(cx,cy,R*(.25+r*.16),R*(.18+r*.12),0,0,Math.PI*2);ctx.strokeStyle=rgba(r%2?pal.aqua:pal.glow,(.014+.018*r)*strength);ctx.lineWidth=.65;ctx.stroke();}
+    g.biomarkers.forEach(function(p,i){var to={x:cx+Math.cos(p.a)*R*.26,y:cy+Math.sin(p.a)*R*.20},isSel=sel.l3.indexOf(i)>=0,c=i%2?pal.aqua:pal.glow;curve(p,to,(i%2?1:-1)*6,c,(isSel?.25:.036)*strength,isSel?1.1:.6);if(isSel)pulseCurve(p,to,(i%2?1:-1)*6,(clock*.00011+i*.10)%1,c,.68*strength,1.55);});
+    if(strength>.35){for(var n=0;n<15;n++){var a=n/15*Math.PI*2+clock*.00004,rr=R*(.10+.20*((n*31)%97)/97),x=cx+Math.cos(a)*rr,y=cy+Math.sin(a)*rr*.75;dot(x,y,n%5===0?1.7:.75,n%4===0?pal.aqua:pal.glow,.10*strength);}}
+  }
+  function drawBiomarkers(){
+    var g=geom(),strength=smooth((phase-1.15)/.9),sel=selectedPath();
+    ctx.font="500 8px ui-sans-serif,system-ui";ctx.textAlign="center";ctx.fillStyle=rgba(pal.soft,.34*strength);ctx.fillText("LAYER 3 BIOMARKER FAMILIES",g.structX,g.centerY-g.R*.89);
+    g.biomarkers.forEach(function(p,i){var isSel=sel.l3.indexOf(i)>=0,c=i%2?pal.aqua:pal.glow,r=7+(isSel?2.8:0);glow(p.x,p.y,r*2.2,c,.018*strength*(isSel?2.1:1));ctx.beginPath();ctx.arc(p.x,p.y,r,0,Math.PI*2);ctx.strokeStyle=rgba(c,(isSel?.44:.10)*strength);ctx.lineWidth=isSel?1.35:.75;ctx.stroke();dot(p.x,p.y,1.65,c,(isSel?.82:.28)*strength);ctx.font=(isSel?"500 ":"400 ")+"8.5px ui-sans-serif,system-ui";ctx.fillStyle=rgba(c,(isSel?.90:.38)*strength);ctx.textAlign="center";var ly=p.y+(Math.sin(p.a)>=0?r+13:-r-8);ctx.fillText(L3[i],p.x,ly);});
+  }
+  function drawPosition(){var g=geom(),strength=smooth((phase-2.25)/.75),cx=g.structX,cy=g.centerY,R=g.R,pos={x:cx+R*.12,y:cy-R*.05};glow(pos.x,pos.y,56,pal.glow,.11*strength);ctx.beginPath();ctx.arc(pos.x,pos.y,12,0,Math.PI*2);ctx.strokeStyle=rgba(pal.glow,.42*strength);ctx.lineWidth=1.25;ctx.stroke();dot(pos.x,pos.y,4.2,pal.glow,.92*strength);if(strength>.02){var state={x:g.stateX,y:g.centerY};curve(pos,state,-22,pal.glow,.22*strength,1.2);pulseCurve(pos,state,-22,(clock*.00009)%1,pal.glow,.72*strength,1.8);glow(state.x,state.y,48,pal.glow,.08*strength);ctx.beginPath();ctx.arc(state.x,state.y,10,0,Math.PI*2);ctx.strokeStyle=rgba(pal.glow,.38*strength);ctx.lineWidth=1.2;ctx.stroke();dot(state.x,state.y,3.5,pal.glow,.9*strength);ctx.font="500 10px ui-sans-serif,system-ui";ctx.fillStyle=rgba(pal.glow,.72*strength);ctx.textAlign="center";ctx.fillText("current position",state.x,state.y+28);}}
 
-  function updateText(){var idx=Math.round(phaseTarget);phaseName.textContent=PHASE_NAMES[idx];phaseCopy.textContent=PHASE_COPY[idx];section.querySelectorAll(".uh2-phase").forEach(function(b){b.setAttribute("aria-pressed",+b.dataset.phase===idx?"true":"false");});var sig=SIGNALS[selected],ops=OP_BY_FAMILY[sig.family].map(function(i){return OPERATORS[i];}).join(" / ");lineage.textContent=sig.name+" → "+FAMILIES[sig.family]+" → "+ops+" → current position";motion.textContent=idx===0?"measurements arriving · identity retained":idx===1?"relationships forming · signals remain distinct":idx===2?"formal structure assembling · provenance attached":"position resolved · provenance retained";}
+  function updateText(){var idx=Math.round(phaseTarget);phaseName.textContent=PHASE_NAMES[idx];phaseCopy.textContent=PHASE_COPY[idx];section.querySelectorAll(".uh2-phase").forEach(function(b){b.setAttribute("aria-pressed",+b.dataset.phase===idx?"true":"false");});var sig=SIGNALS[selected],l3=L3_BY_FAMILY[sig.family].map(function(i){return L3[i];}).join(" / ");lineage.textContent=sig.name+" → "+FAMILIES[sig.family]+" → "+l3+" → current position";motion.textContent=idx===0?"measurements arriving · identity retained":idx===1?"relationships forming · signals remain distinct":idx===2?"Layer 3 biomarker families resolving · provenance attached":"position resolved · provenance retained";}
   function setPhase(v){phaseTarget=clamp(v,0,3);range.value=phaseTarget.toFixed(2);updateText();}
   function setSignal(idx){selected=idx;section.querySelectorAll(".uh2-source").forEach(function(b){b.setAttribute("aria-pressed",+b.dataset.signal===selected?"true":"false");});updateText();}
 
-  function render(now){var dt=Math.min(.05,(now-last)/1000||.016);last=now;if(!reduce)clock+=dt*1000;pointer.x=lerp(pointer.x,pointer.tx,.055);pointer.y=lerp(pointer.y,pointer.ty,.055);if(themeDirty)palette();if(playing){if(playing>0){phaseTarget+=dt*.34;if(phaseTarget>=3){phaseTarget=3;playing=0;play.textContent="Trace from measurements →";}}else{phaseTarget-=dt*.34;if(phaseTarget<=0){phaseTarget=0;playing=0;unfold.textContent="Unfold the position ←";}}range.value=phaseTarget.toFixed(2);updateText();}phase=lerp(phase,phaseTarget,.065);if(!visible){requestAnimationFrame(render);return;}ctx.clearRect(0,0,W,H);drawBackground();drawSources();drawFamilies();drawRelations();drawOperators();drawStructure();drawPosition();requestAnimationFrame(render);}
+  function render(now){var dt=Math.min(.05,(now-last)/1000||.016);last=now;if(!reduce)clock+=dt*1000;pointer.x=lerp(pointer.x,pointer.tx,.055);pointer.y=lerp(pointer.y,pointer.ty,.055);if(themeDirty)palette();if(playing){if(playing>0){phaseTarget+=dt*.34;if(phaseTarget>=3){phaseTarget=3;playing=0;play.textContent="Trace from measurements →";}}else{phaseTarget-=dt*.34;if(phaseTarget<=0){phaseTarget=0;playing=0;unfold.textContent="Unfold the position ←";}}range.value=phaseTarget.toFixed(2);updateText();}phase=lerp(phase,phaseTarget,.065);if(!visible){requestAnimationFrame(render);return;}ctx.clearRect(0,0,W,H);drawBackground();drawSources();drawFamilies();drawRelations();drawStructure();drawBiomarkers();drawPosition();requestAnimationFrame(render);}
 
   section.querySelectorAll(".uh2-phase").forEach(function(b){b.addEventListener("click",function(){playing=0;setPhase(+b.dataset.phase);});});
   section.querySelectorAll(".uh2-source").forEach(function(b){b.addEventListener("click",function(){setSignal(+b.dataset.signal);});});
