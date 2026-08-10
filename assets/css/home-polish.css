@@ -1,6 +1,6 @@
 /* Homepage regression fixes introduced by living-world layers. */
 /* How It Works: neutralize the self-remeasuring transform loop. Hover/focus remains intentional. */
-body.mh-depth-active #how .steps .card[data-mh-active="true"],body.mh-depth-active #how .steps .card[data-mh-active="false"]{transform:none!important;opacity:1!important}
+body.mh-depth-active #how .steps .card[data-mh-active="true"],body.mh-depth-active #how .steps .card[data-mh-active="false"]{transform:none!important;opacity:1!important;border-color:var(--line)!important}
 body.mh-depth-active #how .steps .card[data-mh-active="true"]::after,body.mh-depth-active #how .steps .card[data-mh-active="false"]::after{transform:scaleX(0)!important}
 body.mh-depth-active #how .steps .card:hover,body.mh-depth-active #how .steps .card:focus-within{transform:translateY(-8px)!important;border-color:color-mix(in srgb,var(--glow) 44%,var(--line))!important}
 body.mh-depth-active #how .steps .card:hover::after,body.mh-depth-active #how .steps .card:focus-within::after{transform:scaleX(1)!important}
