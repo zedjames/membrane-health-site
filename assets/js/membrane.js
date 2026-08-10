@@ -185,12 +185,26 @@
       .catch(function () { /* no attestation yet — keep the static values */ });
   }
 
+  // ---- Homepage living world -----------------------------------------------
+  function initHomeWorld() {
+    // The homepage owns both markers; inner pages do not. Load the connective
+    // world only there so the rest of the site keeps the shared runtime lean.
+    if (!document.getElementById("top") || !document.getElementById("wedge")) return;
+    if (document.querySelector('script[data-home-world]')) return;
+    var s = document.createElement("script");
+    s.src = "assets/js/home-world.js?v=1";
+    s.defer = true;
+    s.dataset.homeWorld = "true";
+    document.head.appendChild(s);
+  }
+
   // ---- Wire up -------------------------------------------------------------
   document.addEventListener("DOMContentLoaded", function () {
     initReveal();
     initLightbox();
     initWaitlist();
     initAttest();
+    initHomeWorld();
     var t = document.querySelector("[data-theme-toggle]");
     if (t) t.addEventListener("click", toggleTheme);
   });
