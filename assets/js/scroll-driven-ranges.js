@@ -1,157 +1,98 @@
 (function(){
   "use strict";
 
-  if(window.__mhEntranceDrivenRanges)return;
-  window.__mhEntranceDrivenRanges=true;
-
-  var reduce=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if(window.__mhNativeEntrancePlayback)return;
+  window.__mhNativeEntrancePlayback=true;
 
   var configs=[
-    {section:"#wedge",range:"#lp-range",duration:8200,trigger:0.72},
-    {section:"#idea",range:"#we-range",duration:8600,trigger:0.72},
-    {section:"#science",range:"#uh2-range, #uh-range",duration:10400,trigger:0.70}
+    {section:"#wedge",range:"#lp-range",play:"#lp-replay"},
+    {section:"#idea",range:"#we-range",play:"#we-replay"},
+    {section:"#science",range:"#uh2-range",play:"#uh2-play"}
   ];
 
-  var items=[];
-  var initialized=false;
-  var checkRaf=0;
+  var bound=[];
+  var observer=null;
 
-  function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
-  function ease(t){
-    t=clamp(t,0,1);
-    return t<.5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2;
+  function setToStart(item){
+    if(item.started)return;
+    var min=item.range.min!=="" ? item.range.min : "0";
+    if(item.range.value!==String(min)){
+      item.range.value=String(min);
+      item.range.dispatchEvent(new Event("input",{bubbles:true}));
+    }
   }
 
-  function nativeValue(range,p){
-    var min=Number(range.min||0);
-    var max=Number(range.max||100);
-    var step=Number(range.step||1);
-    if(!isFinite(min))min=0;
-    if(!isFinite(max)||max<=min)max=min+1;
-    if(!isFinite(step)||step<=0)step=1;
+  function begin(item){
+    if(item.started)return;
+    item.started=true;
+    item.section.dataset.rangePlayback="playing";
+    if(observer)observer.unobserve(item.section);
 
-    var raw=min+(max-min)*clamp(p,0,1);
-    var value=Math.round((raw-min)/step)*step+min;
-    value=clamp(value,min,max);
-    var decimals=(String(step).split(".")[1]||"").length;
-    return decimals?value.toFixed(decimals):String(Math.round(value));
-  }
-
-  function setProgress(item,p,force){
-    var next=nativeValue(item.range,p);
-    if(!force&&item.range.value===next)return;
-    item.range.value=next;
+    // Put the native engine at its own first frame, then let its own playback
+    // control run uninterrupted to completion. No external range animation.
+    var min=item.range.min!=="" ? item.range.min : "0";
+    item.range.value=String(min);
     item.range.dispatchEvent(new Event("input",{bubbles:true}));
+
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){
+        if(item.play&&typeof item.play.click==="function")item.play.click();
+      });
+    });
   }
 
   function bind(cfg){
     var section=document.querySelector(cfg.section);
-    if(!section)return null;
+    if(!section)return false;
+    if(section.dataset.nativePlaybackBound==="true")return true;
+
     var range=section.querySelector(cfg.range);
-    if(!range)return null;
+    var play=section.querySelector(cfg.play);
+    if(!range||!play)return false;
 
-    var item={
-      section:section,
-      range:range,
-      duration:cfg.duration,
-      trigger:cfg.trigger,
-      state:"waiting",
-      startedAt:0
-    };
+    var item={section:section,range:range,play:play,started:false};
+    section.dataset.nativePlaybackBound="true";
+    bound.push(item);
+    setToStart(item);
 
-    // The first encounter always begins from the native left edge.
-    setProgress(item,0,true);
-    return item;
+    observer.observe(section);
+    return true;
   }
 
-  function shouldStart(item){
-    if(item.state!=="waiting")return false;
-    var rect=item.section.getBoundingClientRect();
-    var vh=Math.max(1,window.innerHeight||document.documentElement.clientHeight||1);
-    return rect.top<=vh*item.trigger && rect.bottom>=vh*.22;
-  }
-
-  function finish(item){
-    setProgress(item,1,true);
-    item.state="resolved";
-    item.section.dataset.rangePlayback="resolved";
-  }
-
-  function play(item,now){
-    if(item.state!=="playing")return;
-    var u=clamp((now-item.startedAt)/item.duration,0,1);
-    setProgress(item,ease(u),false);
-    if(u>=1)finish(item);
-    else requestAnimationFrame(function(t){play(item,t);});
-  }
-
-  function start(item){
-    if(item.state!=="waiting")return;
-    item.state="playing";
-    item.section.dataset.rangePlayback="playing";
-
-    // Reassert frame zero at the moment the visitor arrives. This also cancels
-    // any feature-local autoplay that may have tried to advance offscreen.
-    setProgress(item,0,true);
-
-    if(reduce){
-      finish(item);
-      return;
-    }
-
-    item.startedAt=performance.now();
-    requestAnimationFrame(function(t){play(item,t);});
-  }
-
-  function holdWaitingAtStart(){
-    // Some legacy feature engines have their own autoplay. While a section has
-    // not yet been encountered, keep its live range at frame zero. Once started,
-    // this controller releases it into one uninterrupted forward playback.
-    items.forEach(function(item){
-      if(item.state==="waiting")setProgress(item,0,false);
+  function scan(){
+    var complete=true;
+    configs.forEach(function(cfg){
+      if(!bind(cfg))complete=false;
     });
+    return complete;
   }
 
-  function check(){
-    checkRaf=0;
-    holdWaitingAtStart();
-    items.forEach(function(item){
-      if(shouldStart(item))start(item);
+  observer=new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if(!entry.isIntersecting)return;
+      var item=bound.find(function(x){return x.section===entry.target;});
+      if(item)begin(item);
     });
-  }
+  },{
+    // Wait until the visitor is genuinely inside the section before starting.
+    // Once started, playback is independent of scroll direction or speed.
+    root:null,
+    rootMargin:"-10% 0px -18% 0px",
+    threshold:.18
+  });
 
-  function scheduleCheck(){
-    if(!checkRaf)checkRaf=requestAnimationFrame(check);
-  }
+  // Legacy Why Membrane contains its own offscreen autoplay. While a feature is
+  // still waiting, repeatedly reassert its native first frame; dispatching input
+  // also cancels that local autoplay through the feature's own listener.
+  (function waitingGuard(){
+    bound.forEach(setToStart);
+    requestAnimationFrame(waitingGuard);
+  })();
 
-  function init(){
-    if(initialized)return;
-    initialized=true;
-
-    items=configs.map(bind).filter(Boolean);
-
-    // If a dynamically replaced feature has not landed yet, retry briefly before
-    // giving up. This keeps binding pointed at the live slider, not placeholder HTML.
-    if(items.length<configs.length){
-      initialized=false;
-      setTimeout(init,120);
-      return;
-    }
-
-    check();
-
-    window.addEventListener("scroll",scheduleCheck,{passive:true});
-    window.addEventListener("resize",scheduleCheck,{passive:true});
-    window.addEventListener("pageshow",scheduleCheck,{passive:true});
-
-    // Before encounter, suppress legacy offscreen autoplay without tying playback
-    // to scroll position. After encounter/resolution this loop becomes inert.
-    (function waitingGuard(){
-      holdWaitingAtStart();
-      requestAnimationFrame(waitingGuard);
-    })();
-  }
-
-  if(document.readyState==="complete")init();
-  else window.addEventListener("load",init,{once:true});
+  scan();
+  var attempts=0;
+  var timer=setInterval(function(){
+    attempts++;
+    if(scan()||attempts>80)clearInterval(timer);
+  },100);
 })();
