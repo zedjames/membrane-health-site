@@ -8,5 +8,8 @@ body.mh-depth-active #how .steps .card:hover::after,body.mh-depth-active #how .s
 body.mh-depth-active #plans .plans{padding-top:14px}
 body.mh-depth-active #plans .plan{overflow:visible!important}
 body.mh-depth-active #plans .plan__badge{z-index:7}
+#plans .plan__price{display:flex;align-items:baseline;gap:3px;margin:8px 0 1px;color:var(--parchment)}
+#plans .plan__price-amount{font-family:var(--serif);font-size:clamp(1.85rem,2.6vw,2.45rem);font-weight:300;line-height:1;letter-spacing:-.025em;color:var(--glow-soft)}
+#plans .plan__price-period{font-size:.72rem;letter-spacing:.04em;color:var(--muted)}
 /* Decorative SVG titles are accessibility text, not hover UI. Controls live outside these SVGs. */
 #idea .idea-exp__stage svg,#modes .fm__stage svg{pointer-events:none!important}
