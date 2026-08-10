@@ -28,11 +28,29 @@
     }
   }
 
+  function applyPlanPrices(){
+    var prices={Free:"$0",Basic:"$3.99",Pro:"$12.99"};
+    document.querySelectorAll("#plans .plan").forEach(function(plan){
+      var tier=plan.querySelector(".plan__tier");
+      if(!tier)return;
+      var amount=prices[tier.textContent.trim()];
+      if(!amount)return;
+      var price=plan.querySelector(".plan__price");
+      if(!price){
+        price=document.createElement("p");
+        price.className="plan__price";
+        tier.insertAdjacentElement("afterend",price);
+      }
+      price.innerHTML='<span class="plan__price-amount">'+amount+'</span><span class="plan__price-period"> / month</span>';
+    });
+  }
+
   function applyStaticCopy(){
     setText("#modes .fm__head .lede","Each reading resolves the whole system into one of five modes, giving the position a location and a recognizable physiological posture.");
     setText("#basic .sec-head .lede","Free gives you today’s reading at a glance. Basic opens that same measurement into the baselines, systems, signals, timing, and relationships that formed it, making the position more legible.");
     setText("#pro .dash__note.serif-italic","Pro opens the same daily measurement into greater depth.");
     setText("#science .uh2__trace-head span:last-child","each layer remains visible as the next forms");
+    applyPlanPrices();
   }
 
   function run(){
