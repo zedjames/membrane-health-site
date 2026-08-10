@@ -32,6 +32,7 @@
     setText("#modes .fm__head .lede","Each reading resolves the whole system into one of five modes, giving the position a location and a recognizable physiological posture.");
     setText("#basic .sec-head .lede","Free gives you today’s reading at a glance. Basic opens that same measurement into the baselines, systems, signals, timing, and relationships that formed it, making the position more legible.");
     setText("#pro .dash__note.serif-italic","Pro opens the same daily measurement into greater depth.");
+    setText("#science .uh2__trace-head span:last-child","each layer remains visible as the next forms");
   }
 
   function run(){
