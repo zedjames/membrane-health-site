@@ -45,6 +45,15 @@
     });
   }
 
+  function loadScrollDrivenRanges(){
+    if(document.querySelector('script[data-scroll-driven-ranges]'))return;
+    var script=document.createElement("script");
+    script.src="assets/js/scroll-driven-ranges.js?v=1";
+    script.defer=true;
+    script.dataset.scrollDrivenRanges="true";
+    document.body.appendChild(script);
+  }
+
   function applyStaticCopy(){
     setText("#modes .fm__head .lede","Each reading resolves the whole system into one of five modes, giving the position a location and a recognizable physiological posture.");
     setText("#basic .sec-head .lede","Free gives you today’s reading at a glance. Basic opens that same measurement into the baselines, systems, signals, timing, and relationships that formed it, making the position more legible.");
@@ -56,6 +65,7 @@
   function run(){
     applyMeasureCopy();
     applyStaticCopy();
+    loadScrollDrivenRanges();
   }
 
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",run,{once:true});
