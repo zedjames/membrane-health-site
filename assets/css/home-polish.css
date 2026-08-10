@@ -1,0 +1,12 @@
+/* Homepage regression fixes introduced by living-world layers. */
+/* How It Works: neutralize the self-remeasuring transform loop. Hover/focus remains intentional. */
+body.mh-depth-active #how .steps .card[data-mh-active="true"],body.mh-depth-active #how .steps .card[data-mh-active="false"]{transform:none!important;opacity:1!important}
+body.mh-depth-active #how .steps .card[data-mh-active="true"]::after,body.mh-depth-active #how .steps .card[data-mh-active="false"]::after{transform:scaleX(0)!important}
+body.mh-depth-active #how .steps .card:hover,body.mh-depth-active #how .steps .card:focus-within{transform:translateY(-8px)!important;border-color:color-mix(in srgb,var(--glow) 44%,var(--line))!important}
+body.mh-depth-active #how .steps .card:hover::after,body.mh-depth-active #how .steps .card:focus-within::after{transform:scaleX(1)!important}
+/* Plans: the Pro badge intentionally lives above the card edge; don't clip it. */
+body.mh-depth-active #plans .plans{padding-top:14px}
+body.mh-depth-active #plans .plan{overflow:visible!important}
+body.mh-depth-active #plans .plan__badge{z-index:7}
+/* Decorative SVG titles are accessibility text, not hover UI. Controls live outside these SVGs. */
+#idea .idea-exp__stage svg,#modes .fm__stage svg{pointer-events:none!important}
