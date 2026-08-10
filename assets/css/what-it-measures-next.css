@@ -42,6 +42,27 @@ body[data-mh-world-state="measure"] .mh-world{opacity:.12!important}
 .wm2__stage-legend{position:absolute;z-index:3;right:24px;bottom:24px;display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;pointer-events:none}
 .wm2__stage-legend span{padding:7px 10px;border-radius:999px;border:1px solid color-mix(in srgb,var(--line) 78%,transparent);background:color-mix(in srgb,var(--night-deep) 56%,transparent);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 .wm2__note{position:relative;z-index:5;margin:0;padding:22px 24px 24px;text-align:center;border-top:1px solid var(--line);font-family:var(--serif);font-style:italic;font-size:clamp(1rem,1.6vw,1.22rem);line-height:1.45;color:var(--parchment-dim);background:color-mix(in srgb,var(--night-deep) 50%,transparent)}
+
+/* Original editorial language, preserved over the new visual instrument. */
+.wm2__readout-kicker,.wm2__readout-title,.wm2__readout-copy{font-size:0}
+.wm2__readout-kicker::after{display:block;font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--glow)}
+.wm2__readout-title::after{display:block;font-family:var(--serif);font-weight:400;font-size:clamp(1.45rem,2.2vw,2rem);line-height:1.15;color:var(--parchment)}
+.wm2__readout-copy::after{display:block;font-family:var(--body);font-size:.88rem;line-height:1.55;color:var(--parchment-dim)}
+#different[data-wm-mode="boundary"] .wm2__readout-kicker::after{content:"Boundary"}
+#different[data-wm-mode="boundary"] .wm2__readout-title::after{content:"Your remaining capacity"}
+#different[data-wm-mode="boundary"] .wm2__readout-copy::after{content:"The living edge within which today’s load can still be organized and recovered from — and the distance still available to you."}
+#different[data-wm-mode="stability"] .wm2__readout-kicker::after{content:"Stability"}
+#different[data-wm-mode="stability"] .wm2__readout-title::after{content:"Membrane integrity"}
+#different[data-wm-mode="stability"] .wm2__readout-copy::after{content:"How well the system preserves its organization as conditions change and load moves through it."}
+#different[data-wm-mode="coherence"] .wm2__readout-kicker::after{content:"Coherence"}
+#different[data-wm-mode="coherence"] .wm2__readout-title::after{content:"Whole-system alignment"}
+#different[data-wm-mode="coherence"] .wm2__readout-copy::after{content:"How well physiological processes remain coordinated with one another through time and across the relationships that connect them."}
+#different[data-wm-mode="recovery"] .wm2__readout-kicker::after{content:"Recovery"}
+#different[data-wm-mode="recovery"] .wm2__readout-title::after{content:"Recovery direction & ETA"}
+#different[data-wm-mode="recovery"] .wm2__readout-copy::after{content:"The movement by which load becomes restored capacity — both the direction of change and the timing of return."}
+.wm2-mode[data-aspect="recovery"] strong{font-size:0}
+.wm2-mode[data-aspect="recovery"] strong::after{content:"Recovery direction & ETA";font-size:clamp(.96rem,1.4vw,1.13rem)}
+
 @media(max-width:900px){.wm2{min-height:auto}.wm2__shell{width:min(100% - 24px,1420px)}.wm2__modebar{grid-template-columns:repeat(2,1fr)}.wm2-mode:nth-child(2){border-right:0}.wm2-mode:nth-child(-n+2){border-bottom:1px solid var(--line)}.wm2__stage{min-height:650px}.wm2__readout{width:min(390px,72%)}}
 @media(max-width:560px){.wm2__shell{width:min(100% - 18px,1420px)}.wm2__modebar{grid-template-columns:1fr}.wm2-mode{border-right:0;border-bottom:1px solid var(--line);padding:14px 16px}.wm2-mode:last-child{border-bottom:0}.wm2__stage{min-height:540px}.wm2__readout{width:min(100%,330px);padding:14px 16px}.wm2__stage-hud{padding:18px}.wm2__stage-legend{display:none}}
 @media(prefers-reduced-motion:reduce){.wm2__phase-dot{animation:none}.wm2-mode{transition:none}}
