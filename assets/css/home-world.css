@@ -1,0 +1,428 @@
+/* ============================================================================
+   Membrane Health — persistent homepage world layer
+   This layer is intentionally ambient. Section-specific visual engines remain
+   authoritative; the world layer gives the spaces between them a continuous
+   physiological state and carries visual memory from one section to the next.
+   ============================================================================ */
+
+.mh-world {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  contain: strict;
+  opacity: 1;
+  transition: opacity 700ms ease;
+}
+
+.mh-world__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.mh-world__veil {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at var(--mh-world-x, 68%) var(--mh-world-y, 48%),
+      color-mix(in srgb, var(--glow) 4%, transparent) 0%,
+      transparent 44%),
+    linear-gradient(to bottom,
+      color-mix(in srgb, var(--night) 2%, transparent),
+      color-mix(in srgb, var(--night) 18%, transparent));
+  opacity: .9;
+  transition: background 900ms ease, opacity 700ms ease;
+}
+
+body.mh-world-active {
+  isolation: isolate;
+}
+
+body.mh-world-active > .nav,
+body.mh-world-active > section,
+body.mh-world-active > footer,
+body.mh-world-active > .lightbox {
+  position: relative;
+  z-index: 2;
+}
+
+body.mh-world-active #top,
+body.mh-world-active #home,
+body.mh-world-active #how,
+body.mh-world-active #basic,
+body.mh-world-active #plans,
+body.mh-world-active #pro,
+body.mh-world-active #ahead,
+body.mh-world-active #data,
+body.mh-world-active #get {
+  background-color: transparent;
+}
+
+body.mh-world-active #top::after,
+body.mh-world-active #home::after,
+body.mh-world-active #how::after,
+body.mh-world-active #basic::after,
+body.mh-world-active #plans::after,
+body.mh-world-active #pro::after,
+body.mh-world-active #ahead::after,
+body.mh-world-active #data::after,
+body.mh-world-active #get::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--night) 88%, transparent) 0%,
+    color-mix(in srgb, var(--night) 58%, transparent) 48%,
+    color-mix(in srgb, var(--night) 20%, transparent) 100%);
+  opacity: var(--mh-section-veil, .48);
+}
+
+body.mh-world-active #home::after,
+body.mh-world-active #how::after,
+body.mh-world-active #plans::after,
+body.mh-world-active #data::after,
+body.mh-world-active #get::after {
+  background: radial-gradient(circle at 50% 45%,
+    color-mix(in srgb, var(--night) 40%, transparent),
+    color-mix(in srgb, var(--night) 80%, transparent) 76%);
+}
+
+body.mh-world-active #home .device {
+  position: relative;
+}
+
+body.mh-world-active #home .device::before {
+  content: "";
+  position: absolute;
+  width: min(48vw, 520px);
+  aspect-ratio: 1;
+  left: 50%;
+  top: 46%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle,
+    color-mix(in srgb, var(--glow) 12%, transparent),
+    color-mix(in srgb, var(--aqua) 4%, transparent) 36%,
+    transparent 70%);
+  filter: blur(18px);
+  opacity: var(--mh-home-aura, .6);
+  z-index: -1;
+  transition: opacity 700ms ease;
+}
+
+body.mh-world-active .lp-world,
+body.mh-world-active .wm,
+body.mh-world-active .idea-exp,
+body.mh-world-active .uh,
+body.mh-world-active .fm {
+  isolation: isolate;
+}
+
+body.mh-world-active .lp-world::before,
+body.mh-world-active .wm::before,
+body.mh-world-active .idea-exp::before,
+body.mh-world-active .uh::before,
+body.mh-world-active .fm::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -90px;
+  height: 180px;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(to bottom, transparent, color-mix(in srgb, var(--night) 55%, transparent), transparent);
+  opacity: .45;
+}
+
+body.mh-world-active > section {
+  overflow: clip;
+}
+
+body.mh-world-active #top .hero__inner,
+body.mh-world-active #home > .wrap,
+body.mh-world-active #how > .wrap,
+body.mh-world-active #basic > .wrap,
+body.mh-world-active #plans > .wrap,
+body.mh-world-active #pro > .wrap,
+body.mh-world-active #ahead > .wrap,
+body.mh-world-active #data > .wrap,
+body.mh-world-active #get > .wrap {
+  position: relative;
+  z-index: 3;
+}
+
+/* Hero — organism assembling before the answer appears. */
+body.mh-world-active #top {
+  min-height: calc(100svh - 64px);
+  display: grid;
+  align-items: center;
+}
+
+body.mh-world-active #top .breath-glow {
+  opacity: .18;
+  filter: blur(24px);
+}
+
+body.mh-world-active #top .hero__status {
+  transition: opacity 900ms ease, transform 1200ms cubic-bezier(.2,.8,.2,1), filter 900ms ease;
+  filter: saturate(.86);
+}
+
+body.mh-world-active[data-mh-world-state="hero"] #top .hero__status {
+  opacity: .96;
+  transform: translateY(0) scale(1);
+  filter: saturate(1);
+}
+
+body.mh-world-active #top .status-chip {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background: color-mix(in srgb, var(--night) 58%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--line) 78%, transparent);
+}
+
+/* Your Day — the living state resolves into the product surface. */
+body.mh-world-active #home .device__frame {
+  transform: translateZ(0);
+  transition: transform 900ms cubic-bezier(.2,.8,.2,1), box-shadow 900ms ease;
+}
+
+body.mh-world-active[data-mh-world-state="home"] #home .device__frame {
+  transform: translateY(-4px) scale(1.012);
+  box-shadow:
+    0 36px 90px -42px color-mix(in srgb, var(--glow) 38%, transparent),
+    0 18px 60px -38px color-mix(in srgb, var(--aqua) 18%, transparent);
+}
+
+body.mh-world-active #home .card {
+  transition: border-color .55s ease, background .55s ease, transform .55s ease;
+}
+body.mh-world-active #home .card:hover,
+body.mh-world-active #home .card:focus-within {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--glow) 28%, var(--line));
+  background: linear-gradient(to bottom,
+    color-mix(in srgb, var(--surface-top) 90%, var(--glow) 3%),
+    var(--surface-bottom));
+}
+
+/* How it works — three steps become three stages of the same signal. */
+body.mh-world-active #how .steps .card {
+  position: relative;
+  overflow: hidden;
+  transition: transform .5s ease, border-color .5s ease, opacity .5s ease;
+}
+body.mh-world-active #how .steps .card::after {
+  content: "";
+  position: absolute;
+  left: 12%; right: 12%; bottom: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--glow), transparent);
+  opacity: .12;
+  transform: scaleX(.35);
+  transition: opacity .5s ease, transform .5s ease;
+}
+body.mh-world-active #how .steps .card:hover,
+body.mh-world-active #how .steps .card:focus-within {
+  transform: translateY(-4px);
+  border-color: color-mix(in srgb, var(--glow) 30%, var(--line));
+}
+body.mh-world-active #how .steps .card:hover::after,
+body.mh-world-active #how .steps .card:focus-within::after {
+  opacity: .7;
+  transform: scaleX(1);
+}
+
+/* Basic — the same state opens into successive explanatory layers. */
+body.mh-world-active #basic .pro-shot,
+body.mh-world-active #pro .pro-shot {
+  transition: transform .55s cubic-bezier(.2,.8,.2,1), opacity .55s ease, filter .55s ease;
+}
+body.mh-world-active #basic .pro-shot:hover,
+body.mh-world-active #basic .pro-shot:focus-within {
+  transform: translateY(-7px) scale(1.012);
+  filter: brightness(1.035);
+}
+
+/* Plans — one measurement at three depths. */
+body.mh-world-active #plans .plan {
+  position: relative;
+  overflow: hidden;
+  transition: transform .55s cubic-bezier(.2,.8,.2,1), border-color .55s ease, background .55s ease;
+}
+body.mh-world-active #plans .plan::before {
+  content: "";
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  right: -52px;
+  top: -58px;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--glow) 16%, transparent);
+  box-shadow:
+    inset 0 0 0 18px color-mix(in srgb, var(--aqua) 2%, transparent),
+    inset 0 0 0 38px color-mix(in srgb, var(--glow) 2%, transparent);
+  opacity: .45;
+  transition: transform .7s ease, opacity .7s ease, box-shadow .7s ease;
+}
+body.mh-world-active #plans .plan:nth-child(2)::before {
+  box-shadow:
+    inset 0 0 0 14px color-mix(in srgb, var(--aqua) 3%, transparent),
+    inset 0 0 0 30px color-mix(in srgb, var(--glow) 3%, transparent),
+    inset 0 0 0 48px color-mix(in srgb, var(--aqua) 2%, transparent);
+}
+body.mh-world-active #plans .plan:nth-child(3)::before {
+  box-shadow:
+    inset 0 0 0 10px color-mix(in srgb, var(--glow) 4%, transparent),
+    inset 0 0 0 22px color-mix(in srgb, var(--aqua) 3%, transparent),
+    inset 0 0 0 36px color-mix(in srgb, var(--glow) 3%, transparent),
+    inset 0 0 0 52px color-mix(in srgb, var(--aqua) 2%, transparent);
+}
+body.mh-world-active #plans .plan:hover,
+body.mh-world-active #plans .plan:focus-within {
+  transform: translateY(-5px);
+  border-color: color-mix(in srgb, var(--glow) 34%, var(--line));
+}
+body.mh-world-active #plans .plan:hover::before,
+body.mh-world-active #plans .plan:focus-within::before {
+  transform: translate(-10px, 10px) scale(1.08);
+  opacity: .86;
+}
+
+/* Pro — present state acquires trajectory. */
+body.mh-world-active #pro::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(110deg, transparent 0 48%, color-mix(in srgb, var(--aqua) 3%, transparent) 49% 50%, transparent 51%),
+    radial-gradient(circle at 76% 46%, color-mix(in srgb, var(--glow) 5%, transparent), transparent 38%);
+  opacity: .7;
+}
+body.mh-world-active #pro .pro-shot:hover,
+body.mh-world-active #pro .pro-shot:focus-within {
+  transform: translateY(-7px) scale(1.01);
+  filter: brightness(1.035);
+}
+
+/* Research scale — the field stops being only abstract and becomes spatial. */
+body.mh-world-active #ahead .ahead__device {
+  position: relative;
+}
+body.mh-world-active #ahead .ahead__device::before {
+  content: "";
+  position: absolute;
+  inset: -12%;
+  z-index: -1;
+  background:
+    radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--aqua) 7%, transparent), transparent 48%),
+    linear-gradient(120deg, transparent, color-mix(in srgb, var(--glow) 4%, transparent), transparent);
+  filter: blur(12px);
+  opacity: .8;
+}
+
+/* Trust — privacy expressed as controlled exchange across a maintained edge. */
+body.mh-world-active #data .card {
+  position: relative;
+  overflow: hidden;
+  transition: transform .5s ease, border-color .5s ease;
+}
+body.mh-world-active #data .card::after {
+  content: "";
+  position: absolute;
+  width: 180px;
+  height: 180px;
+  right: -88px;
+  bottom: -90px;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--glow) 18%, transparent);
+  opacity: .4;
+  box-shadow: inset 0 0 0 22px color-mix(in srgb, var(--aqua) 2%, transparent);
+  transition: transform .6s ease, border-color .6s ease, opacity .6s ease;
+}
+body.mh-world-active #data .card:hover,
+body.mh-world-active #data .card:focus-within {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--aqua) 24%, var(--line));
+}
+body.mh-world-active #data .card:hover::after,
+body.mh-world-active #data .card:focus-within::after {
+  transform: scale(.82) translate(-12px,-12px);
+  border-color: color-mix(in srgb, var(--aqua) 48%, transparent);
+  opacity: .82;
+}
+
+/* Final resolution — after the whole journey, almost nothing remains. */
+body.mh-world-active #get {
+  min-height: 92svh;
+  display: grid;
+  align-items: center;
+}
+body.mh-world-active #get .breath-glow {
+  opacity: .12;
+  filter: blur(34px);
+}
+body.mh-world-active[data-mh-world-state="resolve"] #get .get__inner {
+  transform: translateY(-1vh);
+}
+body.mh-world-active #get .get__inner {
+  transition: transform 1.2s cubic-bezier(.2,.8,.2,1);
+}
+body.mh-world-active #get .release__pill {
+  background: color-mix(in srgb, var(--night) 56%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+body.mh-world-active[data-mh-world-state="history"] .mh-world,
+body.mh-world-active[data-mh-world-state="measure"] .mh-world,
+body.mh-world-active[data-mh-world-state="membrane"] .mh-world,
+body.mh-world-active[data-mh-world-state="trace"] .mh-world,
+body.mh-world-active[data-mh-world-state="modes"] .mh-world {
+  opacity: .58;
+}
+
+body.mh-world-active[data-mh-world-state="ahead"] .mh-world { opacity: .94; }
+body.mh-world-active[data-mh-world-state="resolve"] .mh-world { opacity: 1; }
+
+@media (max-width: 760px) {
+  .mh-world__veil { opacity: .7; }
+  body.mh-world-active #top::after,
+  body.mh-world-active #home::after,
+  body.mh-world-active #how::after,
+  body.mh-world-active #basic::after,
+  body.mh-world-active #plans::after,
+  body.mh-world-active #pro::after,
+  body.mh-world-active #ahead::after,
+  body.mh-world-active #data::after,
+  body.mh-world-active #get::after {
+    opacity: .64;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mh-world,
+  .mh-world__veil,
+  body.mh-world-active #home .device::before,
+  body.mh-world-active #top .hero__status,
+  body.mh-world-active #home .device__frame,
+  body.mh-world-active #home .card,
+  body.mh-world-active #how .steps .card,
+  body.mh-world-active #basic .pro-shot,
+  body.mh-world-active #pro .pro-shot,
+  body.mh-world-active #plans .plan,
+  body.mh-world-active #plans .plan::before,
+  body.mh-world-active #data .card,
+  body.mh-world-active #data .card::after,
+  body.mh-world-active #get .get__inner {
+    transition: none !important;
+  }
+}
