@@ -1,0 +1,12 @@
+/* What It Measures — presence pass */
+#different .mh-signature-canvas--measure-v2{display:none!important}
+#different .wm__visual{position:sticky!important;top:70px;min-height:clamp(760px,84vh,980px)!important;overflow:visible!important}
+#different .mh-measure-presence{position:absolute;inset:-4% -6%;width:112%;height:108%;z-index:1;pointer-events:none;filter:drop-shadow(0 38px 92px color-mix(in srgb,var(--glow) 8%,transparent))}
+#different .wm__visual>figure{position:relative;z-index:2;opacity:.68;mix-blend-mode:screen;transition:opacity .5s ease,filter .5s ease}
+#different .wm__visual:hover>figure{opacity:.78}
+#different .wm__note{position:relative;z-index:5}
+#different .wm-aspect{transition:transform .42s cubic-bezier(.2,.8,.2,1),opacity .35s ease,border-color .35s ease,box-shadow .35s ease!important}
+#different .wm-aspect[aria-pressed="true"]{transform:translateX(18px) scale(1.045)!important;box-shadow:0 28px 80px -46px color-mix(in srgb,var(--glow) 58%,transparent)!important}
+#different .wm-aspect[aria-pressed="false"]{opacity:.50!important}
+@media(max-width:979px){#different .wm__visual{position:relative!important;top:auto;min-height:620px!important}.mh-measure-presence{inset:0!important;width:100%!important;height:100%!important}}
+@media(max-width:620px){#different .wm__visual{min-height:500px!important}#different .wm-aspect[aria-pressed="true"]{transform:scale(1.02)!important}}
