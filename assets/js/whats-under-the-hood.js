@@ -28,7 +28,7 @@
   var PHASE_COPY=[
     "The reading begins with measured signals. Each remains identifiable before interpretation begins.",
     "Signals keep their own meaning while the mathematics reads how they move together through time.",
-    "Those relationships resolve through the Layer 3 biomarker families into a bounded formal structure rather than collapsing into an arbitrary score.",
+    "Those relationships resolve through Phase, Coherence, Timing, Recovery, Laminarity, Entrainment, and Drift into a bounded formal structure.",
     "The structure resolves into one current position — with the path back to the measurements still attached."
   ];
 
@@ -40,7 +40,7 @@
         <h2 class="h-section" id="uh-heading">A state grounded in measurement.</h2>
         <p class="lede">Membrane Health begins with authorized measurements and carries them through explicit mathematics that has been machine-checked for the properties it claims<sup class="fn">*</sup>. Those measurements enter defined relationships, those relationships form structure, and that structure resolves into a physiological state whose position can be followed through time.</p>
         <p class="lede serif-italic">The definition gives that position its structure, your physiology gives it scale, and your history gives it context.</p>
-        <p class="subtle uh2__validation"><em>Formal verification</em> establishes the integrity of the mathematics, while <em>physiological validation</em> establishes how the resulting measurements behave in people. Human testing continues as the measurement develops and its empirical history grows.</p>
+        <p class="subtle uh2__validation"><em>Formal verification</em> establishes the integrity of the mathematics. <em>Physiological validation</em> establishes how the resulting measurements behave in people. Human testing continues as the measurement develops and its empirical history grows.</p>
       </header>
 
       <div class="uh2__instrument">
@@ -81,8 +81,8 @@
         </article>
         <article class="uh2-evidence" data-evidence="math">
           <p class="feature__kicker">Explicit math</p><h3 class="h-card">A reading you can trace</h3>
-          <p class="subtle">Named and inspectable formulas carry the measured relationships into the Layer 3 biomarker families — Phase, Coherence, Timing, Recovery, Laminarity, Entrainment, and Drift — before the bounded state is resolved.</p>
-          <p class="subtle">Because the path remains attached to the reading, the position can always be followed back through the biomarker families, relationships, and measurements that formed it.</p>
+          <p class="subtle">Named and inspectable formulas carry the measured relationships through Phase, Coherence, Timing, Recovery, Laminarity, Entrainment, and Drift as the bounded state resolves.</p>
+          <p class="subtle">The path remains attached to the reading, allowing the position to be followed back through these relationships and measurements.</p>
         </article>
         <article class="uh2-evidence" data-evidence="proof">
           <p class="feature__kicker">Formally proven</p><h3 class="h-card">Machine-checked in Lean</h3>
@@ -98,7 +98,7 @@
         <div class="sci-stat"><span class="sci-stat__n">100%</span><span class="sci-stat__l">traceable readings</span></div>
       </div>
       <p class="sci-more uh2__more">Want to go deeper? The whole picture — from the human idea to the mathematics to the proof — <a href="science.html">The science of Membrane&nbsp;Health&nbsp;→</a></p>
-      <p class="sci-footnote"><span class="fn">*</span> <em>Formally proven</em> is not a statement of physiological truth or a disease diagnosis. What it does mean: our formal mathematical ontology of health stays stable, structured, auditable, and fully transparent — which is exactly what makes it reliable.</p>
+      <p class="sci-footnote"><span class="fn">*</span> <em>Formally proven</em> describes the integrity of the formal mathematics: stable, structured, auditable, and fully transparent. Physiological validation establishes how the measurement behaves in living systems.</p>
     </div>`;
 
   var stage=section.querySelector(".uh2__stage"),canvas=section.querySelector(".uh2__canvas"),ctx=canvas.getContext("2d",{alpha:true});
@@ -147,12 +147,11 @@
   }
   function drawBiomarkers(){
     var g=geom(),strength=smooth((phase-1.15)/.9),sel=selectedPath();
-    ctx.font="500 8px ui-sans-serif,system-ui";ctx.textAlign="center";ctx.fillStyle=rgba(pal.soft,.34*strength);ctx.fillText("LAYER 3 BIOMARKER FAMILIES",g.structX,g.centerY-g.R*.89);
     g.biomarkers.forEach(function(p,i){var isSel=sel.l3.indexOf(i)>=0,c=i%2?pal.aqua:pal.glow,r=7+(isSel?2.8:0);glow(p.x,p.y,r*2.2,c,.018*strength*(isSel?2.1:1));ctx.beginPath();ctx.arc(p.x,p.y,r,0,Math.PI*2);ctx.strokeStyle=rgba(c,(isSel?.44:.10)*strength);ctx.lineWidth=isSel?1.35:.75;ctx.stroke();dot(p.x,p.y,1.65,c,(isSel?.82:.28)*strength);ctx.font=(isSel?"500 ":"400 ")+"8.5px ui-sans-serif,system-ui";ctx.fillStyle=rgba(c,(isSel?.90:.38)*strength);ctx.textAlign="center";var ly=p.y+(Math.sin(p.a)>=0?r+13:-r-8);ctx.fillText(L3[i],p.x,ly);});
   }
   function drawPosition(){var g=geom(),strength=smooth((phase-2.25)/.75),cx=g.structX,cy=g.centerY,R=g.R,pos={x:cx+R*.12,y:cy-R*.05};glow(pos.x,pos.y,56,pal.glow,.11*strength);ctx.beginPath();ctx.arc(pos.x,pos.y,12,0,Math.PI*2);ctx.strokeStyle=rgba(pal.glow,.42*strength);ctx.lineWidth=1.25;ctx.stroke();dot(pos.x,pos.y,4.2,pal.glow,.92*strength);if(strength>.02){var state={x:g.stateX,y:g.centerY};curve(pos,state,-22,pal.glow,.22*strength,1.2);pulseCurve(pos,state,-22,(clock*.00009)%1,pal.glow,.72*strength,1.8);glow(state.x,state.y,48,pal.glow,.08*strength);ctx.beginPath();ctx.arc(state.x,state.y,10,0,Math.PI*2);ctx.strokeStyle=rgba(pal.glow,.38*strength);ctx.lineWidth=1.2;ctx.stroke();dot(state.x,state.y,3.5,pal.glow,.9*strength);ctx.font="500 10px ui-sans-serif,system-ui";ctx.fillStyle=rgba(pal.glow,.72*strength);ctx.textAlign="center";ctx.fillText("current position",state.x,state.y+28);}}
 
-  function updateText(){var idx=Math.round(phaseTarget);phaseName.textContent=PHASE_NAMES[idx];phaseCopy.textContent=PHASE_COPY[idx];section.querySelectorAll(".uh2-phase").forEach(function(b){b.setAttribute("aria-pressed",+b.dataset.phase===idx?"true":"false");});var sig=SIGNALS[selected],l3=L3_BY_FAMILY[sig.family].map(function(i){return L3[i];}).join(" / ");lineage.textContent=sig.name+" → "+FAMILIES[sig.family]+" → "+l3+" → current position";motion.textContent=idx===0?"measurements arriving · identity retained":idx===1?"relationships forming · signals remain distinct":idx===2?"Layer 3 biomarker families resolving · provenance attached":"position resolved · provenance retained";}
+  function updateText(){var idx=Math.round(phaseTarget);phaseName.textContent=PHASE_NAMES[idx];phaseCopy.textContent=PHASE_COPY[idx];section.querySelectorAll(".uh2-phase").forEach(function(b){b.setAttribute("aria-pressed",+b.dataset.phase===idx?"true":"false");});var sig=SIGNALS[selected],l3=L3_BY_FAMILY[sig.family].map(function(i){return L3[i];}).join(" / ");lineage.textContent=sig.name+" → "+FAMILIES[sig.family]+" → "+l3+" → current position";motion.textContent=idx===0?"measurements arriving · identity retained":idx===1?"relationships forming · signals remain distinct":idx===2?"structure resolving · provenance attached":"position resolved · provenance retained";}
   function setPhase(v){phaseTarget=clamp(v,0,3);range.value=phaseTarget.toFixed(2);updateText();}
   function setSignal(idx){selected=idx;section.querySelectorAll(".uh2-source").forEach(function(b){b.setAttribute("aria-pressed",+b.dataset.signal===selected?"true":"false");});updateText();}
 
