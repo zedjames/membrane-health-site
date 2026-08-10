@@ -1,0 +1,47 @@
+(function(){
+  "use strict";
+
+  function setText(selector,text){
+    var el=document.querySelector(selector);
+    if(el)el.textContent=text;
+  }
+
+  function applyMeasureCopy(){
+    var section=document.getElementById("different");
+    if(!section)return;
+    var note=document.getElementById("wm2-note");
+    var active=section.querySelector('.wm2-mode[aria-pressed="true"][data-aspect]');
+    if(note&&active){
+      var notes={
+        boundary:"What's important is how much room is left between our awareness and our edge.",
+        stability:"A disturbance arrives. Stability describes how the organization holds its shape and how quickly it settles again.",
+        coherence:"Coherence is the relationship through which separate processes move together.",
+        recovery:"Load becomes capacity again through a direction in time, with the edge reopening behind it."
+      };
+      if(notes[active.dataset.aspect])note.textContent=notes[active.dataset.aspect];
+    }
+    if(!section.dataset.copyPolishBound){
+      section.dataset.copyPolishBound="true";
+      section.addEventListener("click",function(e){
+        if(e.target&&e.target.closest&&e.target.closest(".wm2-mode"))requestAnimationFrame(applyMeasureCopy);
+      });
+    }
+  }
+
+  function applyStaticCopy(){
+    setText("#modes .fm__head .lede","Each reading resolves the whole system into one of five modes, giving the position a location and a recognizable physiological posture.");
+    setText("#basic .sec-head .lede","Free gives you today’s reading at a glance. Basic opens that same measurement into the baselines, systems, signals, timing, and relationships that formed it, making the position more legible.");
+    setText("#pro .dash__note.serif-italic","Pro opens the same daily measurement into greater depth.");
+  }
+
+  function run(){
+    applyMeasureCopy();
+    applyStaticCopy();
+  }
+
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",run,{once:true});
+  else run();
+
+  requestAnimationFrame(run);
+  setTimeout(run,120);
+})();
