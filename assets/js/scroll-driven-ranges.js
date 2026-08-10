@@ -16,32 +16,30 @@
   function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
   function smooth(t){t=clamp(t,0,1);return t*t*(3-2*t);}
 
+  function bindItem(cfg){
+    var section=document.querySelector(cfg.section);
+    if(!section)return null;
+    var range=section.querySelector(cfg.range);
+    if(!range)return null;
+    var item={section:section,range:range,manual:false,last:null,buttons:[]};
+
+    range.addEventListener("input",function(e){if(e.isTrusted)item.manual=true;});
+    range.addEventListener("pointerdown",function(){item.manual=true;},{passive:true});
+    range.addEventListener("keydown",function(){item.manual=true;});
+
+    (cfg.manual||[]).forEach(function(selector){
+      var button=section.querySelector(selector);
+      if(!button)return;
+      item.buttons.push(button);
+      button.addEventListener("click",function(){item.manual=true;});
+    });
+    return item;
+  }
+
   function resolve(){
-    items=configs.map(function(cfg){
-      var section=document.querySelector(cfg.section);
-      if(!section)return null;
-      var range=section.querySelector(cfg.range);
-      if(!range)return null;
-      var item={section:section,range:range,manual:false,last:null,buttons:[]};
-
-      range.addEventListener("input",function(e){
-        if(e.isTrusted)item.manual=true;
-      });
-      range.addEventListener("pointerdown",function(){item.manual=true;},{passive:true});
-      range.addEventListener("keydown",function(){item.manual=true;});
-
-      (cfg.manual||[]).forEach(function(selector){
-        var button=section.querySelector(selector);
-        if(!button)return;
-        item.buttons.push(button);
-        button.addEventListener("click",function(){item.manual=true;});
-      });
-
-      return item;
-    }).filter(Boolean);
-
-    // Every slider begins at the beginning of its native range. For Living Position
-    // that is day 1 (the left edge / 0% of the journey); the other ranges begin at 0.
+    items=configs.map(bindItem).filter(Boolean);
+    // Every feature starts at the left edge of its native range: 0% progression.
+    // Living Position's native first value is day 1; Why Membrane and Under the Hood begin at 0.
     items.forEach(function(item){setProgress(item,0,true);});
     schedule();
   }
@@ -49,8 +47,8 @@
   function progressFor(section){
     var rect=section.getBoundingClientRect();
     var vh=Math.max(1,window.innerHeight||document.documentElement.clientHeight||1);
-    // Begin when the section reaches 80% of the viewport. Finish when its bottom
-    // reaches 25%, so the range unfolds across the full act of scrolling through it.
+    // Begin when the section reaches 80% of the viewport and finish only as the
+    // visitor completes the section, making scroll itself the first playback gesture.
     var travel=rect.height+vh*.55;
     var raw=(vh*.80-rect.top)/Math.max(1,travel);
     return smooth(clamp(raw,0,1));
@@ -84,9 +82,7 @@
     });
   }
 
-  function schedule(){
-    if(!raf)raf=requestAnimationFrame(sync);
-  }
+  function schedule(){if(!raf)raf=requestAnimationFrame(sync);}
 
   function resumeFromScroll(){
     items.forEach(function(item){item.manual=false;});
@@ -97,8 +93,12 @@
   window.addEventListener("resize",schedule,{passive:true});
   window.addEventListener("pageshow",function(){items.forEach(function(item){item.manual=false;});schedule();},{passive:true});
 
-  // A light watchdog keeps programmatic autoplay from advancing a feature before
-  // the visitor reaches it. It does nothing while the visitor is manually exploring.
+  // Re-resolve at load because the homepage feature engines replace their placeholder
+  // markup during deferred-script initialization. This ensures we bind the live sliders.
+  window.addEventListener("load",function(){resolve();},{once:true});
+
+  // Keep programmatic autoplay from advancing a feature before the visitor reaches it.
+  // Manual slider/replay interaction temporarily owns the feature until scrolling resumes.
   function watchdog(){
     items.forEach(function(item){
       if(item.manual)return;
