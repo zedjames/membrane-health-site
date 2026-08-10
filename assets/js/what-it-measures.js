@@ -26,8 +26,8 @@
     <div class="wm2__shell">
       <header class="wm2__head">
         <p class="eyebrow">What it measures</p>
-        <h2 class="h-section" id="wm-heading">One living boundary. Six ways to read it.</h2>
-        <p class="lede">Integrity, capacity, tolerance, laminarity, efficiency, and potential reveal different properties of the same bounded physiological state. Move through the field and watch the boundary change meaning without changing identity.</p>
+        <h2 class="h-section" id="wm-heading">Health is a system remaining itself through change.</h2>
+        <p class="lede">Integrity, capacity, tolerance, laminarity, efficiency, and potential reveal different properties of the same bounded physiological state. Move through the field and watch the boundary change meaning while its identity holds.</p>
       </header>
       <div class="wm2__instrument">
         <div class="wm2__modebar" role="group" aria-label="Choose a boundary measurement family">
