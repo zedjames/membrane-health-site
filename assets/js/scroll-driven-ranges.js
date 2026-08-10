@@ -1,63 +1,31 @@
 (function(){
   "use strict";
 
-  if(window.__mhScrollDrivenRanges)return;
-  window.__mhScrollDrivenRanges=true;
+  if(window.__mhEntranceDrivenRanges)return;
+  window.__mhEntranceDrivenRanges=true;
+
+  var reduce=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   var configs=[
-    {section:"#wedge",range:"#lp-range",manual:["#lp-replay","#lp2-today"]},
-    {section:"#idea",range:"#we-range",manual:["#we-replay"]},
-    {section:"#science",range:"#uh2-range, #uh-range",manual:["#uh2-play","#uh2-unfold","#uh-play"]}
+    {section:"#wedge",range:"#lp-range",duration:8200,trigger:0.72},
+    {section:"#idea",range:"#we-range",duration:8600,trigger:0.72},
+    {section:"#science",range:"#uh2-range, #uh-range",duration:10400,trigger:0.70}
   ];
 
   var items=[];
-  var raf=0;
+  var initialized=false;
+  var checkRaf=0;
 
   function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
-  function smooth(t){t=clamp(t,0,1);return t*t*(3-2*t);}
-
-  function bindItem(cfg){
-    var section=document.querySelector(cfg.section);
-    if(!section)return null;
-    var range=section.querySelector(cfg.range);
-    if(!range)return null;
-    var item={section:section,range:range,manual:false,last:null,buttons:[]};
-
-    range.addEventListener("input",function(e){if(e.isTrusted)item.manual=true;});
-    range.addEventListener("pointerdown",function(){item.manual=true;},{passive:true});
-    range.addEventListener("keydown",function(){item.manual=true;});
-
-    (cfg.manual||[]).forEach(function(selector){
-      var button=section.querySelector(selector);
-      if(!button)return;
-      item.buttons.push(button);
-      button.addEventListener("click",function(){item.manual=true;});
-    });
-    return item;
+  function ease(t){
+    t=clamp(t,0,1);
+    return t<.5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2;
   }
 
-  function resolve(){
-    items=configs.map(bindItem).filter(Boolean);
-    // Every feature starts at the left edge of its native range: 0% progression.
-    // Living Position's native first value is day 1; Why Membrane and Under the Hood begin at 0.
-    items.forEach(function(item){setProgress(item,0,true);});
-    schedule();
-  }
-
-  function progressFor(section){
-    var rect=section.getBoundingClientRect();
-    var vh=Math.max(1,window.innerHeight||document.documentElement.clientHeight||1);
-    // Begin when the section reaches 80% of the viewport and finish only as the
-    // visitor completes the section, making scroll itself the first playback gesture.
-    var travel=rect.height+vh*.55;
-    var raw=(vh*.80-rect.top)/Math.max(1,travel);
-    return smooth(clamp(raw,0,1));
-  }
-
-  function setProgress(item,p,force){
-    var min=Number(item.range.min||0);
-    var max=Number(item.range.max||100);
-    var step=Number(item.range.step||1);
+  function nativeValue(range,p){
+    var min=Number(range.min||0);
+    var max=Number(range.max||100);
+    var step=Number(range.step||1);
     if(!isFinite(min))min=0;
     if(!isFinite(max)||max<=min)max=min+1;
     if(!isFinite(step)||step<=0)step=1;
@@ -66,50 +34,124 @@
     var value=Math.round((raw-min)/step)*step+min;
     value=clamp(value,min,max);
     var decimals=(String(step).split(".")[1]||"").length;
-    var next=decimals?value.toFixed(decimals):String(Math.round(value));
+    return decimals?value.toFixed(decimals):String(Math.round(value));
+  }
 
+  function setProgress(item,p,force){
+    var next=nativeValue(item.range,p);
     if(!force&&item.range.value===next)return;
     item.range.value=next;
-    item.last=next;
     item.range.dispatchEvent(new Event("input",{bubbles:true}));
   }
 
-  function sync(){
-    raf=0;
+  function bind(cfg){
+    var section=document.querySelector(cfg.section);
+    if(!section)return null;
+    var range=section.querySelector(cfg.range);
+    if(!range)return null;
+
+    var item={
+      section:section,
+      range:range,
+      duration:cfg.duration,
+      trigger:cfg.trigger,
+      state:"waiting",
+      startedAt:0
+    };
+
+    // The first encounter always begins from the native left edge.
+    setProgress(item,0,true);
+    return item;
+  }
+
+  function shouldStart(item){
+    if(item.state!=="waiting")return false;
+    var rect=item.section.getBoundingClientRect();
+    var vh=Math.max(1,window.innerHeight||document.documentElement.clientHeight||1);
+    return rect.top<=vh*item.trigger && rect.bottom>=vh*.22;
+  }
+
+  function finish(item){
+    setProgress(item,1,true);
+    item.state="resolved";
+    item.section.dataset.rangePlayback="resolved";
+  }
+
+  function play(item,now){
+    if(item.state!=="playing")return;
+    var u=clamp((now-item.startedAt)/item.duration,0,1);
+    setProgress(item,ease(u),false);
+    if(u>=1)finish(item);
+    else requestAnimationFrame(function(t){play(item,t);});
+  }
+
+  function start(item){
+    if(item.state!=="waiting")return;
+    item.state="playing";
+    item.section.dataset.rangePlayback="playing";
+
+    // Reassert frame zero at the moment the visitor arrives. This also cancels
+    // any feature-local autoplay that may have tried to advance offscreen.
+    setProgress(item,0,true);
+
+    if(reduce){
+      finish(item);
+      return;
+    }
+
+    item.startedAt=performance.now();
+    requestAnimationFrame(function(t){play(item,t);});
+  }
+
+  function holdWaitingAtStart(){
+    // Some legacy feature engines have their own autoplay. While a section has
+    // not yet been encountered, keep its live range at frame zero. Once started,
+    // this controller releases it into one uninterrupted forward playback.
     items.forEach(function(item){
-      if(item.manual)return;
-      setProgress(item,progressFor(item.section),false);
+      if(item.state==="waiting")setProgress(item,0,false);
     });
   }
 
-  function schedule(){if(!raf)raf=requestAnimationFrame(sync);}
-
-  function resumeFromScroll(){
-    items.forEach(function(item){item.manual=false;});
-    schedule();
-  }
-
-  window.addEventListener("scroll",resumeFromScroll,{passive:true});
-  window.addEventListener("resize",schedule,{passive:true});
-  window.addEventListener("pageshow",function(){items.forEach(function(item){item.manual=false;});schedule();},{passive:true});
-
-  // Re-resolve at load because the homepage feature engines replace their placeholder
-  // markup during deferred-script initialization. This ensures we bind the live sliders.
-  window.addEventListener("load",function(){resolve();},{once:true});
-
-  // Keep programmatic autoplay from advancing a feature before the visitor reaches it.
-  // Manual slider/replay interaction temporarily owns the feature until scrolling resumes.
-  function watchdog(){
+  function check(){
+    checkRaf=0;
+    holdWaitingAtStart();
     items.forEach(function(item){
-      if(item.manual)return;
-      var rect=item.section.getBoundingClientRect();
-      var vh=Math.max(1,window.innerHeight||1);
-      if(rect.bottom>-vh*.35&&rect.top<vh*1.35)setProgress(item,progressFor(item.section),false);
+      if(shouldStart(item))start(item);
     });
-    requestAnimationFrame(watchdog);
   }
 
-  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",resolve,{once:true});
-  else resolve();
-  requestAnimationFrame(watchdog);
+  function scheduleCheck(){
+    if(!checkRaf)checkRaf=requestAnimationFrame(check);
+  }
+
+  function init(){
+    if(initialized)return;
+    initialized=true;
+
+    items=configs.map(bind).filter(Boolean);
+
+    // If a dynamically replaced feature has not landed yet, retry briefly before
+    // giving up. This keeps binding pointed at the live slider, not placeholder HTML.
+    if(items.length<configs.length){
+      initialized=false;
+      setTimeout(init,120);
+      return;
+    }
+
+    check();
+
+    window.addEventListener("scroll",scheduleCheck,{passive:true});
+    window.addEventListener("resize",scheduleCheck,{passive:true});
+    window.addEventListener("pageshow",scheduleCheck,{passive:true});
+
+    // Before encounter, suppress legacy offscreen autoplay without tying playback
+    // to scroll position. After encounter/resolution this loop becomes inert.
+    (function waitingGuard(){
+      holdWaitingAtStart();
+      requestAnimationFrame(waitingGuard);
+    })();
+  }
+
+  if(document.readyState==="complete")init();
+  else window.addEventListener("load",init,{once:true});
 })();
