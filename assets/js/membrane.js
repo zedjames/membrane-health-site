@@ -168,7 +168,7 @@
     }
     loadScript("assets/js/home-vitality.js?v=1","data-home-vitality");
     if(document.getElementById("different")&&document.getElementById("idea")&&document.getElementById("science"))loadScript("assets/js/home-signature.js?v=1","data-home-signature");
-    if(document.getElementById("different"))loadScript("assets/js/home-measure-presence.js?v=1","data-home-measure-presence");
+    if(document.getElementById("different"))loadScript("assets/js/home-measure-presence.js?v=1","data-measure-presence");
     loadScript("assets/js/home-copy-polish.js?v=3","data-home-copy-polish");
   }
 
