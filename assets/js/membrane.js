@@ -162,7 +162,7 @@
     if(document.getElementById("different")&&document.getElementById("idea")&&document.getElementById("science"))loadScript("assets/js/home-signature.js?v=1","data-home-signature");
     if(document.getElementById("different")){
       loadScript("assets/js/home-measure-presence.js?v=1","data-measure-presence");
-      loadScript("assets/js/what-it-measures-dwell.js?v=1","data-wm-dwell");
+      loadScript("assets/js/what-it-measures-dwell.js?v=2","data-wm-dwell");
     }
     loadScript("assets/js/home-copy-polish.js?v=2","data-home-copy-polish");
   }
