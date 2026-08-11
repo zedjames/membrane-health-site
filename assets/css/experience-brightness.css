@@ -19,14 +19,13 @@
   filter: brightness(var(--mh-experience-brightness)) !important;
 }
 
-/* Why Membrane — SVG boundary world + canvas depth/exchange layers */
-#idea .idea-exp__canvas,
-#idea #we-field,
-#idea .we-depth-overlay,
-#idea .mh-signature-canvas,
-#idea .mh-vitality-canvas--membrane {
-  filter: brightness(var(--mh-experience-brightness)) !important;
-}
+/*
+   Why Membrane is deliberately excluded from CSS brightness filters.
+   Its SVG membrane and depth canvas are synchronized geometrically every frame;
+   filtering those layers independently creates separate compositing contexts and
+   can visually detach the interior wells from the membrane. Its 25% lift is
+   applied inside why-membrane.js instead, where geometry remains untouched.
+*/
 
 /* What's Under the Hood — current relational field plus legacy fallback */
 #science .uh2__canvas,
