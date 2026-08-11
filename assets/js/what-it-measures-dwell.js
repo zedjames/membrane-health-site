@@ -1,6 +1,6 @@
-/* What It Measures — restore cinematic dwell pacing.
-   The base engine intentionally owns all drawing and captions. This layer only
-   remaps its scroll geometry so each scene has time to live before transition. */
+/* What It Measures — restore cinematic dwell pacing and robust viewport pinning.
+   The base engine owns all drawing/captions. This layer owns only the physical
+   scroll corridor, sticky containment, and dwell-to-transition timing. */
 (function(){
   "use strict";
   if(window.__wmDwellPacing)return;
@@ -15,19 +15,33 @@
 
   function bind(){
     var cinema=document.getElementById("wm3-cinema");
-    if(!cinema)return false;
+    var sticky=cinema&&cinema.querySelector(".wm3__sticky");
+    var stage=cinema&&cinema.querySelector(".wm3__stage");
+    if(!cinema||!sticky||!stage)return false;
     if(cinema.dataset.dwellBound==="true")return true;
     cinema.dataset.dwellBound="true";
 
-    /* Give the twelve scenes enough physical scroll distance to evolve.
-       Desktop gets the full cinematic corridor; mobile is slightly shorter
-       while still holding each state for a meaningful interval. */
+    /*
+      The original visual used position:sticky on the stage inside an absolutely
+      positioned 100%-height wrapper. That can degrade into ordinary scrolling
+      when surrounding homepage layers alter overflow/containment.
+
+      Make the wrapper itself the sticky viewport in normal document flow.
+      Its negative bottom margin lets the beat corridor occupy the same physical
+      scroll space beneath it. The stage is then simply positioned inside the
+      pinned viewport. This is the standard cinematic-scroll structure and is
+      substantially more reliable across Safari, Chrome and mobile WebKit.
+    */
     var style=document.createElement("style");
     style.dataset.wmDwellStyle="true";
     style.textContent=[
-      ".wm3__cinema{min-height:1160vh!important}",
-      "@media(max-width:820px){.wm3__cinema{min-height:1040vh!important}}",
-      "@media(max-width:560px){.wm3__cinema{min-height:960vh!important}}"
+      "#different.wm3,body.mh-world-active>#different.wm3{overflow:visible!important}",
+      ".wm3__cinema{position:relative!important;min-height:1160vh!important}",
+      ".wm3__sticky{position:sticky!important;top:0!important;left:auto!important;right:auto!important;bottom:auto!important;width:100%!important;height:100vh!important;margin-bottom:-100vh!important;z-index:20!important;pointer-events:none!important}",
+      ".wm3__stage{position:absolute!important;top:7vh!important;left:0!important;right:0!important;bottom:auto!important;width:100%!important;height:86vh!important;pointer-events:auto!important}",
+      ".wm3__beats{position:relative!important;z-index:0!important}",
+      "@media(max-width:820px){.wm3__cinema{min-height:1040vh!important}.wm3__stage{top:4vh!important;height:90vh!important}}",
+      "@media(max-width:560px){.wm3__cinema{min-height:960vh!important}.wm3__stage{top:3vh!important;height:91vh!important}}"
     ].join("");
     document.head.appendChild(style);
 
@@ -37,10 +51,9 @@
          0% ───────── 68%   dwell on the current scene
         68% ──────── 100%   eased transition to the next scene
 
-       The base What-It-Measures engine still believes it is reading a normal
-       linear scroll position. We simply present it with a remapped top value.
-       Its drawing code, captions, and internal time-based motion remain
-       authoritative. */
+       The base What-It-Measures engine still reads a linear progress value.
+       Present it with a remapped top value while leaving its animation engine
+       and time-based evolution entirely authoritative. */
     cinema.getBoundingClientRect=function(){
       var raw=nativeRect();
       if(reduce)return raw;
@@ -72,9 +85,8 @@
       };
     };
 
-    /* The base family buttons scroll to legacy spacer nodes. With a longer
-       corridor those positions no longer correspond to the intended scene.
-       Capture the click first and land in the center of that scene's dwell. */
+    /* Family buttons should land in the middle of the intended dwell, not at
+       the legacy spacer position. */
     var families=document.getElementById("wm3-families");
     if(families){
       families.querySelectorAll("button[data-beat]").forEach(function(button){
@@ -94,7 +106,6 @@
       });
     }
 
-    /* Force the base scroll handler to re-read the newly remapped geometry. */
     requestAnimationFrame(function(){
       window.dispatchEvent(new Event("resize"));
       window.dispatchEvent(new Event("scroll"));
