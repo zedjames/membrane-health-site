@@ -1,12 +1,6 @@
 /* Membrane Health — mobile production stability hotfix.
-   Keeps oversized experiential visuals from widening their grid tracks and
-   pulling semantic copy outside the mobile viewport. */
-
-html,
-body {
-  max-width: 100%;
-  overflow-x: hidden;
-}
+   IMPORTANT: keep this file section-scoped. Root html/body overflow changes
+   alter the document scrolling context and can break sticky cinematic scenes. */
 
 @media (max-width: 980px) {
   #idea,
@@ -59,8 +53,6 @@ body {
   }
 
   #idea .idea-exp__visual {
-    /* membrane.css intentionally overscans this to 110%; that can widen the
-       mobile grid's intrinsic size in Safari and shift the copy off-screen. */
     width: 100% !important;
     margin-left: 0 !important;
   }
@@ -75,7 +67,6 @@ body {
     letter-spacing: .08em;
   }
 
-  /* Keep the Under-the-Hood control surface fully inside the phone viewport. */
   #science.uh2 .uh2__shell,
   #science.uh2 .uh2__instrument,
   #science.uh2 .uh2__stage,
