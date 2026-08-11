@@ -152,6 +152,7 @@
   function initHomeWorld(){
     if(!document.getElementById("top")||!document.getElementById("wedge"))return;
     loadScript("assets/js/home-world.js?v=2","data-home-world");
+    loadScript("assets/js/home-world-memory.js?v=1","data-home-world-memory");
     loadScript("assets/js/home-depth.js?v=2","data-home-depth");
   }
 
@@ -167,7 +168,7 @@
     }
     loadScript("assets/js/home-vitality.js?v=1","data-home-vitality");
     if(document.getElementById("different")&&document.getElementById("idea")&&document.getElementById("science"))loadScript("assets/js/home-signature.js?v=1","data-home-signature");
-    if(document.getElementById("different"))loadScript("assets/js/home-measure-presence.js?v=1","data-measure-presence");
+    if(document.getElementById("different"))loadScript("assets/js/home-measure-presence.js?v=1","data-home-measure-presence");
     loadScript("assets/js/home-copy-polish.js?v=3","data-home-copy-polish");
   }
 
