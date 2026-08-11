@@ -7,6 +7,7 @@
   var BASE_SRC = "assets/js/why-membrane-base.js?v=1";
   var TAU = Math.PI * 2;
   var VIEW = 700;
+  var VISUAL_LIFT = 1.25;
 
   function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
   function lerp(a, b, t) { return a + (b - a) * t; }
@@ -46,6 +47,7 @@
 
   function rgba(hex, alpha) {
     var h = String(hex || "").trim();
+    alpha = clamp((Number(alpha) || 0) * VISUAL_LIFT, 0, 1);
     if (/^#[0-9a-f]{3}$/i.test(h)) h = "#" + h[1] + h[1] + h[2] + h[2] + h[3] + h[3];
     if (/^#[0-9a-f]{6}$/i.test(h)) {
       var n = parseInt(h.slice(1), 16);
