@@ -1,0 +1,59 @@
+name: One-time homepage runtime cache bust
+
+on:
+  push:
+    paths:
+      - .github/workflows/cache-bust-homepage.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch-homepage-assets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Bump production asset URLs
+        shell: python
+        run: |
+          from pathlib import Path
+
+          replacements = {
+              Path("index.html"): {
+                  "assets/js/membrane.js?v=1": "assets/js/membrane.js?v=4",
+                  "assets/js/what-it-measures.js?v=1": "assets/js/what-it-measures.js?v=3",
+                  "assets/js/why-membrane.js?v=2": "assets/js/why-membrane.js?v=3",
+                  "assets/js/whats-under-the-hood.js?v=1": "assets/js/whats-under-the-hood.js?v=2",
+              },
+              Path("assets/js/membrane.js"): {
+                  "assets/js/what-it-measures-dwell.js?v=2": "assets/js/what-it-measures-dwell.js?v=3",
+                  "assets/js/home-copy-polish.js?v=2": "assets/js/home-copy-polish.js?v=3",
+              },
+              Path("assets/js/what-it-measures.js"): {
+                  "assets/css/what-it-measures-next.css?v=6": "assets/css/what-it-measures-next.css?v=7",
+              },
+              Path("assets/js/home-copy-polish.js"): {
+                  "assets/js/scroll-driven-ranges.js?v=2": "assets/js/scroll-driven-ranges.js?v=3",
+              },
+          }
+
+          for path, mapping in replacements.items():
+              text = path.read_text()
+              for old, new in mapping.items():
+                  if old not in text:
+                      raise SystemExit(f"Expected cache key not found in {path}: {old}")
+                  text = text.replace(old, new)
+              path.write_text(text)
+
+      - name: Commit production cache keys and remove one-time workflow
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/cache-bust-homepage.yml
+          git add index.html assets/js/membrane.js assets/js/what-it-measures.js assets/js/home-copy-polish.js
+          git commit -m "Bust homepage cinematic runtime caches"
+          git push
