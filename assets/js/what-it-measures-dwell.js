@@ -8,6 +8,7 @@
 
   var reduce=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var attempts=0;
+  var HOLD=.68;
 
   function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
   function smooth(t){t=clamp(t,0,1);return t*t*(3-2*t);}
@@ -38,8 +39,8 @@
 
        The base What-It-Measures engine still believes it is reading a normal
        linear scroll position. We simply present it with a remapped top value.
-       Its drawing code, captions, buttons, and internal time-based motion all
-       remain authoritative. */
+       Its drawing code, captions, and internal time-based motion remain
+       authoritative. */
     cinema.getBoundingClientRect=function(){
       var raw=nativeRect();
       if(reduce)return raw;
@@ -50,7 +51,6 @@
       var scaled=rawProgress*11;
       var index=Math.min(10,Math.floor(scaled));
       var local=scaled-index;
-      var HOLD=.68;
       var transition=local<=HOLD?0:smooth((local-HOLD)/(1-HOLD));
       var mappedBeat=index+transition;
 
@@ -71,6 +71,28 @@
         toJSON:raw.toJSON?raw.toJSON.bind(raw):function(){return{};}
       };
     };
+
+    /* The base family buttons scroll to legacy spacer nodes. With a longer
+       corridor those positions no longer correspond to the intended scene.
+       Capture the click first and land in the center of that scene's dwell. */
+    var families=document.getElementById("wm3-families");
+    if(families){
+      families.querySelectorAll("button[data-beat]").forEach(function(button){
+        button.addEventListener("click",function(event){
+          if(reduce)return;
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          var index=clamp(+button.dataset.beat||0,0,11);
+          var vh=Math.max(1,window.innerHeight||document.documentElement.clientHeight||1);
+          var travel=Math.max(1,cinema.offsetHeight-vh);
+          var raw=nativeRect();
+          var documentTop=(window.scrollY||window.pageYOffset||0)+raw.top;
+          var local=index>=11?0:HOLD*.48;
+          var progress=clamp((index+local)/11,0,1);
+          window.scrollTo({top:documentTop+progress*travel,behavior:"smooth"});
+        },true);
+      });
+    }
 
     /* Force the base scroll handler to re-read the newly remapped geometry. */
     requestAnimationFrame(function(){
