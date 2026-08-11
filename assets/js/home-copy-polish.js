@@ -48,7 +48,7 @@
   function loadScrollDrivenRanges(){
     if(document.querySelector('script[data-scroll-driven-ranges]'))return;
     var script=document.createElement("script");
-    script.src="assets/js/scroll-driven-ranges.js?v=2";
+    script.src="assets/js/scroll-driven-ranges.js?v=3";
     script.defer=true;
     script.dataset.scrollDrivenRanges="true";
     document.body.appendChild(script);

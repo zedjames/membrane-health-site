@@ -9,7 +9,7 @@
   if(!document.querySelector('link[data-wm-next-style]')){
     var css=document.createElement("link");
     css.rel="stylesheet";
-    css.href="assets/css/what-it-measures-next.css?v=6";
+    css.href="assets/css/what-it-measures-next.css?v=7";
     css.dataset.wmNextStyle="true";
     document.head.appendChild(css);
   }
