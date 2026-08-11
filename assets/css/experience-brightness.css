@@ -4,6 +4,7 @@
 
 :root {
   --mh-experience-brightness: 1.25;
+  --mh-modes-brightness: 1.5;
 }
 
 /* A Living Position */
@@ -35,10 +36,24 @@
   filter: brightness(var(--mh-experience-brightness)) !important;
 }
 
-/* The Five Modes */
-#modes .fm__world,
+/*
+   The Five Modes — 50% brighter as a composed experience.
+   Brighten the visual stage as one unit so its canvas/SVG layers retain their
+   original relationship, and lift the atmospheric world around it separately.
+   Mode labels, descriptions, buttons, and section copy remain untouched.
+*/
+#modes .fm__stage {
+  filter: brightness(var(--mh-modes-brightness)) saturate(1.08) !important;
+}
+
+#modes .fm__aurora,
+#modes .fm__world {
+  filter: brightness(var(--mh-modes-brightness)) saturate(1.08) !important;
+}
+
+/* Prevent the earlier per-layer 25% rule from stacking on top of the 50% stage lift. */
 #modes .fm__phenomena,
 #modes #fm-field,
 #modes .mh-signature-canvas {
-  filter: brightness(var(--mh-experience-brightness)) !important;
+  filter: none !important;
 }
