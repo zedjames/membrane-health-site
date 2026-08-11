@@ -4,14 +4,28 @@
   if(window.__mhNativeEntrancePlayback)return;
   window.__mhNativeEntrancePlayback=true;
 
+  /* Load last-mile mobile layout hardening after the experiential CSS layers. */
+  if(!document.querySelector('link[data-mobile-stability]')){
+    var stability=document.createElement("link");
+    stability.rel="stylesheet";
+    stability.href="assets/css/mobile-stability.css?v=1";
+    stability.dataset.mobileStability="true";
+    document.head.appendChild(stability);
+  }
+
   var configs=[
-    {section:"#wedge",range:"#lp-range",play:"#lp-replay"},
-    {section:"#idea",range:"#we-range",play:"#we-replay"},
-    {section:"#science",range:"#uh2-range",play:"#uh2-play"}
+    {section:"#wedge",range:"#lp-range",play:"#lp-replay",trigger:".lp-stage"},
+    /* Why Membrane's legacy engine has its own autoplay, so keep guarding its
+       first frame until the visitor actually reaches the visual. */
+    {section:"#idea",range:"#we-range",play:"#we-replay",trigger:".idea-exp__stage",guard:true},
+    /* Under the Hood is very tall on phones. Observe the instrument stage,
+       never the full section, or an intersection-ratio threshold may never fire. */
+    {section:"#science",range:"#uh2-range",play:"#uh2-play",trigger:".uh2__stage"}
   ];
 
   var bound=[];
   var observer=null;
+  var fallbackQueued=false;
 
   function setToStart(item){
     if(item.started)return;
@@ -22,14 +36,19 @@
     }
   }
 
-  function begin(item){
+  function release(item,mode){
     if(item.started)return;
     item.started=true;
-    item.section.dataset.rangePlayback="playing";
-    if(observer)observer.unobserve(item.section);
+    item.section.dataset.rangePlayback=mode||"manual";
+    if(observer&&item.trigger)observer.unobserve(item.trigger);
+  }
 
-    // Put the native engine at its own first frame, then let its own playback
-    // control run uninterrupted to completion. No external range animation.
+  function begin(item){
+    if(item.started)return;
+    release(item,"playing");
+
+    /* Put the native engine at its own first frame, then let that engine run
+       uninterrupted. The native click handler remains authoritative. */
     var min=item.range.min!=="" ? item.range.min : "0";
     item.range.value=String(min);
     item.range.dispatchEvent(new Event("input",{bubbles:true}));
@@ -48,14 +67,27 @@
 
     var range=section.querySelector(cfg.range);
     var play=section.querySelector(cfg.play);
-    if(!range||!play)return false;
+    var trigger=cfg.trigger ? section.querySelector(cfg.trigger) : section;
+    if(!range||!play||!trigger)return false;
 
-    var item={section:section,range:range,play:play,started:false};
+    var item={section:section,range:range,play:play,trigger:trigger,guard:!!cfg.guard,started:false};
     section.dataset.nativePlaybackBound="true";
     bound.push(item);
     setToStart(item);
 
-    observer.observe(section);
+    /* A human touching the native control owns it immediately. This prevents
+       the entrance guard from cancelling a manual tap on mobile Safari. */
+    function manual(){release(item,"manual");}
+    play.addEventListener("pointerdown",manual,{passive:true});
+    play.addEventListener("touchstart",manual,{passive:true});
+    play.addEventListener("click",function(){
+      if(!item.started)release(item,"manual");
+    });
+    range.addEventListener("pointerdown",manual,{passive:true});
+    range.addEventListener("touchstart",manual,{passive:true});
+    range.addEventListener("keydown",manual);
+
+    observer.observe(trigger);
     return true;
   }
 
@@ -64,28 +96,51 @@
     configs.forEach(function(cfg){
       if(!bind(cfg))complete=false;
     });
+    checkFallback();
     return complete;
   }
 
   observer=new IntersectionObserver(function(entries){
     entries.forEach(function(entry){
       if(!entry.isIntersecting)return;
-      var item=bound.find(function(x){return x.section===entry.target;});
+      var item=bound.find(function(x){return x.trigger===entry.target;});
       if(item)begin(item);
     });
   },{
-    // Wait until the visitor is genuinely inside the section before starting.
-    // Once started, playback is independent of scroll direction or speed.
+    /* The trigger is the compact visual stage, not the long content section.
+       A tiny threshold makes this reliable on short mobile viewports. */
     root:null,
-    rootMargin:"-10% 0px -18% 0px",
-    threshold:.18
+    rootMargin:"-8% 0px -22% 0px",
+    threshold:.02
   });
 
-  // Legacy Why Membrane contains its own offscreen autoplay. While a feature is
-  // still waiting, repeatedly reassert its native first frame; dispatching input
-  // also cancels that local autoplay through the feature's own listener.
+  /* Safari fallback: if IntersectionObserver timing is delayed during a heavy
+     canvas frame, entering the central viewport band still starts the native
+     engine exactly once. */
+  function checkFallback(){
+    fallbackQueued=false;
+    var vh=Math.max(document.documentElement.clientHeight||0,window.innerHeight||0);
+    if(!vh)return;
+    bound.forEach(function(item){
+      if(item.started||!item.trigger)return;
+      var r=item.trigger.getBoundingClientRect();
+      if(r.top<vh*.78&&r.bottom>vh*.18)begin(item);
+    });
+  }
+  function queueFallback(){
+    if(fallbackQueued)return;
+    fallbackQueued=true;
+    requestAnimationFrame(checkFallback);
+  }
+  window.addEventListener("scroll",queueFallback,{passive:true});
+  window.addEventListener("resize",queueFallback,{passive:true});
+  window.addEventListener("orientationchange",queueFallback,{passive:true});
+
+  /* Only Why Membrane needs a persistent offscreen guard because its legacy
+     visual engine can autoplay itself. Other native controls are initialized
+     once and then left completely alone until entrance or manual interaction. */
   (function waitingGuard(){
-    bound.forEach(setToStart);
+    bound.forEach(function(item){if(item.guard)setToStart(item);});
     requestAnimationFrame(waitingGuard);
   })();
 
