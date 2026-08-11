@@ -4,6 +4,13 @@
   var root=document.documentElement;
   var KEY="membrane-theme";
 
+  /* The mobile hotfix briefly applied overflow-x:hidden to the root html
+     element. That changes the document scrolling context and can defeat
+     descendant position:sticky scenes. Restore the pre-hotfix root behavior
+     here as a cache-safe override; body keeps the site's original x clipping. */
+  root.style.overflowX="visible";
+  root.style.maxWidth="none";
+
   function lockDarkMode(){
     root.removeAttribute("data-theme");
     root.style.colorScheme="dark";
