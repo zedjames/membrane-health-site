@@ -1,0 +1,45 @@
+/* Membrane Health — experiential visual brightness pass.
+   Visual rendering surfaces only. Page copy, controls, cards, and typography
+   are intentionally excluded. */
+
+:root {
+  --mh-experience-brightness: 1.25;
+}
+
+/* A Living Position */
+#wedge .lp-atmosphere,
+#wedge #lp-field {
+  filter: brightness(var(--mh-experience-brightness)) !important;
+}
+
+/* What It Measures — current cinematic engine plus legacy fallback */
+#different .wm3__canvas,
+#different .wm__canvas,
+#different #wm-field {
+  filter: brightness(var(--mh-experience-brightness)) !important;
+}
+
+/* Why Membrane — SVG boundary world + canvas depth/exchange layers */
+#idea .idea-exp__canvas,
+#idea #we-field,
+#idea .we-depth-overlay,
+#idea .mh-signature-canvas,
+#idea .mh-vitality-canvas--membrane {
+  filter: brightness(var(--mh-experience-brightness)) !important;
+}
+
+/* What's Under the Hood — current relational field plus legacy fallback */
+#science .uh2__canvas,
+#science .uh__canvas,
+#science #uh-field,
+#science .mh-signature-canvas {
+  filter: brightness(var(--mh-experience-brightness)) !important;
+}
+
+/* The Five Modes */
+#modes .fm__world,
+#modes .fm__phenomena,
+#modes #fm-field,
+#modes .mh-signature-canvas {
+  filter: brightness(var(--mh-experience-brightness)) !important;
+}
