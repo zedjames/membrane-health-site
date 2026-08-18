@@ -1,0 +1,69 @@
+name: Finish App Store Links
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/finish-app-store-links.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  update-links:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Add direct contextual App Store links
+        shell: python
+        run: |
+          from pathlib import Path
+
+          APP = 'https://apps.apple.com/us/app/membrane-health/id6760785653'
+          ATTRS = f'href="{APP}" target="_blank" rel="noopener"'
+
+          index = Path('index.html')
+          text = index.read_text(encoding='utf-8')
+          old = 'Membrane Health is available now in the App Store. One whole-system reading from your Apple&nbsp;Watch brings today\'s load, capacity, mode, and recovery direction into a position you can follow through time.'
+          new = f'Membrane Health is <a {ATTRS}>available now in the App Store</a>. One whole-system reading from your Apple&nbsp;Watch brings today\'s load, capacity, mode, and recovery direction into a position you can follow through time.'
+          if old not in text:
+              raise SystemExit('Expected homepage availability sentence not found')
+          text = text.replace(old, new, 1)
+
+          old_pill = '<span class="release__pill"><span class="glow-dot"></span>Available now in the App Store · iPhone &amp; Apple&nbsp;Watch</span>'
+          new_pill = f'<a class="release__pill" {ATTRS} style="text-decoration:none;"><span class="glow-dot"></span>Available now in the App Store · iPhone &amp; Apple&nbsp;Watch</a>'
+          if old_pill not in text:
+              raise SystemExit('Expected homepage release pill not found')
+          text = text.replace(old_pill, new_pill, 1)
+          index.write_text(text, encoding='utf-8')
+
+          faq = Path('faq.html')
+          text = faq.read_text(encoding='utf-8')
+          old = '<p>Membrane Health is available now. It runs on iPhone with Apple&nbsp;Watch.</p>'
+          new = f'<p>Membrane Health is <a {ATTRS}>available now in the App Store</a>. It runs on iPhone with Apple&nbsp;Watch.</p>'
+          if old not in text:
+              raise SystemExit('Expected FAQ availability answer not found')
+          text = text.replace(old, new, 1)
+          faq.write_text(text, encoding='utf-8')
+
+          # Basic verification.
+          for path in (index, faq):
+              updated = path.read_text(encoding='utf-8')
+              if APP not in updated:
+                  raise SystemExit(f'{path}: App Store URL missing after update')
+
+      - name: Commit and remove one-shot workflow
+        shell: bash
+        run: |
+          rm -f .github/workflows/finish-app-store-links.yml
+          rmdir .github/workflows 2>/dev/null || true
+          rmdir .github 2>/dev/null || true
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Add direct App Store links in release copy"
+          git push origin main
