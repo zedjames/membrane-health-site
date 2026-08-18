@@ -1,0 +1,143 @@
+name: Link App Store CTAs
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/link-app-store.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  update-links:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Point app CTAs to the App Store
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          APP_URL = "https://apps.apple.com/us/app/membrane-health/id6760785653"
+          SMART_BANNER = '<meta name="apple-itunes-app" content="app-id=6760785653">'
+
+          def clean_text(html):
+              return re.sub(r'\s+', ' ', re.sub(r'<[^>]+>', '', html)).strip().lower()
+
+          def direct_app_anchor(match):
+              open_tag = match.group(1)
+              body = match.group(2)
+              text = clean_text(body)
+
+              href_match = re.search(r'\bhref\s*=\s*(["\'])(.*?)\1', open_tag, flags=re.I | re.S)
+              href = href_match.group(2) if href_match else ''
+
+              direct_href = href in {'#get', 'index.html#get', '/#get', './#get'}
+              semantic_cta = any(phrase in text for phrase in (
+                  'app store',
+                  'get membrane',
+                  'get the app',
+                  'download membrane',
+                  'download the app',
+              ))
+
+              if not (direct_href or semantic_cta):
+                  return match.group(0)
+
+              if href_match:
+                  open_tag = open_tag[:href_match.start()] + f'href="{APP_URL}"' + open_tag[href_match.end():]
+              else:
+                  open_tag += f' href="{APP_URL}"'
+
+              if not re.search(r'\btarget\s*=', open_tag, flags=re.I):
+                  open_tag += ' target="_blank"'
+              if not re.search(r'\brel\s*=', open_tag, flags=re.I):
+                  open_tag += ' rel="noopener"'
+
+              return '<a' + open_tag + '>' + body + '</a>'
+
+          changed = []
+          for path in sorted(Path('.').glob('*.html')):
+              if path.name == '404.html':
+                  continue
+
+              text = path.read_text(encoding='utf-8')
+              original = text
+
+              # Make every existing app/get CTA a direct App Store link.
+              text = re.sub(
+                  r'<a\b([^>]*)>(.*?)</a>',
+                  direct_app_anchor,
+                  text,
+                  flags=re.I | re.S,
+              )
+
+              # Safari/iOS can surface a native Smart App Banner from any main site page.
+              if SMART_BANNER not in text:
+                  if re.search(r'</head\s*>', text, flags=re.I):
+                      text = re.sub(
+                          r'</head\s*>',
+                          SMART_BANNER + '</head>',
+                          text,
+                          count=1,
+                          flags=re.I,
+                      )
+
+              if text != original:
+                  path.write_text(text, encoding='utf-8')
+                  changed.append(path.name)
+
+          print('Updated:', ', '.join(changed) if changed else 'none')
+
+      - name: Verify App Store links
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          APP_URL = "https://apps.apple.com/us/app/membrane-health/id6760785653"
+          failures = []
+
+          for path in sorted(Path('.').glob('*.html')):
+              if path.name == '404.html':
+                  continue
+              text = path.read_text(encoding='utf-8')
+
+              if 'href="#get"' in text or 'href="index.html#get"' in text:
+                  failures.append(f'{path}: stale #get href remains')
+
+              # Any linked App Store language should point directly to the supplied listing.
+              for match in re.finditer(r'<a\b([^>]*)>(.*?)</a>', text, flags=re.I | re.S):
+                  label = re.sub(r'\s+', ' ', re.sub(r'<[^>]+>', '', match.group(2))).strip().lower()
+                  if 'app store' in label:
+                      href_match = re.search(r'\bhref\s*=\s*(["\'])(.*?)\1', match.group(1), flags=re.I | re.S)
+                      if not href_match or href_match.group(2) != APP_URL:
+                          failures.append(f'{path}: App Store CTA is not direct')
+
+          if failures:
+              raise SystemExit('\n'.join(failures))
+
+          print('All App Store CTAs point directly to:', APP_URL)
+
+      - name: Commit site updates and remove one-shot workflow
+        shell: bash
+        run: |
+          rm -f .github/workflows/link-app-store.yml
+          rmdir .github/workflows 2>/dev/null || true
+          rmdir .github 2>/dev/null || true
+
+          if git diff --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Link App Store CTAs directly"
+          git push origin main
