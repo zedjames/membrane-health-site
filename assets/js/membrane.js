@@ -124,7 +124,7 @@
     fetch("attestation.json",{cache:"no-store"})
       .then(function(r){return r.ok?r.json():null;})
       .then(function(a){
-        if(!a||!a.corpus||!a.invariants)return;
+        if(!a||a.schema!=="fieldflux-corpus-attestation/v2"||!a.corpus||!a.invariants)return;
         var c=a.corpus,inv=a.invariants;
         function fmt(k){
           if(k==="lines")return Math.floor(c.lines/10000)*10+"K+";
