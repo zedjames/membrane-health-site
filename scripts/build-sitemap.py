@@ -8,6 +8,7 @@ import xml.etree.ElementTree as ET
 ROOT = Path(__file__).resolve().parents[1]
 BASE = "https://membrane-health.com"
 EXCLUDED = {"404.html"}
+# Preview copies are published for review only and must never appear in the public sitemap.
 
 def url_for(path: Path) -> str:
     relative = path.relative_to(ROOT).as_posix()
@@ -18,7 +19,7 @@ def url_for(path: Path) -> str:
     return BASE + "/" + relative
 
 def public_html():
-    paths = [p for p in ROOT.rglob("*.html") if p.relative_to(ROOT).as_posix() not in EXCLUDED and not any(part.startswith(".") for part in p.relative_to(ROOT).parts)]
+    paths = [p for p in ROOT.rglob("*.html") if p.relative_to(ROOT).as_posix() not in EXCLUDED and p.relative_to(ROOT).parts[0] != "preview" and not any(part.startswith(".") for part in p.relative_to(ROOT).parts)]
     return sorted(paths, key=lambda p: (p != ROOT / "index.html", p.relative_to(ROOT).as_posix()))
 
 def render() -> str:

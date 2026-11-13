@@ -65,7 +65,7 @@ def canonical_for(path):
 
 def run():
     errors = []
-    pages = sorted(p for p in ROOT.rglob("*.html") if not any(part.startswith(".") for part in p.relative_to(ROOT).parts) and p.relative_to(ROOT).as_posix() not in SKIP)
+    pages = sorted(p for p in ROOT.rglob("*.html") if not any(part.startswith(".") for part in p.relative_to(ROOT).parts) and p.relative_to(ROOT).as_posix() not in SKIP and p.relative_to(ROOT).parts[0] != "preview")
     titles = {}
     for page in pages:
         name = page.relative_to(ROOT).as_posix()
