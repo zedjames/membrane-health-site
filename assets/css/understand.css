@@ -75,3 +75,8 @@
 .learn-grid--extended { grid-template-columns:repeat(3,minmax(0,1fr)); }
 @media(max-width:900px) { .learn-grid--extended {grid-template-columns:repeat(2,minmax(0,1fr));} }
 @media(max-width:640px) { .learn-grid--extended {grid-template-columns:1fr;} }
+
+/* Everyday questions - small extension; shares the existing educational-card design. */
+.learn-citations { border-top:1px solid var(--line); }
+.learn-citations a { color:var(--glow); }
+.learn-citations ul { margin-top:12px; }
