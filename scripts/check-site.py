@@ -19,6 +19,8 @@ class Scan(HTMLParser):
         self.metas = {}
         self.canonical = None
         self.h1 = 0
+        self.main_open = 0
+        self.main_close = 0
         self.hrefs = []
         self.ldjson = []
         self.in_json = False
@@ -30,6 +32,8 @@ class Scan(HTMLParser):
             self.in_title = True
         if tag == "h1":
             self.h1 += 1
+        if tag == "main":
+            self.main_open += 1
         if tag == "meta":
             key = a.get("name") or a.get("property")
             if key:
@@ -51,6 +55,8 @@ class Scan(HTMLParser):
     def handle_endtag(self, tag):
         if tag == "title":
             self.in_title = False
+        if tag == "main":
+            self.main_close += 1
         if tag == "script" and self.in_json:
             self.ldjson.append(self.json_buffer)
             self.in_json = False
@@ -82,6 +88,8 @@ def run():
             errors.append(name + ": incorrect or missing canonical: " + str(scan.canonical))
         if scan.h1 != 1:
             errors.append(name + ": expected exactly one h1, found " + str(scan.h1))
+        if name.startswith("understand/") and (scan.main_open != 1 or scan.main_close != 1):
+            errors.append(name + ": expected exactly one matched main element")
         for block in scan.ldjson:
             try:
                 json.loads(block)
