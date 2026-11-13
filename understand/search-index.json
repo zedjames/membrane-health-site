@@ -1,0 +1,187 @@
+[
+  {
+    "path": "health-as-capacity.html",
+    "title": "What Does It Mean to Define Health as the Capacity to Respond?",
+    "description": "Explore health as the capacity to respond, adapt, and recover while maintaining organization, and how this idea guides Membrane Health's scientific framework.",
+    "category": "Foundations of health",
+    "sections": [
+      "Health concerns how living organization continues",
+      "A boundary is a place of exchange",
+      "Response, adaptation, and recovery through time",
+      "How a definition becomes a measurable research program",
+      "What this means for a daily reading",
+      "What supports this explanation?"
+    ],
+    "type": "foundation"
+  },
+  {
+    "path": "heart-rate-variability.html",
+    "title": "What Can Heart Rate Variability Actually Tell You?",
+    "description": "A clear explanation of heart rate variability, why context and personal trends matter, and the limits of interpreting HRV as recovery or health.",
+    "category": "Measurement & interpretation",
+    "sections": [
+      "Heart rate and heart-rate variability are different",
+      "Why one reading can mislead",
+      "How HRV fits into Membrane Health",
+      "What should you ask when HRV changes?",
+      "What HRV cannot tell you on its own",
+      "What supports this explanation?"
+    ],
+    "type": "foundation"
+  },
+  {
+    "path": "how-to-know-if-recovering.html",
+    "title": "How Can I Tell Whether My Body Is Recovering?",
+    "description": "Explore how recovery unfolds through time, which observations can help describe a changing pattern, and the limits of wellness recovery scores.",
+    "category": "Recovery through time",
+    "sections": [
+      "Begin with the demand that came before",
+      "Look for a trajectory rather than a perfect score",
+      "Your experience matters alongside the readings",
+      "Four questions for comparing days",
+      "What recovery metrics do not establish",
+      "What supports this explanation?",
+      "Further reading"
+    ],
+    "type": "question"
+  },
+  {
+    "path": "low-hrv-apple-watch.html",
+    "title": "What Does a Low HRV Reading on Apple Watch Mean?",
+    "description": "Learn how to interpret an unusually low Apple Watch HRV reading, why context matters, and why one number cannot determine health or recovery.",
+    "category": "HRV & measurement context",
+    "sections": [
+      "First ask what actually changed",
+      "Lower is not a universal diagnosis; higher is not a universal goal",
+      "What should you compare with a low reading?",
+      "How Membrane Health approaches HRV",
+      "What to do with an unexpected number",
+      "What supports this explanation?",
+      "Further reading"
+    ],
+    "type": "question"
+  },
+  {
+    "path": "measurements-and-inference.html",
+    "title": "What Does Membrane Health Measure—and What Does It Infer?",
+    "description": "See the difference between Apple Health observations, derived calculations, modeled interpretations, mathematical proof, and physiological validation in Membrane Health.",
+    "category": "How the reading is constructed",
+    "sections": [
+      "1. Observations: what is available",
+      "2. Computation: what is derived",
+      "3. Interpretation: what the model says",
+      "4. Formal mathematics: what is established",
+      "5. Empirical testing: what remains to be established",
+      "Your data and your decisions",
+      "What supports this explanation?"
+    ],
+    "type": "foundation"
+  },
+  {
+    "path": "personal-baselines.html",
+    "title": "Why Does Your Physiological Baseline Matter?",
+    "description": "Understand how a rolling 28-day personal baseline places Apple Health measurements in context, and how variability, missing data, and changes affect interpretation.",
+    "category": "Your history & context",
+    "sections": [
+      "Your own history is an essential reference",
+      "What a rolling 28-day window does",
+      "What happens when your baseline changes?",
+      "Personal and population comparisons answer different questions",
+      "How to use the baseline thoughtfully",
+      "What supports this explanation?"
+    ],
+    "type": "foundation"
+  },
+  {
+    "path": "physiological-coherence.html",
+    "title": "What Is Physiological Coherence?",
+    "description": "Explore how physiological measurements can be compared through their relationships, why coherence differs from a single score, and what remains unmeasured.",
+    "category": "Organization & relationships",
+    "sections": [
+      "A collection of numbers is only a beginning",
+      "Correlation, synchrony, and coherence are distinct",
+      "Why relationships can matter",
+      "What Membrane Health can represent",
+      "The most useful next questions",
+      "What supports this explanation?"
+    ],
+    "type": "foundation"
+  },
+  {
+    "path": "physiological-readiness.html",
+    "title": "What Does It Mean for Your Body to Be Ready Today?",
+    "description": "Understand daily physiological readiness, how available capacity relates to load and recovery, and what Apple Watch measurements can and cannot tell you.",
+    "category": "Capacity & daily decisions",
+    "sections": [
+      "Readiness is a relationship, not a permanent score",
+      "Which observations can help?",
+      "What do Go, Caution, and Recover mean?",
+      "Three useful questions to ask about any readiness reading",
+      "What the reading cannot establish",
+      "What supports this explanation?"
+    ],
+    "type": "foundation"
+  },
+  {
+    "path": "physiological-timing.html",
+    "title": "Why Does Biological Timing Matter?",
+    "description": "Learn why the timing of sleep, activity, and physiological measurements matters when interpreting Apple Watch patterns and recovery.",
+    "category": "Timing & rhythms",
+    "sections": [
+      "Your body has rhythms",
+      "Timing, phase, and order answer different questions",
+      "How timing fits into Membrane Health",
+      "Questions that make a timing interpretation useful",
+      "What timing alone cannot establish",
+      "What supports this explanation?"
+    ],
+    "type": "foundation"
+  },
+  {
+    "path": "recovery.html",
+    "title": "What Does It Mean for the Body to Recover?",
+    "description": "Explore the difference between rest and recovery, how physiological patterns change after demand, and what wearable data can reveal about recovery trends.",
+    "category": "Adaptation over time",
+    "sections": [
+      "Rest and recovery are related, but not identical",
+      "Why recovery has a direction",
+      "Which measurements contribute to the picture?",
+      "How Membrane Health represents recovery",
+      "What we can say—and what still requires evidence",
+      "What supports this explanation?"
+    ],
+    "type": "foundation"
+  },
+  {
+    "path": "tired-after-eight-hours-sleep.html",
+    "title": "Why Am I Still Tired After Eight Hours of Sleep?",
+    "description": "Understand why sleep duration does not always explain next-day tiredness, what wearable observations can show, and when to seek medical evaluation.",
+    "category": "Sleep & daily capacity",
+    "sections": [
+      "Eight hours does not answer every sleep question",
+      "Yesterday's demands may matter today",
+      "A useful way to look for a pattern",
+      "What the app can—and cannot—tell you",
+      "Why this matters to the larger science",
+      "What supports this explanation?",
+      "Further reading"
+    ],
+    "type": "question"
+  },
+  {
+    "path": "why-wearable-readings-change.html",
+    "title": "Why Do My Wearable Health Readings Change From Day to Day?",
+    "description": "Understand daily changes in Apple Watch health observations, including sampling time, missing data, personal baseline drift, and genuine physiological variation.",
+    "category": "Variability & wearable data",
+    "sections": [
+      "There are at least two sources of change",
+      "Collection timing and missing records matter",
+      "Your baseline changes as you do",
+      "Several signals add context, not certainty",
+      "A practical reading routine",
+      "What supports this explanation?",
+      "Further reading"
+    ],
+    "type": "question"
+  }
+]

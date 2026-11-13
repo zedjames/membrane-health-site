@@ -48,3 +48,19 @@ Public question hub: `/understand/questions.html`. Each question article has a d
 The site's Cloudflare Web Analytics beacon measures pageviews and web performance, but as of November 2026 **does not support custom click events or UTM reporting**. Do not label App Store outbound links as tracked conversions, and do not invent click counts. Use Google Search Console for organic landing-page queries once available.
 
 Apple App Store Connect supports campaign links to attribute downloads to specific campaigns, but generating functional links requires the real developer-account provider and campaign tokens issued within App Store Connect. The app's existing plain App Store links should remain intact until those tokens are supplied. See https://developer.apple.com/help/app-store-connect-analytics/acquisition/campaign-links/.
+
+## Find an explanation: browser-only search
+
+The Understand Health hub provides a local search over the currently published educational articles. The index at `understand/search-index.json` is generated from article titles, descriptions, category labels and section headings. Searches are evaluated entirely in the visitor's browser: the input is **not** sent to an external search provider or analytics endpoint. Existing browse links remain available when JavaScript is disabled.
+
+After adding or editing an article:
+
+```sh
+python3 scripts/build-search-index.py
+python3 scripts/build-sitemap.py
+python3 scripts/check-site.py
+```
+
+The automated check now enforces search-index freshness, canonical/OG URL consistency, and local HTML link resolution across the public site. Preview copies under `/preview/` are intentionally excluded from indexing tests.
+
+This feature improves navigation; it does not itself establish Google ranking gains or measure app installations. Those require separate Search Console / App Store Connect evidence.

@@ -86,6 +86,8 @@ def run():
             errors.append(name + ": missing or short meta description")
         if scan.canonical != canonical_for(page):
             errors.append(name + ": incorrect or missing canonical: " + str(scan.canonical))
+        if scan.metas.get("og:url") != scan.canonical:
+            errors.append(name + ": og:url differs from canonical")
         if scan.h1 != 1:
             errors.append(name + ": expected exactly one h1, found " + str(scan.h1))
         if name.startswith("understand/") and (scan.main_open != 1 or scan.main_close != 1):
@@ -95,29 +97,31 @@ def run():
                 json.loads(block)
             except json.JSONDecodeError as e:
                 errors.append(name + ": invalid JSON-LD: " + str(e))
-        # New educational pages have a strict local-link check; existing long-form legacy pages
-        # are included above for metadata without changing their historical anchor conventions.
-        if name.startswith("understand/"):
-            for href in scan.hrefs:
-                u = urlsplit(href)
-                if u.scheme or u.netloc or href.startswith(("mailto:", "tel:", "#")):
-                    continue
-                clean = unquote(u.path)
-                if not clean:
-                    continue
-                target = (page.parent / clean).resolve()
-                if not target.is_relative_to(ROOT):
-                    errors.append(name + ": link escapes site: " + href)
-                    continue
-                if target.is_dir():
-                    target /= "index.html"
-                if not target.exists():
-                    errors.append(name + ": broken local link " + href)
+        # Validate every public HTML page's local destinations. Do not treat
+        # externally hosted URLs or same-document hash anchors as local files.
+        for href in scan.hrefs:
+            u = urlsplit(href)
+            if u.scheme or u.netloc or href.startswith(("mailto:", "tel:", "#")):
+                continue
+            clean = unquote(u.path)
+            if not clean:
+                continue
+            target = (page.parent / clean).resolve()
+            if not target.is_relative_to(ROOT):
+                errors.append(name + ": link escapes site: " + href)
+                continue
+            if target.is_dir():
+                target /= "index.html"
+            if not target.exists():
+                errors.append(name + ": broken local link " + href)
     if not (ROOT / "robots.txt").read_text(encoding="utf-8").find(BASE + "/sitemap.xml") >= 0:
         errors.append("robots.txt: missing sitemap declaration")
     result = subprocess.run([sys.executable, str(ROOT / "scripts" / "build-sitemap.py"), "--check"], cwd=ROOT)
     if result.returncode:
         errors.append("sitemap.xml is stale or malformed")
+    search = subprocess.run([sys.executable, str(ROOT / "scripts" / "build-search-index.py"), "--check"], cwd=ROOT)
+    if search.returncode:
+        errors.append("understand/search-index.json is stale or malformed")
     if errors:
         print("Site quality check FAILED:")
         for err in errors:

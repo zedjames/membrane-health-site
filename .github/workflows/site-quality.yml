@@ -16,6 +16,8 @@ jobs:
           python-version: "3.11"
       - name: Check sitemap and search metadata
         run: python3 scripts/check-site.py
+      - name: Validate search JavaScript syntax
+        run: node --check assets/js/understand-search.js
       - name: Assemble self-contained website preview
         if: github.event_name == 'pull_request'
         shell: bash
