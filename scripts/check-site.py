@@ -99,22 +99,21 @@ def run():
                 errors.append(name + ": invalid JSON-LD: " + str(e))
         # Validate every public HTML page's local destinations. Do not treat
         # externally hosted URLs or same-document hash anchors as local files.
-        if True:
-            for href in scan.hrefs:
-                u = urlsplit(href)
-                if u.scheme or u.netloc or href.startswith(("mailto:", "tel:", "#")):
-                    continue
-                clean = unquote(u.path)
-                if not clean:
-                    continue
-                target = (page.parent / clean).resolve()
-                if not target.is_relative_to(ROOT):
-                    errors.append(name + ": link escapes site: " + href)
-                    continue
-                if target.is_dir():
-                    target /= "index.html"
-                if not target.exists():
-                    errors.append(name + ": broken local link " + href)
+        for href in scan.hrefs:
+            u = urlsplit(href)
+            if u.scheme or u.netloc or href.startswith(("mailto:", "tel:", "#")):
+                continue
+            clean = unquote(u.path)
+            if not clean:
+                continue
+            target = (page.parent / clean).resolve()
+            if not target.is_relative_to(ROOT):
+                errors.append(name + ": link escapes site: " + href)
+                continue
+            if target.is_dir():
+                target /= "index.html"
+            if not target.exists():
+                errors.append(name + ": broken local link " + href)
     if not (ROOT / "robots.txt").read_text(encoding="utf-8").find(BASE + "/sitemap.xml") >= 0:
         errors.append("robots.txt: missing sitemap declaration")
     result = subprocess.run([sys.executable, str(ROOT / "scripts" / "build-sitemap.py"), "--check"], cwd=ROOT)
