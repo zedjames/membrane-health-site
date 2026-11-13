@@ -1,0 +1,59 @@
+/* Membrane Health — experiential visual brightness pass.
+   Visual rendering surfaces only. Page copy, controls, cards, and typography
+   are intentionally excluded. */
+
+:root {
+  --mh-experience-brightness: 1.25;
+  --mh-modes-brightness: 1.5;
+}
+
+/* A Living Position */
+#wedge .lp-atmosphere,
+#wedge #lp-field {
+  filter: brightness(var(--mh-experience-brightness)) !important;
+}
+
+/* What It Measures — current cinematic engine plus legacy fallback */
+#different .wm3__canvas,
+#different .wm__canvas,
+#different #wm-field {
+  filter: brightness(var(--mh-experience-brightness)) !important;
+}
+
+/*
+   Why Membrane is deliberately excluded from CSS brightness filters.
+   Its SVG membrane and depth canvas are synchronized geometrically every frame;
+   filtering those layers independently creates separate compositing contexts and
+   can visually detach the interior wells from the membrane. Its 25% lift is
+   applied inside why-membrane.js instead, where geometry remains untouched.
+*/
+
+/* What's Under the Hood — current relational field plus legacy fallback */
+#science .uh2__canvas,
+#science .uh__canvas,
+#science #uh-field,
+#science .mh-signature-canvas {
+  filter: brightness(var(--mh-experience-brightness)) !important;
+}
+
+/*
+   The Five Modes — 50% brighter as a composed experience.
+   Brighten the visual stage as one unit so its canvas/SVG layers retain their
+   original relationship, and lift the atmospheric world around it separately.
+   Mode labels, descriptions, buttons, and section copy remain untouched.
+*/
+#modes .fm__stage {
+  filter: brightness(var(--mh-modes-brightness)) saturate(1.08) !important;
+}
+
+#modes .fm__aurora,
+#modes .fm__world {
+  filter: brightness(var(--mh-modes-brightness)) saturate(1.08) !important;
+}
+
+/* Prevent the earlier per-layer 25% rule from stacking on top of the 50% stage lift. */
+#modes .fm__phenomena,
+#modes #fm-field,
+#modes .mh-signature-canvas {
+  filter: none !important;
+}
