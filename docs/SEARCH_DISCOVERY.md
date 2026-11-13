@@ -40,3 +40,11 @@ Search Console reporting is account-dependent and is **not** part of this reposi
 - `/understand/measurements-and-inference.html`: observed / calculated / interpreted / formally checked / empirically tested.
 
 Use the same labels and scoped evidence statements in future updates. All public pages remain under `/understand/` with canonical URLs on membrane-health.com.
+
+## Everyday questions and acquisition measurement
+
+Public question hub: `/understand/questions.html`. Each question article has a direct answer, context, scientific scope, internal links, and sources as appropriate. Update sources and wording when material evidence changes; avoid duplicating the foundational reference pages.
+
+The site's Cloudflare Web Analytics beacon measures pageviews and web performance, but as of November 2026 **does not support custom click events or UTM reporting**. Do not label App Store outbound links as tracked conversions, and do not invent click counts. Use Google Search Console for organic landing-page queries once available.
+
+Apple App Store Connect supports campaign links to attribute downloads to specific campaigns, but generating functional links requires the real developer-account provider and campaign tokens issued within App Store Connect. The app's existing plain App Store links should remain intact until those tokens are supplied. See https://developer.apple.com/help/app-store-connect-analytics/acquisition/campaign-links/.
