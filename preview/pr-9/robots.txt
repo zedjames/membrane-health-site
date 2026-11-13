@@ -1,0 +1,5 @@
+# Membrane Health
+User-agent: *
+Allow: /
+
+Sitemap: https://membrane-health.com/sitemap.xml
