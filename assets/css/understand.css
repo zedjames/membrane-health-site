@@ -70,3 +70,8 @@
 @media(max-width:900px){.learn-grid{grid-template-columns:repeat(2,minmax(0,1fr));}.learn-grid--two{grid-template-columns:repeat(2,minmax(0,1fr));}.learn-steps{grid-template-columns:1fr;gap:15px;}.learn-article-layout{grid-template-columns:minmax(0,1fr);}.learn-article-aside{position:static;order:-1;}.learn-contents ul{display:flex;flex-wrap:wrap;gap:10px 18px;}.learn-contents li{margin:0;}.learn-split{grid-template-columns:1fr;}}
 @media(max-width:640px){.learn-grid,.learn-grid--two{grid-template-columns:1fr;}.learn-card{min-height:0;}.learn-hero h1{font-size:clamp(2.5rem,10vw,3.6rem);}.learn-cta{flex-direction:column;align-items:start;}.learn-scope dl>div{grid-template-columns:1fr;gap:7px;}.learn-breadcrumb{margin-bottom:35px;}}
 @media(prefers-reduced-motion:reduce){.learn-card{transition:none;}.learn-card:hover{transform:none;}}
+
+/* Extension cards added with the foundational reference tranche. */
+.learn-grid--extended { grid-template-columns:repeat(3,minmax(0,1fr)); }
+@media(max-width:900px) { .learn-grid--extended {grid-template-columns:repeat(2,minmax(0,1fr));} }
+@media(max-width:640px) { .learn-grid--extended {grid-template-columns:1fr;} }

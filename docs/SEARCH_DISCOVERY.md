@@ -30,3 +30,13 @@ The live website is a static GitHub Pages site. Its educational resources live a
 - No rankings, AI assistant mentions, or indexing guarantees are implied by markup.
 
 Search Console reporting is account-dependent and is **not** part of this repository.
+
+## Foundational reading paths
+
+- `/understand/physiological-timing.html`: timing, phase, and observation order.
+- `/understand/physiological-coherence.html`: relationships among sampled signals and inference limits.
+- `/understand/personal-baselines.html`: rolling personal reference and missing data.
+- `/understand/health-as-capacity.html`: response, adaptation, recovery, and boundaries.
+- `/understand/measurements-and-inference.html`: observed / calculated / interpreted / formally checked / empirically tested.
+
+Use the same labels and scoped evidence statements in future updates. All public pages remain under `/understand/` with canonical URLs on membrane-health.com.
